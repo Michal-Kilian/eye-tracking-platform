@@ -1,16 +1,20 @@
+import time
+
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+import uvc
 from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
-                                  heading_font, QWidget_background_color)
+                                  heading_font, QWidget_background_color, text_font, QLabel_device,
+                                  QComboBox_device, QControlPanelMainButton, QControlPanelButton)
+import Devices
 
 
-class UICalibrationScreen(QtWidgets.QWidget):
+class UIDeviceScreen(QtWidgets.QWidget):
     def __init__(self, application, stacked_widget) -> None:
         super().__init__()
 
         self.stacked_widget = stacked_widget
 
-        self.setObjectName("CalibrationScreen")
+        self.setObjectName("DeviceScreen")
         self.setStyleSheet(QWidget_background_color)
         self.gridLayout = QtWidgets.QGridLayout(self)
         self.gridLayout.setObjectName("gridLayout")
@@ -105,6 +109,54 @@ class UICalibrationScreen(QtWidgets.QWidget):
         self.frame_center.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_center.setObjectName("frame_center")
         self.frame_center.setFixedHeight(370)
+
+        self.frame_center_layout = QtWidgets.QGridLayout(self.frame_center)
+        self.frame_center_layout.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.right_eye_select = QtWidgets.QComboBox()
+        self.right_eye_select.setStyleSheet(QComboBox_device)
+        self.right_eye_select.setFixedWidth(250)
+        self.left_eye_select = QtWidgets.QComboBox()
+        self.left_eye_select.setStyleSheet(QComboBox_device)
+        self.left_eye_select.setFixedWidth(250)
+        self.middle_select = QtWidgets.QComboBox()
+        self.middle_select.setStyleSheet(QComboBox_device)
+        self.middle_select.setFixedWidth(250)
+
+        for device in uvc.device_list():
+            self.right_eye_select.addItem(device["name"])
+        for device in uvc.device_list():
+            self.left_eye_select.addItem(device["name"])
+        for device in uvc.device_list():
+            self.middle_select.addItem(device["name"])
+
+        self.right_eye_label = QtWidgets.QLabel()
+        self.right_eye_label.setFont(text_font())
+        self.right_eye_label.setStyleSheet(QLabel_device)
+
+        self.left_eye_label = QtWidgets.QLabel()
+        self.left_eye_label.setFont(text_font())
+        self.left_eye_label.setStyleSheet(QLabel_device)
+
+        self.middle_label = QtWidgets.QLabel()
+        self.middle_label.setFont(text_font())
+        self.middle_label.setStyleSheet(QLabel_device)
+
+        self.status_label = QtWidgets.QLabel()
+        self.status_label.setObjectName("statusLabel")
+        self.status_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.status_label.setFont(text_font())
+        self.status_label.setFixedWidth(500)
+        self.status_label.setStyleSheet("padding-top: 40px; color: rgb(56, 65, 157);")
+
+        self.frame_center_layout.addWidget(self.right_eye_label, 0, 1)
+        self.frame_center_layout.addWidget(self.right_eye_select, 0, 2)
+        self.frame_center_layout.addWidget(self.left_eye_label, 1, 1)
+        self.frame_center_layout.addWidget(self.left_eye_select, 1, 2)
+        self.frame_center_layout.addWidget(self.middle_label, 2, 1)
+        self.frame_center_layout.addWidget(self.middle_select, 2, 2)
+        self.frame_center_layout.addWidget(self.status_label, 3, 1, 1, 2)
+
         self.gridLayout.addWidget(self.frame_center, 1, 0, 1, 6)
 
         # Bottom Left Frame
@@ -123,14 +175,36 @@ class UICalibrationScreen(QtWidgets.QWidget):
         self.frame_bottom_center.setObjectName("frame_bottom_center")
 
         self.frame_bottom_center_layout = QtWidgets.QHBoxLayout(self.frame_bottom_center)
-        self.frame_bottom_center_layout.setAlignment(QtCore.Qt.AlignCenter)
+        self.frame_bottom_center_layout.setObjectName("frame_bottom_center_layout")
 
-        self.selectDeviceButton = QtWidgets.QPushButton()
-        self.selectDeviceButton.setObjectName("exitButton")
-        self.selectDeviceButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.selectDeviceButton.clicked.connect(self.select_device)
+        self.save_devices_button = QtWidgets.QPushButton()
+        self.save_devices_button.setFont(text_font())
+        self.save_devices_button.setObjectName("saveDevicesButton")
+        self.save_devices_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.save_devices_button.setFixedHeight(50)
+        self.save_devices_button.setStyleSheet(QControlPanelMainButton)
+        self.save_devices_button.clicked.connect(self.save_devices)
 
-        self.frame_bottom_center_layout.addWidget(self.selectDeviceButton)
+        self.reset_button = QtWidgets.QPushButton()
+        self.reset_button.setFont(text_font())
+        self.reset_button.setObjectName("reset_button")
+        self.reset_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.reset_button.setFixedSize(150, 50)
+        self.reset_button.setStyleSheet(QControlPanelButton)
+        self.reset_button.clicked.connect(self.reset_devices)
+
+        self.calibrate_device_button = QtWidgets.QPushButton()
+        self.calibrate_device_button.setFont(text_font())
+        self.calibrate_device_button.setObjectName("calibrateDeviceButton")
+        self.calibrate_device_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.calibrate_device_button.setFixedHeight(50)
+        self.calibrate_device_button.setStyleSheet(QControlPanelMainButton)
+        self.calibrate_device_button.setDisabled(True)
+        self.calibrate_device_button.clicked.connect(self.calibrate_device)
+
+        self.frame_bottom_center_layout.addWidget(self.save_devices_button)
+        self.frame_bottom_center_layout.addWidget(self.reset_button)
+        self.frame_bottom_center_layout.addWidget(self.calibrate_device_button)
 
         self.gridLayout.addWidget(self.frame_bottom_center, 2, 1, 1, 4)
 
@@ -148,11 +222,40 @@ class UICalibrationScreen(QtWidgets.QWidget):
     def retranslate_ui(self) -> None:
         _translate = QtCore.QCoreApplication.translate
 
-        self.calibrationLabel.setText(_translate("CalibrationScreen", "CALIBRATION"))
-        self.selectDeviceButton.setText(_translate("CalibrationScreen", "Select a device"))
+        self.calibrationLabel.setText(_translate("DeviceScreen", "DEVICES"))
+        self.right_eye_label.setText(_translate("DeviceScreen", "Right eye device:"))
+        self.left_eye_label.setText(_translate("DeviceScreen", "Left eye device:"))
+        self.middle_label.setText(_translate("DeviceScreen", "Middle device:"))
+        self.save_devices_button.setText(_translate("DeviceScreen", "Save devices"))
+        self.reset_button.setText(_translate("DeviceScreen", "Reset"))
+        self.calibrate_device_button.setText(_translate("DeviceScreen", "Calibrate a device"))
+        self.status_label.setText(_translate("DeviceScreen", ""))
 
     def switch_to_main(self) -> None:
         self.stacked_widget.setCurrentIndex(0)
 
-    def select_device(self) -> None:
+    def save_devices(self) -> None:
+        _translate = QtCore.QCoreApplication.translate
+        self.calibrate_device_button.setDisabled(False)
+        self.save_devices_button.setDisabled(True)
+
+        Devices.RIGHT_EYE_DEVICE = Devices.find_device_from_name(self.right_eye_select.currentText())
+        Devices.LEFT_EYE_DEVICE = Devices.find_device_from_name(self.left_eye_select.currentText())
+        Devices.MIDDLE_DEVICE = Devices.find_device_from_name(self.middle_select.currentText())
+
+        print(Devices.RIGHT_EYE_DEVICE, Devices.LEFT_EYE_DEVICE, Devices.MIDDLE_DEVICE)
+
+        self.status_label.setText(_translate("DeviceScreen", "Devices saved successfully"))
+
+        QtCore.QTimer.singleShot(2000, self.clear_label)
+
+    def clear_label(self) -> None:
+        _translate = QtCore.QCoreApplication.translate
+        self.status_label.setText(_translate("DeviceScreen", ""))
+
+    def reset_devices(self) -> None:
+        self.calibrate_device_button.setDisabled(True)
+        self.save_devices_button.setDisabled(False)
+
+    def calibrate_device(self) -> None:
         pass

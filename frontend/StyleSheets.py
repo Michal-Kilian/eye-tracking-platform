@@ -122,4 +122,30 @@ QControlPanelMainButton = ("QPushButton {\n"
                            "    border-radius: 13px;\n"
                            "    background-color: rgb(56, 65, 157);\n"
                            "    color: white\n"
+                           "}\n"
+                           "QPushButton::disabled {\n"
+                           "    background-color: rgb(56, 65, 157, 50);\n"
                            "}")
+
+QLabel_device = ("QLabel {\n"
+                 "    padding: 10px;\n"
+                 "    border-radius: 13px;\n"
+                 "    color: rgb(25, 32, 80);\n"
+                 "}")
+
+QFrame_device = ("QFrame {\n"
+                 "    background-color: rgb(56, 65, 157);\n"
+                 "    color: rgb(25, 32, 80);\n"
+                 "}")
+
+QComboBox_device = ("QComboBox {\n"
+                    "    background-color: rgb(56, 65, 157);\n"
+                    "    color: white;\n"
+                    "    border-radius: 13px;\n"
+                    "    padding: 20px;\n"
+                    "    text-decoration: none;\n"
+                    "}\n"
+                    "QComboBox::drop-down {\n"
+                    "    background-color: white;\n"
+                    "    color: white;\n"
+                    "}\n")

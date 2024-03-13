@@ -1,2 +1,1 @@
-# eye-tracking-platform
- 
+# Eye Tracking Platform

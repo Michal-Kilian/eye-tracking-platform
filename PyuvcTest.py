@@ -24,7 +24,7 @@ def main():
                 for x in range(1000):
                     print(x)
                     frame = cap.get_frame_robust()
-                    cv2.imshow("frame", frame.bgr)
+                    cv2.imshow("frame", frame.gray)
                     cv2.waitKey(10)
                     # print("frame gray mean", frame.gray.mean())
                 # print(frame.img.mean())

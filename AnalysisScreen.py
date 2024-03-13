@@ -1,4 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+
+from RecordsScreen import UIRecordsScreen
 from frontend.ArucoOverlay import ArucoOverlay
 from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
                                   heading_font, text_font, QWidget_background_color, QControlPanelButton,
@@ -11,6 +13,8 @@ class UIAnalysisScreen(QtWidgets.QWidget):
 
         self.stacked_widget = stacked_widget
         self.overlay = None
+        self.picture_selected = None
+        self.records_screen = UIRecordsScreen(application, stacked_widget)
 
         self.setObjectName("AnalysisScreen")
         self.setStyleSheet(QWidget_background_color)
@@ -148,7 +152,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.loadPictureButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.loadPictureButton.setFixedHeight(50)
         self.loadPictureButton.setStyleSheet(QControlPanelButton)
-        # self.loadPictureButton.clicked.connect(self.loadPicture)
+        self.loadPictureButton.clicked.connect(self.load_picture)
 
         self.frame_bottom_center_layout.addWidget(self.recordsButton)
         self.frame_bottom_center_layout.addWidget(self.startButton)
@@ -175,8 +179,6 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.startButton.setText(_translate("Form", "Start"))
         self.loadPictureButton.setText(_translate("Form", "Load Picture"))
 
-        # self.exitButton.clicked.connect(self.close)
-
     def toggle_overlay(self) -> None:
         _translate = QtCore.QCoreApplication.translate
 
@@ -192,4 +194,12 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.stacked_widget.setCurrentIndex(0)
 
     def switch_to_records(self) -> None:
-        self.stacked_widget.setCurrentIndex(0)
+        self.stacked_widget.addWidget(self.records_screen)
+        self.stacked_widget.setCurrentWidget(self.records_screen)
+
+    def load_picture(self) -> None:
+        picture, check = QtWidgets.QFileDialog.getOpenFileName(None, "QFileDialog.getOpenFileName()",
+                                                               "",
+                                                               "All Files (*);;Python Files (*.py);;Text Files (*.txt)")
+        if check:
+            self.picture_selected = picture

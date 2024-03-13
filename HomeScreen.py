@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from AnalysisScreen import UIAnalysisScreen
-from CalibrationScreen import UICalibrationScreen
+from DeviceScreen import UIDeviceScreen
 from PreferencesScreen import UIPreferencesScreen
 from RecordsScreen import UIRecordsScreen
 from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
@@ -16,7 +16,7 @@ class UIHomeScreen(QtWidgets.QWidget):
         self.stacked_widget = stacked_widget
         self.analysis_screen = UIAnalysisScreen(application, stacked_widget)
         self.records_screen = UIRecordsScreen(application, stacked_widget)
-        self.calibration_screen = UICalibrationScreen(application, stacked_widget)
+        self.device_screen = UIDeviceScreen(application, stacked_widget)
         self.preferences_screen = UIPreferencesScreen(application, stacked_widget)
 
         self.setObjectName("HomeScreen")
@@ -121,13 +121,13 @@ class UIHomeScreen(QtWidgets.QWidget):
         self.recordsButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.recordsButton.clicked.connect(self.switch_to_records)
 
-        self.calibrationButton = QtWidgets.QPushButton(self.frame_center)
-        self.calibrationButton.setGeometry(QtCore.QRect(90, 270, 211, 61))
-        self.calibrationButton.setFont(text_font())
-        self.calibrationButton.setStyleSheet(QPushButton_left2)
-        self.calibrationButton.setObjectName("calibrationButton")
-        self.calibrationButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.calibrationButton.clicked.connect(self.switch_to_calibration)
+        self.deviceButton = QtWidgets.QPushButton(self.frame_center)
+        self.deviceButton.setGeometry(QtCore.QRect(90, 270, 211, 61))
+        self.deviceButton.setFont(text_font())
+        self.deviceButton.setStyleSheet(QPushButton_left2)
+        self.deviceButton.setObjectName("calibrationButton")
+        self.deviceButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.deviceButton.clicked.connect(self.switch_to_devices)
 
         self.preferencesButton = QtWidgets.QPushButton(self.frame_center)
         self.preferencesButton.setGeometry(QtCore.QRect(610, 270, 211, 61))
@@ -172,7 +172,7 @@ class UIHomeScreen(QtWidgets.QWidget):
         self.eyeTrackingLabel.setText(_translate("HomeScreen", "EYE TRACKING"))
         self.startAnalysisButton.setText(_translate("HomeScreen", "Start Analysis"))
         self.recordsButton.setText(_translate("HomeScreen", "Records"))
-        self.calibrationButton.setText(_translate("HomeScreen", "Calibration"))
+        self.deviceButton.setText(_translate("HomeScreen", "Devices"))
         self.preferencesButton.setText(_translate("HomeScreen", "Preferences"))
 
     def switch_to_analysis(self) -> None:
@@ -183,9 +183,9 @@ class UIHomeScreen(QtWidgets.QWidget):
         self.stacked_widget.addWidget(self.records_screen)
         self.stacked_widget.setCurrentWidget(self.records_screen)
 
-    def switch_to_calibration(self) -> None:
-        self.stacked_widget.addWidget(self.calibration_screen)
-        self.stacked_widget.setCurrentWidget(self.calibration_screen)
+    def switch_to_devices(self) -> None:
+        self.stacked_widget.addWidget(self.device_screen)
+        self.stacked_widget.setCurrentWidget(self.device_screen)
 
     def switch_to_preferences(self) -> None:
         self.stacked_widget.addWidget(self.preferences_screen)
