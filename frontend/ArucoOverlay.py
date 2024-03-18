@@ -1,9 +1,9 @@
-import sys
 import cv2
 import ctypes
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout
 from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import Qt
+from backend import Devices
 
 
 class ArucoOverlay(QWidget):
@@ -58,7 +58,7 @@ class ArucoOverlay(QWidget):
 
     def create_aruco_markers(self):
         # Define ArUco dictionary
-        aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
+        aruco_dict = cv2.aruco.getPredefinedDictionary(Devices.ARUCO_TYPE)
 
         # Calculate corner size based on screen size
         corner_size = min(self.screen_width, self.screen_height) // 10  # Adjust the size as needed

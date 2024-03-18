@@ -21,8 +21,7 @@ def main():
                 # print(f"{cap.name} mode selection - {err}")
                 continue
             try:
-                for x in range(1000):
-                    print(x)
+                while True:
                     frame = cap.get_frame_robust()
                     cv2.imshow("frame", frame.gray)
                     cv2.waitKey(10)

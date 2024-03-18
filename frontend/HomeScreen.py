@@ -1,9 +1,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from AnalysisScreen import UIAnalysisScreen
-from DeviceScreen import UIDeviceScreen
-from PreferencesScreen import UIPreferencesScreen
-from RecordsScreen import UIRecordsScreen
+from frontend.AnalysisScreen import UIAnalysisScreen
+from frontend.DeviceScreen import UIDeviceScreen
+from frontend.PreferencesScreen import UIPreferencesScreen
+from frontend.RecordsScreen import UIRecordsScreen
 from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
                                   heading_font, text_font, QWidget_background_color, QPushButton_frame,
                                   QPushButton_left1, QPushButton_right1, QPushButton_left2, QPushButton_right2)

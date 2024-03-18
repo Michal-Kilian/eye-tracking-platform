@@ -1,11 +1,10 @@
-import time
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-import uvc
 from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
                                   heading_font, QWidget_background_color, text_font, QLabel_device,
-                                  QComboBox_device, QControlPanelMainButton, QControlPanelButton)
-import Devices
+                                  QComboBox_device, QControlPanelMainButton, QControlPanelButton, qcombobox_font,
+                                  QDevicePreviewButton)
+from backend import Devices
+from DevicePreview import DevicePreview
 
 
 class UIDeviceScreen(QtWidgets.QWidget):
@@ -13,6 +12,8 @@ class UIDeviceScreen(QtWidgets.QWidget):
         super().__init__()
 
         self.stacked_widget = stacked_widget
+        self.camera_preview_thread = None
+        self.device_preview = None
 
         self.setObjectName("DeviceScreen")
         self.setStyleSheet(QWidget_background_color)
@@ -115,20 +116,31 @@ class UIDeviceScreen(QtWidgets.QWidget):
 
         self.right_eye_select = QtWidgets.QComboBox()
         self.right_eye_select.setStyleSheet(QComboBox_device)
-        self.right_eye_select.setFixedWidth(250)
+        self.right_eye_select.setFixedWidth(350)
+        self.right_eye_select.setFont(qcombobox_font())
+        self.right_eye_select.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+
         self.left_eye_select = QtWidgets.QComboBox()
         self.left_eye_select.setStyleSheet(QComboBox_device)
-        self.left_eye_select.setFixedWidth(250)
-        self.middle_select = QtWidgets.QComboBox()
-        self.middle_select.setStyleSheet(QComboBox_device)
-        self.middle_select.setFixedWidth(250)
+        self.left_eye_select.setFixedWidth(350)
+        self.left_eye_select.setFont(qcombobox_font())
+        self.left_eye_select.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
 
-        for device in uvc.device_list():
-            self.right_eye_select.addItem(device["name"])
-        for device in uvc.device_list():
-            self.left_eye_select.addItem(device["name"])
-        for device in uvc.device_list():
-            self.middle_select.addItem(device["name"])
+        self.world_select = QtWidgets.QComboBox()
+        self.world_select.setStyleSheet(QComboBox_device)
+        self.world_select.setFixedWidth(350)
+        self.world_select.setFont(qcombobox_font())
+        self.world_select.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+
+        # for device in Devices.SUPPORTED_DEVICES:
+        #     self.right_eye_select.addItem(device["name"])
+        #     self.left_eye_select.addItem(device["name"])
+        #     self.world_select.addItem(device["name"])
+
+        for i in range(3):
+            self.right_eye_select.addItem(Devices.SUPPORTED_DEVICES[0]["name"])
+            self.left_eye_select.addItem(Devices.SUPPORTED_DEVICES[0]["name"])
+            self.world_select.addItem(Devices.SUPPORTED_DEVICES[0]["name"])
 
         self.right_eye_label = QtWidgets.QLabel()
         self.right_eye_label.setFont(text_font())
@@ -138,24 +150,57 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.left_eye_label.setFont(text_font())
         self.left_eye_label.setStyleSheet(QLabel_device)
 
-        self.middle_label = QtWidgets.QLabel()
-        self.middle_label.setFont(text_font())
-        self.middle_label.setStyleSheet(QLabel_device)
+        self.world_label = QtWidgets.QLabel()
+        self.world_label.setFont(text_font())
+        self.world_label.setStyleSheet(QLabel_device)
 
         self.status_label = QtWidgets.QLabel()
         self.status_label.setObjectName("statusLabel")
         self.status_label.setAlignment(QtCore.Qt.AlignCenter)
         self.status_label.setFont(text_font())
-        self.status_label.setFixedWidth(500)
-        self.status_label.setStyleSheet("padding-top: 40px; color: rgb(56, 65, 157);")
+        self.status_label.setStyleSheet("color: rgb(56, 65, 157);")
+        self.status_label.setFixedHeight(30)
 
-        self.frame_center_layout.addWidget(self.right_eye_label, 0, 1)
-        self.frame_center_layout.addWidget(self.right_eye_select, 0, 2)
-        self.frame_center_layout.addWidget(self.left_eye_label, 1, 1)
-        self.frame_center_layout.addWidget(self.left_eye_select, 1, 2)
-        self.frame_center_layout.addWidget(self.middle_label, 2, 1)
-        self.frame_center_layout.addWidget(self.middle_select, 2, 2)
-        self.frame_center_layout.addWidget(self.status_label, 3, 1, 1, 2)
+        self.right_eye_preview_button = QtWidgets.QPushButton()
+        self.right_eye_preview_button.setFont(text_font())
+        self.right_eye_preview_button.setObjectName("right_eye_preview_button")
+        self.right_eye_preview_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.right_eye_preview_button.setStyleSheet(QDevicePreviewButton)
+        self.right_eye_preview_button.setFixedWidth(180)
+        self.right_eye_preview_button.clicked.connect(self.toggle_right_preview)
+
+        self.left_eye_preview_button = QtWidgets.QPushButton()
+        self.left_eye_preview_button.setFont(text_font())
+        self.left_eye_preview_button.setObjectName("left_eye_preview_button")
+        self.left_eye_preview_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.left_eye_preview_button.setStyleSheet(QDevicePreviewButton)
+        self.left_eye_preview_button.clicked.connect(self.toggle_left_preview)
+
+        self.world_preview_button = QtWidgets.QPushButton()
+        self.world_preview_button.setFont(text_font())
+        self.world_preview_button.setObjectName("world_preview_button")
+        self.world_preview_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.world_preview_button.setStyleSheet(QDevicePreviewButton)
+        self.world_preview_button.clicked.connect(self.toggle_world_preview)
+
+        # self.device_preview = QtWidgets.QLabel()
+        # self.device_preview.setFixedSize(200, 200)
+        # self.device_preview.setStyleSheet("background-color: white; margin-left: 12px; color: rgb(56, 65, 157);")
+        # self.device_preview.setFont(text_font())
+        # self.device_preview.setText("Preview")
+        # self.device_preview.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.frame_center_layout.addWidget(self.right_eye_label, 0, 0)
+        self.frame_center_layout.addWidget(self.right_eye_select, 0, 1)
+        self.frame_center_layout.addWidget(self.left_eye_label, 1, 0)
+        self.frame_center_layout.addWidget(self.left_eye_select, 1, 1)
+        self.frame_center_layout.addWidget(self.world_label, 2, 0)
+        self.frame_center_layout.addWidget(self.world_select, 2, 1)
+        self.frame_center_layout.addWidget(self.status_label, 3, 0, 1, 5)
+
+        self.frame_center_layout.addWidget(self.right_eye_preview_button, 0, 3)
+        self.frame_center_layout.addWidget(self.left_eye_preview_button, 1, 3)
+        self.frame_center_layout.addWidget(self.world_preview_button, 2, 3)
 
         self.gridLayout.addWidget(self.frame_center, 1, 0, 1, 6)
 
@@ -225,11 +270,15 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.calibrationLabel.setText(_translate("DeviceScreen", "DEVICES"))
         self.right_eye_label.setText(_translate("DeviceScreen", "Right eye device:"))
         self.left_eye_label.setText(_translate("DeviceScreen", "Left eye device:"))
-        self.middle_label.setText(_translate("DeviceScreen", "Middle device:"))
+        self.world_label.setText(_translate("DeviceScreen", "World device:"))
         self.save_devices_button.setText(_translate("DeviceScreen", "Save devices"))
         self.reset_button.setText(_translate("DeviceScreen", "Reset"))
         self.calibrate_device_button.setText(_translate("DeviceScreen", "Calibrate a device"))
         self.status_label.setText(_translate("DeviceScreen", ""))
+
+        self.right_eye_preview_button.setText(_translate("DeviceScreen", "Start preview"))
+        self.left_eye_preview_button.setText(_translate("DeviceScreen", "Start preview"))
+        self.world_preview_button.setText(_translate("DeviceScreen", "Start preview"))
 
     def switch_to_main(self) -> None:
         self.stacked_widget.setCurrentIndex(0)
@@ -239,23 +288,84 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.calibrate_device_button.setDisabled(False)
         self.save_devices_button.setDisabled(True)
 
-        Devices.RIGHT_EYE_DEVICE = Devices.find_device_from_name(self.right_eye_select.currentText())
-        Devices.LEFT_EYE_DEVICE = Devices.find_device_from_name(self.left_eye_select.currentText())
-        Devices.MIDDLE_DEVICE = Devices.find_device_from_name(self.middle_select.currentText())
+        Devices.RIGHT_EYE_DEVICE = Devices.Device(self.right_eye_select.currentText())
+        Devices.LEFT_EYE_DEVICE = Devices.Device(self.left_eye_select.currentText())
+        Devices.WORLD_DEVICE = Devices.Device(self.world_select.currentText())
 
-        print(Devices.RIGHT_EYE_DEVICE, Devices.LEFT_EYE_DEVICE, Devices.MIDDLE_DEVICE)
-
-        self.status_label.setText(_translate("DeviceScreen", "Devices saved successfully"))
-
-        QtCore.QTimer.singleShot(2000, self.clear_label)
+        if not Devices.RIGHT_EYE_DEVICE or not Devices.LEFT_EYE_DEVICE or not Devices.WORLD_DEVICE:
+            self.status_label.setText("All fields need to be filled")
+            QtCore.QTimer.singleShot(2000, self.clear_label)
+            return
+        elif not Devices.RIGHT_EYE_DEVICE.supported:
+            self.status_label.setText("Selected right eye device is not supported")
+            QtCore.QTimer.singleShot(2000, self.clear_label)
+            return
+        elif not Devices.LEFT_EYE_DEVICE.supported:
+            self.status_label.setText("Selected left eye device is not supported")
+            QtCore.QTimer.singleShot(2000, self.clear_label)
+            return
+        elif not Devices.WORLD_DEVICE.supported:
+            self.status_label.setText("Selected world device is not supported")
+            QtCore.QTimer.singleShot(2000, self.clear_label)
+            return
+        else:
+            print(Devices.RIGHT_EYE_DEVICE, Devices.LEFT_EYE_DEVICE, Devices.WORLD_DEVICE)
+            self.status_label.setText("Devices saved successfully")
+            QtCore.QTimer.singleShot(2000, self.clear_label)
+            return
 
     def clear_label(self) -> None:
-        _translate = QtCore.QCoreApplication.translate
-        self.status_label.setText(_translate("DeviceScreen", ""))
+        self.status_label.setText("")
 
     def reset_devices(self) -> None:
         self.calibrate_device_button.setDisabled(True)
         self.save_devices_button.setDisabled(False)
+        # refresh_analysis_screen()
+
+    def refresh_analysis_screen(self) -> None:
+        ...
 
     def calibrate_device(self) -> None:
         pass
+
+    def toggle_right_preview(self) -> None:
+        if self.device_preview is None:
+            self.left_eye_preview_button.setDisabled(True)
+            self.world_preview_button.setDisabled(True)
+            self.right_eye_preview_button.setText("Stop preview")
+            self.device_preview = DevicePreview(Devices.Device(self.right_eye_select.currentText()))
+            self.device_preview.start()
+        else:
+            self.device_preview.stop()
+            self.device_preview = None
+            self.left_eye_preview_button.setDisabled(False)
+            self.world_preview_button.setDisabled(False)
+            self.right_eye_preview_button.setText("Start preview")
+
+    def toggle_left_preview(self) -> None:
+        if self.device_preview is None:
+            self.right_eye_preview_button.setDisabled(True)
+            self.world_preview_button.setDisabled(True)
+            self.left_eye_preview_button.setText("Stop preview")
+            self.device_preview = DevicePreview(Devices.Device(self.left_eye_select.currentText()))
+            self.device_preview.start()
+        else:
+            self.device_preview.stop()
+            self.device_preview = None
+            self.right_eye_preview_button.setDisabled(False)
+            self.world_preview_button.setDisabled(False)
+            self.left_eye_preview_button.setText("Start preview")
+
+    def toggle_world_preview(self) -> None:
+        if self.device_preview is None:
+            self.right_eye_preview_button.setDisabled(True)
+            self.left_eye_preview_button.setDisabled(True)
+            self.world_preview_button.setText("Stop preview")
+            self.device_preview = DevicePreview(Devices.Device(self.world_select.currentText()))
+            self.device_preview.start()
+        else:
+            self.device_preview.stop()
+            self.device_preview = None
+            self.right_eye_preview_button.setDisabled(False)
+            self.left_eye_preview_button.setDisabled(False)
+            self.world_preview_button.setText("Start preview")

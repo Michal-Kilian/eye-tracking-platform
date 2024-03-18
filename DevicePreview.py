@@ -1,0 +1,23 @@
+import cv2
+from PyQt5 import QtCore, QtGui
+import uvc
+from backend import Devices
+
+
+class DevicePreview:
+    def __init__(self, device):
+        self.device = device
+        self.cap = uvc.Capture(self.device.uid)
+        self.cap.frame_mode = self.cap.available_modes[15]
+        self.running = False
+
+    def start(self):
+        self.running = True
+        while self.running:
+            frame = self.cap.get_frame_robust()
+            cv2.imshow(self.device.name + " Preview", frame.bgr)
+            cv2.waitKey(10)
+
+    def stop(self):
+        self.running = False
+        cv2.destroyAllWindows()

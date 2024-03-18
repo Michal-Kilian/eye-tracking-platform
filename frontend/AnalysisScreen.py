@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from RecordsScreen import UIRecordsScreen
+from backend import Devices
+from frontend.RecordsScreen import UIRecordsScreen
 from frontend.ArucoOverlay import ArucoOverlay
 from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
                                   heading_font, text_font, QWidget_background_color, QControlPanelButton,
@@ -111,6 +112,41 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.frame_center.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_center.setObjectName("frame_center")
         self.frame_center.setFixedHeight(370)
+
+        self.frame_center_layout = QtWidgets.QGridLayout(self.frame_center)
+
+        self.deviceLabel = QtWidgets.QLabel()
+        self.deviceLabel.setFont(text_font())
+        self.deviceLabel.setLineWidth(1)
+        self.deviceLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.deviceLabel.setObjectName("deviceLabel")
+        self.deviceLabel.setFixedWidth(250)
+
+        self.deviceStatusLabel = QtWidgets.QLabel()
+        self.deviceStatusLabel.setFont(text_font())
+        self.deviceStatusLabel.setLineWidth(1)
+        self.deviceStatusLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.deviceStatusLabel.setObjectName("deviceStatusLabel")
+
+        self.pictureLabel = QtWidgets.QLabel()
+        self.pictureLabel.setFont(text_font())
+        self.pictureLabel.setLineWidth(1)
+        self.pictureLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.pictureLabel.setObjectName("pictureLabel")
+        self.pictureLabel.setFixedWidth(250)
+
+        self.picturePathLabel = QtWidgets.QLabel()
+        self.picturePathLabel.setFont(text_font())
+        self.picturePathLabel.setLineWidth(1)
+        self.picturePathLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.picturePathLabel.setObjectName("picturePathLabel")
+        self.picturePathLabel.setWordWrap(True)
+
+        self.frame_center_layout.addWidget(self.deviceLabel, 0, 0)
+        self.frame_center_layout.addWidget(self.deviceStatusLabel, 0, 1)
+        self.frame_center_layout.addWidget(self.pictureLabel, 1, 0)
+        self.frame_center_layout.addWidget(self.picturePathLabel, 1, 1)
+
         self.gridLayout.addWidget(self.frame_center, 1, 0, 1, 6)
 
         # Bottom Left Frame
@@ -179,6 +215,14 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.startButton.setText(_translate("Form", "Start"))
         self.loadPictureButton.setText(_translate("Form", "Load Picture"))
 
+        self.deviceLabel.setText(_translate("Form", "Current Device:"))
+        if not Devices.WORLD_DEVICE:
+            self.deviceStatusLabel.setText(_translate("Form", "No world device saved yet, go to HOME -> DEVICES"))
+        else:
+            self.deviceStatusLabel.setText(_translate("Form", Devices.WORLD_DEVICE.name))
+        self.pictureLabel.setText(_translate("Form", "Picture loaded:"))
+        self.picturePathLabel.setText(_translate("Form", self.picture_selected))
+
     def toggle_overlay(self) -> None:
         _translate = QtCore.QCoreApplication.translate
 
@@ -203,3 +247,4 @@ class UIAnalysisScreen(QtWidgets.QWidget):
                                                                "All Files (*);;Python Files (*.py);;Text Files (*.txt)")
         if check:
             self.picture_selected = picture
+            self.picturePathLabel.setText(self.picture_selected)
