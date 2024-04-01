@@ -137,10 +137,14 @@ class UIDeviceScreen(QtWidgets.QWidget):
         #     self.left_eye_select.addItem(device["name"])
         #     self.world_select.addItem(device["name"])
 
-        for i in range(3):
-            self.right_eye_select.addItem(Devices.SUPPORTED_DEVICES[0]["name"])
-            self.left_eye_select.addItem(Devices.SUPPORTED_DEVICES[0]["name"])
-            self.world_select.addItem(Devices.SUPPORTED_DEVICES[0]["name"])
+        self.right_eye_select.addItem(Devices.SUPPORTED_DEVICES[0]["name"])
+        self.right_eye_select.addItem("Not supported device test")
+
+        self.left_eye_select.addItem(Devices.SUPPORTED_DEVICES[0]["name"])
+        self.left_eye_select.addItem("Not supported device test")
+
+        self.world_select.addItem(Devices.SUPPORTED_DEVICES[0]["name"])
+        self.world_select.addItem("Not supported device test")
 
         self.right_eye_label = QtWidgets.QLabel()
         self.right_eye_label.setFont(text_font())
@@ -160,6 +164,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.status_label.setFont(text_font())
         self.status_label.setStyleSheet("color: rgb(56, 65, 157);")
         self.status_label.setFixedHeight(30)
+        self.status_label.setWordWrap(True)
 
         self.right_eye_preview_button = QtWidgets.QPushButton()
         self.right_eye_preview_button.setFont(text_font())
@@ -182,13 +187,6 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.world_preview_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.world_preview_button.setStyleSheet(QDevicePreviewButton)
         self.world_preview_button.clicked.connect(self.toggle_world_preview)
-
-        # self.device_preview = QtWidgets.QLabel()
-        # self.device_preview.setFixedSize(200, 200)
-        # self.device_preview.setStyleSheet("background-color: white; margin-left: 12px; color: rgb(56, 65, 157);")
-        # self.device_preview.setFont(text_font())
-        # self.device_preview.setText("Preview")
-        # self.device_preview.setAlignment(QtCore.Qt.AlignCenter)
 
         self.frame_center_layout.addWidget(self.right_eye_label, 0, 0)
         self.frame_center_layout.addWidget(self.right_eye_select, 0, 1)
@@ -262,6 +260,10 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.frame_bottom_right.setFixedWidth(100)
         self.gridLayout.addWidget(self.frame_bottom_right, 2, 5, 1, 1)
 
+        if Devices.RIGHT_EYE_DEVICE and Devices.LEFT_EYE_DEVICE and Devices.WORLD_DEVICE:
+            self.calibrate_device_button.setDisabled(False)
+            self.save_devices_button.setDisabled(True)
+
         self.retranslate_ui()
 
     def retranslate_ui(self) -> None:
@@ -285,8 +287,6 @@ class UIDeviceScreen(QtWidgets.QWidget):
 
     def save_devices(self) -> None:
         _translate = QtCore.QCoreApplication.translate
-        self.calibrate_device_button.setDisabled(False)
-        self.save_devices_button.setDisabled(True)
 
         Devices.RIGHT_EYE_DEVICE = Devices.Device(self.right_eye_select.currentText())
         Devices.LEFT_EYE_DEVICE = Devices.Device(self.left_eye_select.currentText())
@@ -297,38 +297,42 @@ class UIDeviceScreen(QtWidgets.QWidget):
             QtCore.QTimer.singleShot(2000, self.clear_label)
             return
         elif not Devices.RIGHT_EYE_DEVICE.supported:
-            self.status_label.setText("Selected right eye device is not supported")
-            QtCore.QTimer.singleShot(2000, self.clear_label)
-            return
+            self.device_not_supported_alert("right eye")
         elif not Devices.LEFT_EYE_DEVICE.supported:
-            self.status_label.setText("Selected left eye device is not supported")
-            QtCore.QTimer.singleShot(2000, self.clear_label)
-            return
+            self.device_not_supported_alert("left eye")
         elif not Devices.WORLD_DEVICE.supported:
-            self.status_label.setText("Selected world device is not supported")
-            QtCore.QTimer.singleShot(2000, self.clear_label)
-            return
+            self.device_not_supported_alert("world")
         else:
-            print(Devices.RIGHT_EYE_DEVICE, Devices.LEFT_EYE_DEVICE, Devices.WORLD_DEVICE)
             self.status_label.setText("Devices saved successfully")
+            self.calibrate_device_button.setDisabled(False)
+            self.save_devices_button.setDisabled(True)
             QtCore.QTimer.singleShot(2000, self.clear_label)
+            print("world device:",
+                  "\nname:", Devices.WORLD_DEVICE.name,
+                  "\nsupported:", Devices.WORLD_DEVICE.supported,
+                  "\nmatrix:", Devices.WORLD_DEVICE.matrix_coefficients,
+                  "\ndist:", Devices.WORLD_DEVICE.distortion_coefficients,
+                  "\nuid", Devices.WORLD_DEVICE.uid
+                  )
+            print("matrix's first row:\n", Devices.WORLD_DEVICE.matrix_coefficients[0])
             return
 
     def clear_label(self) -> None:
         self.status_label.setText("")
 
     def reset_devices(self) -> None:
+        Devices.RIGHT_EYE_DEVICE = None
+        Devices.LEFT_EYE_DEVICE = None
+        Devices.WORLD_DEVICE = None
+
         self.calibrate_device_button.setDisabled(True)
         self.save_devices_button.setDisabled(False)
-        # refresh_analysis_screen()
-
-    def refresh_analysis_screen(self) -> None:
-        ...
-
-    def calibrate_device(self) -> None:
-        pass
 
     def toggle_right_preview(self) -> None:
+        if not Devices.Device(self.right_eye_select.currentText()).supported:
+            self.device_not_supported_alert("right eye")
+            return
+
         if self.device_preview is None:
             self.left_eye_preview_button.setDisabled(True)
             self.world_preview_button.setDisabled(True)
@@ -343,6 +347,10 @@ class UIDeviceScreen(QtWidgets.QWidget):
             self.right_eye_preview_button.setText("Start preview")
 
     def toggle_left_preview(self) -> None:
+        if not Devices.Device(self.left_eye_select.currentText()).supported:
+            self.device_not_supported_alert("left eye")
+            return
+
         if self.device_preview is None:
             self.right_eye_preview_button.setDisabled(True)
             self.world_preview_button.setDisabled(True)
@@ -357,6 +365,10 @@ class UIDeviceScreen(QtWidgets.QWidget):
             self.left_eye_preview_button.setText("Start preview")
 
     def toggle_world_preview(self) -> None:
+        if not Devices.Device(self.world_select.currentText()).supported:
+            self.device_not_supported_alert("world")
+            return
+
         if self.device_preview is None:
             self.right_eye_preview_button.setDisabled(True)
             self.left_eye_preview_button.setDisabled(True)
@@ -369,3 +381,11 @@ class UIDeviceScreen(QtWidgets.QWidget):
             self.right_eye_preview_button.setDisabled(False)
             self.left_eye_preview_button.setDisabled(False)
             self.world_preview_button.setText("Start preview")
+
+    def device_not_supported_alert(self, device_type) -> None:
+        self.status_label.setText("Selected " + device_type + " device is not supported, please edit CONFIG.json")
+        QtCore.QTimer.singleShot(2000, self.clear_label)
+        return
+
+    def calibrate_device(self) -> None:
+        pass

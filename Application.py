@@ -8,6 +8,7 @@ def main() -> None:
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
+    window = QtWidgets.QMainWindow()
 
     stacked_widget = QtWidgets.QStackedWidget()
     stacked_widget.setStyleSheet(QStackedWidget)
@@ -15,7 +16,6 @@ def main() -> None:
     home_screen = UIHomeScreen(app, stacked_widget)
     stacked_widget.addWidget(home_screen)
 
-    window = QtWidgets.QMainWindow()
     window.setCentralWidget(stacked_widget)
     window.setWindowFlags(QtCore.Qt.FramelessWindowHint)
     window.setFixedSize(920, 570)

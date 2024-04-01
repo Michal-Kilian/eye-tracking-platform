@@ -1,11 +1,14 @@
 {
-  "supported_devices":
-  [
+  "supported_devices": [
     {
       "name": "Microsoft? LifeCam HD-5000",
       "id": 1,
-      "matrix_coefficients": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-      "distortion_coefficients": [0, 0, 0, 0]
+      "matrix_coefficients": [
+        [686.26555927, 0, 328.88594766],
+        [0, 680.31999716, 248.20539324],
+        [0, 0, 1]
+      ],
+      "distortion_coefficients": [1.76468296e-01, -7.65735942e-01, 3.11010250e-04, -1.05836974e-03, 3.79719505e-01]
     }
   ]
 }

@@ -17,6 +17,7 @@ class Device:
         for device in device_list:
             if device["name"] == self.name:
                 return device["uid"]
+        return False
 
     def check_supported(self):
         supported_devices = get_supported_devices()
@@ -27,15 +28,29 @@ class Device:
 
     def get_matrix_coefficients(self):
         supported_devices = get_supported_devices()
+        config_matrix = []
+
         for device in supported_devices:
             if device["name"] == self.name:
-                return device["matrix_coefficients"]
+                config_matrix = device["matrix_coefficients"]
+
+        return np.array((
+            (config_matrix[0][0], config_matrix[0][1], config_matrix[0][2]),
+            (config_matrix[1][0], config_matrix[1][1], config_matrix[1][2]),
+            (config_matrix[2][0], config_matrix[2][1], config_matrix[2][2])
+        ))
 
     def get_distortion_coefficients(self):
         supported_devices = get_supported_devices()
+        config_dist = []
+
         for device in supported_devices:
             if device["name"] == self.name:
-                return device["distortion_coefficients"]
+                config_dist = device["distortion_coefficients"]
+
+        return np.array((
+            config_dist[0], config_dist[1], config_dist[2], config_dist[3], config_dist[4]
+        ))
 
 
 RIGHT_EYE_DEVICE = None
@@ -52,6 +67,13 @@ def get_supported_devices():
 
 def get_uvc_devices():
     return uvc.device_list()
+
+
+def is_device_online(device_name):
+    for device in uvc.device_list():
+        if device["name"] == device_name:
+            return True
+    return False
 
 
 SUPPORTED_DEVICES = get_supported_devices()

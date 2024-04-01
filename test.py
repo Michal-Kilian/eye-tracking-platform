@@ -1,16 +1,17 @@
 import cv2
 
+from backend import Devices
 from backend.ArucoDetector import ArucoDetector
 import uvc
+import backend.Devices
 
 
 def main():
+    print("world device in test.py:", Devices.WORLD_DEVICE.name)
     aruco_detector = ArucoDetector()
-
-    device = uvc.device_list()[0]
-    cap = uvc.Capture(device["uid"])
-
-    cap.frame_mode = cap.available_modes[-10]
+    cap = uvc.Capture(Devices.WORLD_DEVICE.uid)
+    cap.frame_mode = cap.available_modes[34]
+    print(cap.frame_mode)
 
     while True:
         frame = cap.get_frame_robust()

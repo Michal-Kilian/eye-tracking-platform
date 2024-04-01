@@ -107,11 +107,12 @@ QStackedWidget = ("QStackedWidget {\n"
                   "}\n")
 
 QListWidget = ("QListWidget::item::selected {\n"
-               "    color: red;\n"
+               "    background-color: rgb(25, 32, 80);\n"
                "    border: none;\n"
                "}\n"
                'QListWidget::item {\n'
                '    text-align: center;\n'
+               '    padding: 15px;\n'
                '}\n'
                "QListWidget {\n"
                "    background-color: rgb(56, 65, 157);\n"
@@ -131,7 +132,8 @@ QControlPanelButton = ("QPushButton {\n"
 QControlPanelMainButton = ("QPushButton {\n"
                            "    border-radius: 13px;\n"
                            "    background-color: rgb(56, 65, 157);\n"
-                           "    color: white\n"
+                           "    color: white;\n"
+                           "    margin: 0px 10px;\n"
                            "}\n"
                            "QPushButton::disabled {\n"
                            "    background-color: rgb(56, 65, 157, 50);\n"

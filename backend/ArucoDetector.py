@@ -12,8 +12,12 @@ class ArucoDetector:
         self.corners = None
         self.ids = None
         self.rejected = None
-        self.matrix_coefficients = np.array(((933.15867, 0, 657.59), (0, 933.1586, 400.36993), (0, 0, 1)))
-        self.distortion_coefficients = np.array((-0.43948, 0.18514, 0, 0))
+        self.device = Devices.WORLD_DEVICE
+        self.matrix_coefficients = self.device.matrix_coefficients
+        self.distortion_coefficients = self.device.distortion_coefficients
+        print("device in ArucoDetector:", self.device)
+        print("matrix_coeff:", self.matrix_coefficients)
+        print("dist_coeff:", self.distortion_coefficients)
 
     def detect(self, frame):
         frame_gray = frame.gray
@@ -28,12 +32,12 @@ class ArucoDetector:
 
                 rvec, tvec, marker_points = cv2.aruco.estimatePoseSingleMarkers(
                     self.corners[i],
-                    0.025,
+                    20,
                     self.matrix_coefficients,
                     self.distortion_coefficients
                 )
 
                 # print("rvec:", rvec)
-                # print("tvec:", tvec)
+                print("tvec:", tvec)
 
-                cv2.drawFrameAxes(frame_bgr, self.matrix_coefficients, self.distortion_coefficients, rvec, tvec, 0.1)
+                cv2.drawFrameAxes(frame_bgr, self.matrix_coefficients, self.distortion_coefficients, rvec, tvec, 100)

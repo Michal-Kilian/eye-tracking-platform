@@ -13,11 +13,8 @@ class UIHomeScreen(QtWidgets.QWidget):
     def __init__(self, application, stacked_widget) -> None:
         super().__init__()
 
+        self.application = application
         self.stacked_widget = stacked_widget
-        self.analysis_screen = UIAnalysisScreen(application, stacked_widget)
-        self.records_screen = UIRecordsScreen(application, stacked_widget)
-        self.device_screen = UIDeviceScreen(application, stacked_widget)
-        self.preferences_screen = UIPreferencesScreen(application, stacked_widget)
 
         self.setObjectName("HomeScreen")
         self.setStyleSheet(QWidget_background_color)
@@ -176,18 +173,21 @@ class UIHomeScreen(QtWidgets.QWidget):
         self.preferencesButton.setText(_translate("HomeScreen", "Preferences"))
 
     def switch_to_analysis(self) -> None:
-        self.stacked_widget.addWidget(self.analysis_screen)
-        self.stacked_widget.setCurrentWidget(self.analysis_screen)
+        analysis_screen = UIAnalysisScreen(self.application, self.stacked_widget)
+        self.stacked_widget.addWidget(analysis_screen)
+        self.stacked_widget.setCurrentWidget(analysis_screen)
 
     def switch_to_records(self) -> None:
-        self.stacked_widget.addWidget(self.records_screen)
-        self.stacked_widget.setCurrentWidget(self.records_screen)
+        records_screen = UIRecordsScreen(self.application, self.stacked_widget, "home")
+        self.stacked_widget.addWidget(records_screen)
+        self.stacked_widget.setCurrentWidget(records_screen)
 
     def switch_to_devices(self) -> None:
-        self.stacked_widget.addWidget(self.device_screen)
-        self.stacked_widget.setCurrentWidget(self.device_screen)
+        device_screen = UIDeviceScreen(self.application, self.stacked_widget)
+        self.stacked_widget.addWidget(device_screen)
+        self.stacked_widget.setCurrentWidget(device_screen)
 
     def switch_to_preferences(self) -> None:
-        self.stacked_widget.addWidget(self.preferences_screen)
-        self.stacked_widget.setCurrentWidget(self.preferences_screen)
-
+        preferences_screen = UIPreferencesScreen(self.application, self.stacked_widget)
+        self.stacked_widget.addWidget(preferences_screen)
+        self.stacked_widget.setCurrentWidget(preferences_screen)

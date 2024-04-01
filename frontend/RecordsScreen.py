@@ -1,14 +1,15 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
                                   heading_font, text_font, QWidget_background_color, QListWidget)
 
 
 class UIRecordsScreen(QtWidgets.QWidget):
-    def __init__(self, application, stacked_widget):
+    def __init__(self, application, stacked_widget, previous_location):
         super().__init__()
 
+        self.application = application
         self.stacked_widget = stacked_widget
+        self.previous_location = previous_location
 
         self.setObjectName("RecordsScreen")
         self.setStyleSheet(QWidget_background_color)
@@ -34,7 +35,7 @@ class UIRecordsScreen(QtWidgets.QWidget):
         self.backButton.setIcon(icon)
         self.backButton.setIconSize(QtCore.QSize(40, 40))
         self.backButton.setObjectName("backButton")
-        self.backButton.clicked.connect(self.switch_to_main)
+        self.backButton.clicked.connect(self.back)
 
         self.frame_top_left_layout.addWidget(self.backButton)
 
@@ -111,6 +112,7 @@ class UIRecordsScreen(QtWidgets.QWidget):
         # self.list_widget.setGeometry(25, 10, 550, 300)
         self.list_widget.setFont(text_font())
 
+        # Dummy values to fill the Records QListWidget
         for item in ["Record 1", "Record 2", "Record 3"]:
             list_widget_item = QtWidgets.QListWidgetItem(item, self.list_widget)
             list_widget_item.setTextAlignment(QtCore.Qt.AlignCenter)
@@ -155,5 +157,8 @@ class UIRecordsScreen(QtWidgets.QWidget):
 
         self.recordsLabel.setText(_translate("RecordsScreen", "RECORDS"))
 
-    def switch_to_main(self):
-        self.stacked_widget.setCurrentIndex(0)
+    def back(self):
+        if self.previous_location == "analysis":
+            self.stacked_widget.setCurrentIndex(self.stacked_widget.currentIndex() - 1)
+        elif self.previous_location == "home":
+            self.stacked_widget.setCurrentIndex(0)

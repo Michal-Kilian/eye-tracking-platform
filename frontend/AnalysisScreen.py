@@ -1,21 +1,30 @@
+import matplotlib
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+import test
+from Model3D import Model3D
 from backend import Devices
 from frontend.RecordsScreen import UIRecordsScreen
 from frontend.ArucoOverlay import ArucoOverlay
 from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
                                   heading_font, text_font, QWidget_background_color, QControlPanelButton,
                                   QControlPanelMainButton)
+from Dialog import Dialog
+from test import main
+
+matplotlib.use('Qt5Agg')
 
 
 class UIAnalysisScreen(QtWidgets.QWidget):
     def __init__(self, application, stacked_widget) -> None:
         super().__init__()
 
+        self.application = application
         self.stacked_widget = stacked_widget
+        self.analysis_running = False
         self.overlay = None
         self.picture_selected = None
-        self.records_screen = UIRecordsScreen(application, stacked_widget)
+        self.model_3d = None
 
         self.setObjectName("AnalysisScreen")
         self.setStyleSheet(QWidget_background_color)
@@ -107,33 +116,36 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.gridLayout.addWidget(self.frame_top_right, 0, 5, 1, 1)
 
         # Center Frame
-        self.frame_center = QtWidgets.QFrame(self)
-        self.frame_center.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_center.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_center.setObjectName("frame_center")
-        self.frame_center.setFixedHeight(370)
+        self.frame_center_right = QtWidgets.QFrame(self)
+        self.frame_center_right.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_center_right.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_center_right.setObjectName("frame_center_right")
+        self.frame_center_right.setFixedHeight(370)
 
-        self.frame_center_layout = QtWidgets.QGridLayout(self.frame_center)
+        self.frame_center_right_layout = QtWidgets.QGridLayout(self.frame_center_right)
 
         self.deviceLabel = QtWidgets.QLabel()
         self.deviceLabel.setFont(text_font())
         self.deviceLabel.setLineWidth(1)
         self.deviceLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.deviceLabel.setObjectName("deviceLabel")
-        self.deviceLabel.setFixedWidth(250)
+        self.deviceLabel.setFixedWidth(252)
 
         self.deviceStatusLabel = QtWidgets.QLabel()
         self.deviceStatusLabel.setFont(text_font())
         self.deviceStatusLabel.setLineWidth(1)
         self.deviceStatusLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.deviceStatusLabel.setObjectName("deviceStatusLabel")
+        self.deviceStatusLabel.setWordWrap(True)
+        self.deviceStatusLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgb(255, 255, 255, 95);")
+        self.deviceStatusLabel.setFixedWidth(253)
 
         self.pictureLabel = QtWidgets.QLabel()
         self.pictureLabel.setFont(text_font())
         self.pictureLabel.setLineWidth(1)
         self.pictureLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.pictureLabel.setObjectName("pictureLabel")
-        self.pictureLabel.setFixedWidth(250)
+        self.pictureLabel.setFixedWidth(252)
 
         self.picturePathLabel = QtWidgets.QLabel()
         self.picturePathLabel.setFont(text_font())
@@ -141,21 +153,20 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.picturePathLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.picturePathLabel.setObjectName("picturePathLabel")
         self.picturePathLabel.setWordWrap(True)
+        self.picturePathLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgb(255, 255, 255, 95);")
+        self.picturePathLabel.setFixedWidth(253)
 
-        self.frame_center_layout.addWidget(self.deviceLabel, 0, 0)
-        self.frame_center_layout.addWidget(self.deviceStatusLabel, 0, 1)
-        self.frame_center_layout.addWidget(self.pictureLabel, 1, 0)
-        self.frame_center_layout.addWidget(self.picturePathLabel, 1, 1)
+        self.model_3d = Model3D(10, 10)
+        self.model_3d.visualize_graph([(0, -500, 100)], (0, -50, 0), (0, 0, 0),
+                                      (0, 50, 1), scale_factor=0.5)
 
-        self.gridLayout.addWidget(self.frame_center, 1, 0, 1, 6)
+        self.frame_center_right_layout.addWidget(self.model_3d, 0, 0, 2, 1)
+        self.frame_center_right_layout.addWidget(self.deviceLabel, 0, 1)
+        self.frame_center_right_layout.addWidget(self.deviceStatusLabel, 0, 2)
+        self.frame_center_right_layout.addWidget(self.pictureLabel, 1, 1)
+        self.frame_center_right_layout.addWidget(self.picturePathLabel, 1, 2)
 
-        # Bottom Left Frame
-        self.frame_bottom_left = QtWidgets.QFrame(self)
-        self.frame_bottom_left.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_bottom_left.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_bottom_left.setObjectName("frame_bottom_left")
-        self.frame_bottom_left.setFixedWidth(100)
-        self.gridLayout.addWidget(self.frame_bottom_left, 2, 0, 1, 1)
+        self.gridLayout.addWidget(self.frame_center_right, 1, 0, 1, 6)
 
         # Bottom Center Frame
         self.frame_bottom_center = QtWidgets.QFrame(self)
@@ -180,7 +191,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.startButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.startButton.setFixedHeight(50)
         self.startButton.setStyleSheet(QControlPanelMainButton)
-        self.startButton.clicked.connect(self.toggle_overlay)
+        self.startButton.clicked.connect(self.start_analysis)
 
         self.loadPictureButton = QtWidgets.QPushButton()
         self.loadPictureButton.setFont(text_font())
@@ -190,20 +201,12 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.loadPictureButton.setStyleSheet(QControlPanelButton)
         self.loadPictureButton.clicked.connect(self.load_picture)
 
+        # self.frame_bottom_center_layout.addWidget(self.view3DModelButton)
         self.frame_bottom_center_layout.addWidget(self.recordsButton)
         self.frame_bottom_center_layout.addWidget(self.startButton)
         self.frame_bottom_center_layout.addWidget(self.loadPictureButton)
 
-        self.gridLayout.addWidget(self.frame_bottom_center, 2, 1, 1, 4)
-
-        # Bottom Right Frame
-        self.frame_bottom_right = QtWidgets.QFrame(self)
-        self.frame_bottom_right.setStyleSheet("")
-        self.frame_bottom_right.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame_bottom_right.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_bottom_right.setObjectName("frame_bottom_right")
-        self.frame_bottom_right.setFixedWidth(100)
-        self.gridLayout.addWidget(self.frame_bottom_right, 2, 5, 1, 1)
+        self.gridLayout.addWidget(self.frame_bottom_center, 2, 0, 1, 6)
 
         self.retranslate_ui()
 
@@ -215,36 +218,67 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.startButton.setText(_translate("Form", "Start"))
         self.loadPictureButton.setText(_translate("Form", "Load Picture"))
 
-        self.deviceLabel.setText(_translate("Form", "Current Device:"))
+        self.deviceLabel.setText(_translate("Form", "Current world device:"))
         if not Devices.WORLD_DEVICE:
-            self.deviceStatusLabel.setText(_translate("Form", "No world device saved yet, go to HOME -> DEVICES"))
+            self.deviceStatusLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgb(255, 255, 255, 95);")
+            self.deviceStatusLabel.setText(_translate("Form", "No world device saved yet\n"
+                                                              "-> Home -> Devices"))
         else:
+            self.deviceStatusLabel.setStyleSheet("background-color: rgb(56,65,157); color: white;")
             self.deviceStatusLabel.setText(_translate("Form", Devices.WORLD_DEVICE.name))
+
         self.pictureLabel.setText(_translate("Form", "Picture loaded:"))
-        self.picturePathLabel.setText(_translate("Form", self.picture_selected))
+        if not self.picture_selected:
+            self.picturePathLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgb(255, 255, 255, 95);")
+            self.picturePathLabel.setText(_translate("Form", "No picture loaded yet\n"
+                                                             "-> Load picture"))
+        else:
+            self.picturePathLabel.setStyleSheet("background-color: rgb(56,65,157); color: white;")
+            self.picturePathLabel.setText(_translate("Form", self.picture_selected))
 
-    def toggle_overlay(self) -> None:
-        _translate = QtCore.QCoreApplication.translate
+    def start_analysis(self) -> None:
+        if not self.analysis_running:
+            if not self.picture_selected:
+                dlg = Dialog(self.stacked_widget)
+                if not dlg.exec():
+                    return
 
-        if self.overlay is None or not self.overlay.isVisible():
             self.overlay = ArucoOverlay()
             self.overlay.showFullScreen()
-            self.startButton.setText(_translate("Form", "Stop"))
+            self.startButton.setText("Stop")
+
+            test.main()
+
+            self.analysis_running = True
         else:
             self.overlay.close()
-            self.startButton.setText(_translate("Form", "Start"))
+            self.startButton.setText("Start")
+            self.analysis_running = False
 
     def switch_to_main(self) -> None:
         self.stacked_widget.setCurrentIndex(0)
 
     def switch_to_records(self) -> None:
-        self.stacked_widget.addWidget(self.records_screen)
-        self.stacked_widget.setCurrentWidget(self.records_screen)
+        records_screen = UIRecordsScreen(self.application, self.stacked_widget, "analysis")
+        self.stacked_widget.addWidget(records_screen)
+        self.stacked_widget.setCurrentWidget(records_screen)
 
     def load_picture(self) -> None:
-        picture, check = QtWidgets.QFileDialog.getOpenFileName(None, "QFileDialog.getOpenFileName()",
-                                                               "",
-                                                               "All Files (*);;Python Files (*.py);;Text Files (*.txt)")
-        if check:
-            self.picture_selected = picture
-            self.picturePathLabel.setText(self.picture_selected)
+
+        if not self.picture_selected:
+            picture, check = QtWidgets.QFileDialog.getOpenFileName(
+                None,
+                "QFileDialog.getOpenFileName()",
+                "",
+                "All Files (*);;Python Files (*.py);;Text Files (*.txt)"
+            )
+            if check:
+                self.picture_selected = picture
+                self.picturePathLabel.setStyleSheet("background-color: rgb(56,65,157); color: white;")
+                self.picturePathLabel.setText(self.picture_selected)
+                self.loadPictureButton.setText("Reset picture")
+        else:
+            self.picture_selected = None
+            self.picturePathLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgb(255, 255, 255, 95);")
+            self.picturePathLabel.setText("No picture loaded yet\n-> Load picture")
+            self.loadPictureButton.setText("Load picture")
