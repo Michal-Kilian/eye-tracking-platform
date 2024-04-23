@@ -1,7 +1,5 @@
 import matplotlib
 from PyQt5 import QtCore, QtGui, QtWidgets
-
-import test
 from Model3D import Model3D
 from backend import Devices
 from frontend.RecordsScreen import UIRecordsScreen
@@ -10,7 +8,7 @@ from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
                                   heading_font, text_font, QWidget_background_color, QControlPanelButton,
                                   QControlPanelMainButton)
 from Dialog import Dialog
-from test import main
+from test import MainTest
 
 matplotlib.use('Qt5Agg')
 
@@ -25,6 +23,8 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.overlay = None
         self.picture_selected = None
         self.model_3d = None
+
+        self.main_test = None
 
         self.setObjectName("AnalysisScreen")
         self.setStyleSheet(QWidget_background_color)
@@ -137,7 +137,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.deviceStatusLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.deviceStatusLabel.setObjectName("deviceStatusLabel")
         self.deviceStatusLabel.setWordWrap(True)
-        self.deviceStatusLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgb(255, 255, 255, 95);")
+        self.deviceStatusLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgba(255, 255, 255, 95);")
         self.deviceStatusLabel.setFixedWidth(253)
 
         self.pictureLabel = QtWidgets.QLabel()
@@ -153,7 +153,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.picturePathLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.picturePathLabel.setObjectName("picturePathLabel")
         self.picturePathLabel.setWordWrap(True)
-        self.picturePathLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgb(255, 255, 255, 95);")
+        self.picturePathLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgba(255, 255, 255, 95);")
         self.picturePathLabel.setFixedWidth(253)
 
         self.model_3d = Model3D(10, 10)
@@ -220,7 +220,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
 
         self.deviceLabel.setText(_translate("Form", "Current world device:"))
         if not Devices.WORLD_DEVICE:
-            self.deviceStatusLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgb(255, 255, 255, 95);")
+            self.deviceStatusLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgba(255, 255, 255, 95);")
             self.deviceStatusLabel.setText(_translate("Form", "No world device saved yet\n"
                                                               "-> Home -> Devices"))
         else:
@@ -229,7 +229,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
 
         self.pictureLabel.setText(_translate("Form", "Picture loaded:"))
         if not self.picture_selected:
-            self.picturePathLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgb(255, 255, 255, 95);")
+            self.picturePathLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgba(255, 255, 255, 95);")
             self.picturePathLabel.setText(_translate("Form", "No picture loaded yet\n"
                                                              "-> Load picture"))
         else:
@@ -247,12 +247,15 @@ class UIAnalysisScreen(QtWidgets.QWidget):
             self.overlay.showFullScreen()
             self.startButton.setText("Stop")
 
-            test.main()
+            self.main_test = MainTest()
+            self.main_test.start()
 
             self.analysis_running = True
         else:
             self.overlay.close()
             self.startButton.setText("Start")
+
+            self.main_test.stop()
             self.analysis_running = False
 
     def switch_to_main(self) -> None:
@@ -279,6 +282,6 @@ class UIAnalysisScreen(QtWidgets.QWidget):
                 self.loadPictureButton.setText("Reset picture")
         else:
             self.picture_selected = None
-            self.picturePathLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgb(255, 255, 255, 95);")
+            self.picturePathLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgba(255, 255, 255, 95);")
             self.picturePathLabel.setText("No picture loaded yet\n-> Load picture")
             self.loadPictureButton.setText("Load picture")

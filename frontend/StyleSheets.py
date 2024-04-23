@@ -136,7 +136,7 @@ QControlPanelMainButton = ("QPushButton {\n"
                            "    margin: 0px 10px;\n"
                            "}\n"
                            "QPushButton::disabled {\n"
-                           "    background-color: rgb(56, 65, 157, 50);\n"
+                           "    background-color: rgba(56, 65, 157, 50);\n"
                            "}")
 
 QLabel_device = ("QLabel {\n"
@@ -144,6 +144,15 @@ QLabel_device = ("QLabel {\n"
                  "    border-radius: 13px;\n"
                  "    color: rgb(25, 32, 80);\n"
                  "}")
+
+QLabel_2D_3D = ("QLabel {\n"
+                "    padding: 5px;\n"
+                "    background-color: white;\n"
+                "    color: rgb(25, 32, 80);\n"
+                "    margin-left: 60px;\n"  
+                "    margin-right: 60px;\n"  
+                "    border-radius: 13px;\n"
+                "}")
 
 QFrame_device = ("QFrame {\n"
                  "    background-color: rgb(56, 65, 157);\n"
@@ -181,16 +190,23 @@ QDevicePreviewButton = ("QPushButton {\n"
                         "    border: none;\n"
                         "}\n"
                         "QPushButton::disabled {\n"
-                        "    color: rgb(0, 0, 0, 50);\n"
+                        "    color: rgba(0, 0, 0, 50);\n"
                         "}\n"
                         "QPushButton:hover {\n"
                         "	 font: 63 12pt 'Yu Gothic UI Semibold';\n"
                         "}\n")
 
+QRefreshButton = ("QPushButton:hover {\n"
+                  "	 font: 63 12pt 'Yu Gothic UI Semibold';\n"
+                  "}\n"
+                  "QPushButton {"
+                  "border: none;"
+                  "}")
+
 QComboBox_device = (
     '''
 QComboBox {
-    background-color: rgb(56, 65, 157);
+    background-color: rgb(165, 195, 255);
     color: white;
     padding: 15px;
     border: none;
@@ -230,3 +246,64 @@ QComboBox QAbstractItemView {
 }
 '''
 )
+
+QScrollBar = ("""
+    QScrollBar:vertical {
+        border: none;
+        background: transparent;
+        width: 12px; /* adjust as needed */
+        margin: 0px 0px 0px 0px;
+    }
+
+    QScrollBar::handle:vertical {
+        background-color: rgb(165, 195, 255);
+        min-height: 20px;
+    }
+
+    QScrollBar::handle:vertical:hover {
+        background-color: rgb(56, 65, 157); /* Color of the scrollbar handle when hovered */
+    }
+
+    QScrollBar::sub-line:vertical {
+        border: none; /* Remove border from the sub-line */
+        background: transparent;
+        height: 10px; /* adjust as needed */
+        subcontrol-position: top;
+        subcontrol-origin: margin;
+    }
+
+    QScrollBar::add-line:vertical {
+        border: none; /* Remove border from the add-line */
+        background: transparent;
+        height: 10px; /* adjust as needed */
+        subcontrol-position: bottom;
+        subcontrol-origin: margin;
+    }
+
+    QScrollBar::sub-line:vertical:hover,
+    QScrollBar::add-line:vertical:hover {
+        background: transparent;
+    }
+
+    QScrollBar::up-arrow:vertical,
+    QScrollBar::down-arrow:vertical {
+        border: none;
+        width: 0px;
+        height: 0px;
+        background: none;
+    }
+
+    QScrollBar::add-page:vertical,
+    QScrollBar::sub-page:vertical {
+        background: none;
+    }
+    QScrollArea {
+        border: none;
+    }
+    QLabel {
+        color: red;
+    }
+    QLineEdit {
+        padding: 5px;
+    }
+""")

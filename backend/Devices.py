@@ -11,6 +11,7 @@ class Device:
         self.supported = self.check_supported()
         self.matrix_coefficients = self.get_matrix_coefficients()
         self.distortion_coefficients = self.get_distortion_coefficients()
+        self.absolute_focus = self.get_absolute_focus()
 
     def get_uid(self):
         device_list = get_uvc_devices()
@@ -51,6 +52,14 @@ class Device:
         return np.array((
             config_dist[0], config_dist[1], config_dist[2], config_dist[3], config_dist[4]
         ))
+
+    def get_absolute_focus(self):
+        supported_devices = get_supported_devices()
+
+        for device in supported_devices:
+            if device["name"] == self.name:
+                return device["absolute_focus"]
+        return None
 
 
 RIGHT_EYE_DEVICE = None

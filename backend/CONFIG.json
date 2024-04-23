@@ -4,11 +4,67 @@
       "name": "Microsoft? LifeCam HD-5000",
       "id": 1,
       "matrix_coefficients": [
-        [686.26555927, 0, 328.88594766],
-        [0, 680.31999716, 248.20539324],
-        [0, 0, 1]
+        [
+          686.26555927,
+          0,
+          328.88594766
+        ],
+        [
+          0,
+          680.31999716,
+          248.20539324
+        ],
+        [
+          0,
+          0,
+          1
+        ]
       ],
-      "distortion_coefficients": [1.76468296e-01, -7.65735942e-01, 3.11010250e-04, -1.05836974e-03, 3.79719505e-01]
+      "distortion_coefficients": [
+        1.76468296e-01,
+        -7.65735942e-01,
+        3.11010250e-04,
+        -1.05836974e-03,
+        3.79719505e-01
+      ],
+      "absolute_focus": 13
     }
-  ]
+  ],
+  "detector_2D_parameters": {
+    "coarse_detection": "",
+    "coarse_filter_min": "",
+    "coarse_filter_max": "",
+    "intensity_range": "",
+    "blur_size": "",
+    "canny_threshold": "",
+    "canny_ration": "",
+    "canny_aperture": "",
+    "pupil_size_max": "",
+    "pupil_size_min": "",
+    "strong_perimeter_ratio_range_min": "",
+    "strong_perimeter_ratio_range_max": "",
+    "strong_area_ratio_range_min": "",
+    "strong_area_ratio_range_max": "",
+    "contour_size_min": "",
+    "ellipse_roundness_ratio": "",
+    "initial_ellipse_fit_threshhold": "",
+    "final_perimeter_ratio_range_min": "",
+    "final_perimeter_ratio_range_max": "",
+    "ellipse_true_support_min_dist": "",
+    "support_pixel_ratio_exponent": ""
+  },
+  "detector_3D_parameters": {
+    "threshold_swirski": "",
+    "threshold_kalman": "",
+    "threshold_short_term": "",
+    "threshold_long_term": "",
+    "long_term_buffer_size": "",
+    "long_term_forget_time": "",
+    "long_term_forget_observations": "",
+    "long_term_mode": "",
+    "model_update_interval_long_term": "",
+    "model_update_interval_ult_long_term": "",
+    "model_warmup_duration": "",
+    "calculate_rms_residual": ""
+  }
 }

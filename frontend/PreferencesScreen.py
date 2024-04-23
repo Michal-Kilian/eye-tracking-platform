@@ -1,8 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from frontend.ArucoOverlay import ArucoOverlay
+from pyqt_switch import PyQtSwitch
 from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
                                   heading_font, text_font, QWidget_background_color, QControlPanelButton,
-                                  QControlPanelMainButton)
+                                  QControlPanelMainButton, QLabel_device, QLabel_2D_3D, QScrollBar)
 
 
 class UIPreferencesScreen(QtWidgets.QWidget):
@@ -106,6 +106,72 @@ class UIPreferencesScreen(QtWidgets.QWidget):
         self.frame_center.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_center.setObjectName("frame_center")
         self.frame_center.setFixedHeight(370)
+
+        self.frame_center_layout = QtWidgets.QGridLayout(self.frame_center)
+
+        self.detector_2d_label = QtWidgets.QLabel()
+        self.detector_2d_label.setFont(text_font())
+        self.detector_2d_label.setStyleSheet(QLabel_2D_3D)
+        self.detector_2d_label.setFixedHeight(60)
+        self.detector_2d_label.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.detector_3d_label = QtWidgets.QLabel()
+        self.detector_3d_label.setFont(text_font())
+        self.detector_3d_label.setStyleSheet(QLabel_2D_3D)
+        self.detector_3d_label.setFixedHeight(60)
+        self.detector_3d_label.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.scroll_area_2d = QtWidgets.QScrollArea()
+        self.scroll_area_2d.setStyleSheet(QScrollBar)
+        self.scroll_area_2d.setAlignment(QtCore.Qt.AlignCenter)
+        self.scroll_area_2d.setFixedHeight(250)
+
+        self.scroll_area_3d = QtWidgets.QScrollArea()
+        self.scroll_area_3d.setStyleSheet(QScrollBar)
+        self.scroll_area_3d.setAlignment(QtCore.Qt.AlignCenter)
+        self.scroll_area_3d.setFixedHeight(250)
+
+        self.scroll_area_2d_widget = QtWidgets.QWidget()
+        self.scroll_area_3d_widget = QtWidgets.QWidget()
+
+        self.scroll_area_2d_layout = QtWidgets.QGridLayout(self.scroll_area_2d_widget)
+        self.scroll_area_3d_layout = QtWidgets.QGridLayout(self.scroll_area_3d_widget)
+
+        self.add_labels_and_input_fields()
+
+        self.scroll_area_2d.setWidget(self.scroll_area_2d_widget)
+        self.scroll_area_3d.setWidget(self.scroll_area_3d_widget)
+
+        self.frame_center_layout.setAlignment(QtCore.Qt.AlignCenter)
+        self.frame_center_layout.addWidget(self.detector_2d_label, 0, 0)
+        self.frame_center_layout.addWidget(self.detector_3d_label, 0, 1)
+        self.frame_center_layout.addWidget(self.scroll_area_2d, 1, 0)
+        self.frame_center_layout.addWidget(self.scroll_area_3d, 1, 1)
+
+        # self.frame_center_layout.addWidget(self.label1, 2, 0)
+        # self.frame_center_layout.addWidget(self.label2, 2, 1)
+
+        # self.frame_center_layout = QtWidgets.QGridLayout(self.frame_center)
+        # self.frame_center_layout.setAlignment(QtCore.Qt.AlignCenter)
+
+        # self.language_label = QtWidgets.QLabel()
+        # self.language_label.setFont(text_font())
+        # self.language_label.setStyleSheet(QLabel_device)
+        # self.language_label.setFixedHeight(100)
+        # self.language_label.setFixedWidth(200)
+        # self.language_label.setAlignment(QtCore.Qt.AlignCenter)
+
+        # self.language = QtWidgets.QLabel()
+        # self.language.setFont(text_font())
+        # self.language.setStyleSheet(QLabel_device)
+        # self.language.setFixedHeight(100)
+        # self.language.setFixedWidth(320)
+        # self.language.setAlignment(QtCore.Qt.AlignCenter)
+
+        # self.frame_center_layout.addWidget(self.language_label, 0, 0)
+        # self.frame_center_layout.addWidget(self.language, 0, 1)
+        # self.frame_center_layout.addWidget(self.language_switch, 0, 2)
+
         self.gridLayout.addWidget(self.frame_center, 1, 0, 1, 6)
 
         # Bottom Left Frame
@@ -139,6 +205,25 @@ class UIPreferencesScreen(QtWidgets.QWidget):
         _translate = QtCore.QCoreApplication.translate
 
         self.preferencesLabel.setText(_translate("PreferencesScreen", "PREFERENCES"))
+        self.detector_2d_label.setText(_translate("PreferencesScreen", "2D Detector parameters"))
+        self.detector_3d_label.setText(_translate("PreferencesScreen", "3D Detector parameters"))
 
     def switch_to_main(self) -> None:
         self.stacked_widget.setCurrentIndex(0)
+
+    def add_labels_and_input_fields(self) -> None:
+        for i in range(10):
+            label = QtWidgets.QLabel(f"Label {i}")
+            label.setFont(text_font())
+            input_field = QtWidgets.QLineEdit()
+            input_field.setFont(text_font())
+            self.scroll_area_2d_layout.addWidget(label, i, 0)
+            self.scroll_area_2d_layout.addWidget(input_field, i, 1)
+
+        for i in range(10):
+            label = QtWidgets.QLabel(f"Label {i}")
+            label.setFont(text_font())
+            input_field = QtWidgets.QLineEdit()
+            input_field.setFont(text_font())
+            self.scroll_area_3d_layout.addWidget(label, i, 0)
+            self.scroll_area_3d_layout.addWidget(input_field, i, 1)
