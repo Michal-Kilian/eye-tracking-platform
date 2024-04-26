@@ -1,9 +1,8 @@
 import cv2
-
-from helpers import MathHelpers
+from Helpers import MathHelpers
 from backend import Devices
 import numpy as np
-from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Rotation as r
 
 
 class ArucoDetector:
@@ -95,7 +94,7 @@ class ArucoDetector:
 
             rvec, _ = cv2.Rodrigues(n_rotation_matrix)
 
-            average_rvec = R.from_rotvec(rvec_list).mean().as_rotvec()
+            average_rvec = r.from_rotvec(rvec_list).mean().as_rotvec()
 
             cv2.drawFrameAxes(frame_bgr,
                               self.matrix_coefficients,

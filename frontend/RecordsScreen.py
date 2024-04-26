@@ -109,7 +109,6 @@ class UIRecordsScreen(QtWidgets.QWidget):
 
         self.list_widget = QtWidgets.QListWidget()
         self.list_widget.setStyleSheet(QListWidget)
-        # self.list_widget.setGeometry(25, 10, 550, 300)
         self.list_widget.setFont(text_font())
 
         # Dummy values to fill the Records QListWidget

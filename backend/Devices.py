@@ -1,7 +1,7 @@
 import uvc
 import cv2
-import json
 import numpy as np
+from backend import CONFIG
 
 
 class Device:
@@ -21,14 +21,14 @@ class Device:
         return False
 
     def check_supported(self):
-        supported_devices = get_supported_devices()
+        supported_devices = CONFIG.SUPPORTED_DEVICES
         for device in supported_devices:
             if device["name"] == self.name:
                 return True
         return False
 
     def get_matrix_coefficients(self):
-        supported_devices = get_supported_devices()
+        supported_devices = CONFIG.SUPPORTED_DEVICES
         config_matrix = []
 
         for device in supported_devices:
@@ -42,7 +42,7 @@ class Device:
         ))
 
     def get_distortion_coefficients(self):
-        supported_devices = get_supported_devices()
+        supported_devices = CONFIG.SUPPORTED_DEVICES
         config_dist = []
 
         for device in supported_devices:
@@ -54,7 +54,7 @@ class Device:
         ))
 
     def get_absolute_focus(self):
-        supported_devices = get_supported_devices()
+        supported_devices = CONFIG.SUPPORTED_DEVICES
 
         for device in supported_devices:
             if device["name"] == self.name:
@@ -69,11 +69,6 @@ WORLD_DEVICE = None
 ARUCO_TYPE = cv2.aruco.DICT_4X4_50
 
 
-def get_supported_devices():
-    f = open("backend/CONFIG.json")
-    return json.load(f)["supported_devices"]
-
-
 def get_uvc_devices():
     return uvc.device_list()
 
@@ -83,6 +78,3 @@ def is_device_online(device_name):
         if device["name"] == device_name:
             return True
     return False
-
-
-SUPPORTED_DEVICES = get_supported_devices()

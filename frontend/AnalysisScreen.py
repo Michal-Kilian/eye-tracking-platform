@@ -9,6 +9,7 @@ from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
                                   QControlPanelMainButton)
 from Dialog import Dialog
 from test import MainTest
+from backend import Detector2DTest
 
 matplotlib.use('Qt5Agg')
 
@@ -24,7 +25,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.picture_selected = None
         self.model_3d = None
 
-        self.main_test = None
+        self.test = None
 
         self.setObjectName("AnalysisScreen")
         self.setStyleSheet(QWidget_background_color)
@@ -220,20 +221,20 @@ class UIAnalysisScreen(QtWidgets.QWidget):
 
         self.deviceLabel.setText(_translate("Form", "Current world device:"))
         if not Devices.WORLD_DEVICE:
-            self.deviceStatusLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgba(255, 255, 255, 95);")
+            self.deviceStatusLabel.setStyleSheet("background-color: rgb(165, 195, 255); color: white;")
             self.deviceStatusLabel.setText(_translate("Form", "No world device saved yet\n"
                                                               "-> Home -> Devices"))
         else:
-            self.deviceStatusLabel.setStyleSheet("background-color: rgb(56,65,157); color: white;")
+            self.deviceStatusLabel.setStyleSheet("background-color: rgb(165, 195, 255); color: rgb(25, 32, 80);")
             self.deviceStatusLabel.setText(_translate("Form", Devices.WORLD_DEVICE.name))
 
         self.pictureLabel.setText(_translate("Form", "Picture loaded:"))
         if not self.picture_selected:
-            self.picturePathLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgba(255, 255, 255, 95);")
+            self.picturePathLabel.setStyleSheet("background-color: rgb(165, 195, 255); color: white;")
             self.picturePathLabel.setText(_translate("Form", "No picture loaded yet\n"
                                                              "-> Load picture"))
         else:
-            self.picturePathLabel.setStyleSheet("background-color: rgb(56,65,157); color: white;")
+            self.picturePathLabel.setStyleSheet("background-color: rgb(165, 195, 255); rgb(25, 32, 80);")
             self.picturePathLabel.setText(_translate("Form", self.picture_selected))
 
     def start_analysis(self) -> None:
@@ -247,15 +248,18 @@ class UIAnalysisScreen(QtWidgets.QWidget):
             self.overlay.showFullScreen()
             self.startButton.setText("Stop")
 
-            self.main_test = MainTest()
-            self.main_test.start()
+            # self.main_test = MainTest()
+            # self.main_test.start()
+
+            self.test = Detector2DTest.Detector2DTest()
+            self.test.start()
 
             self.analysis_running = True
         else:
             self.overlay.close()
             self.startButton.setText("Start")
 
-            self.main_test.stop()
+            self.test.stop()
             self.analysis_running = False
 
     def switch_to_main(self) -> None:
@@ -277,11 +281,11 @@ class UIAnalysisScreen(QtWidgets.QWidget):
             )
             if check:
                 self.picture_selected = picture
-                self.picturePathLabel.setStyleSheet("background-color: rgb(56,65,157); color: white;")
+                self.picturePathLabel.setStyleSheet("background-color: rgb(165, 195, 255); color: rgb(25, 32, 80);")
                 self.picturePathLabel.setText(self.picture_selected)
                 self.loadPictureButton.setText("Reset picture")
         else:
             self.picture_selected = None
-            self.picturePathLabel.setStyleSheet("background-color: rgb(56,65,157); color: rgba(255, 255, 255, 95);")
+            self.picturePathLabel.setStyleSheet("background-color: rgb(165, 195, 255); color: white;")
             self.picturePathLabel.setText("No picture loaded yet\n-> Load picture")
             self.loadPictureButton.setText("Load picture")
