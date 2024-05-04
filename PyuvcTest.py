@@ -1,9 +1,4 @@
-import logging
-
 import cv2
-from rich import print
-from rich.logging import RichHandler
-
 import uvc
 
 

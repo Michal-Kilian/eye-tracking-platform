@@ -3,7 +3,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
                                   heading_font, QWidget_background_color, text_font, QLabel_device,
                                   QComboBox_device, QControlPanelMainButton, QControlPanelButton, qcombobox_font,
-                                  QDevicePreviewButton, QRefreshButton)
+                                  QDevicePreviewButton, QRefreshButton, QComboBox_selected, get_shadow)
 from backend import Devices
 from DevicePreview import DevicePreview
 
@@ -119,18 +119,21 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.right_eye_select.setFixedWidth(350)
         self.right_eye_select.setFont(qcombobox_font())
         self.right_eye_select.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.right_eye_select.setGraphicsEffect(get_shadow(30))
 
         self.left_eye_select = QtWidgets.QComboBox()
         self.left_eye_select.setStyleSheet(QComboBox_device)
         self.left_eye_select.setFixedWidth(350)
         self.left_eye_select.setFont(qcombobox_font())
         self.left_eye_select.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.left_eye_select.setGraphicsEffect(get_shadow(30))
 
         self.world_select = QtWidgets.QComboBox()
         self.world_select.setStyleSheet(QComboBox_device)
         self.world_select.setFixedWidth(350)
         self.world_select.setFont(qcombobox_font())
         self.world_select.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.world_select.setGraphicsEffect(get_shadow(30))
 
         self.right_eye_label = QtWidgets.QLabel()
         self.right_eye_label.setFont(text_font())
@@ -158,7 +161,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.refresh_devices_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.refresh_devices_button.setStyleSheet(QRefreshButton)
         self.refresh_devices_button.setFixedWidth(180)
-        self.refresh_devices_button.clicked.connect(self.fill_device_selects)
+        self.refresh_devices_button.clicked.connect(self.refresh_devices)
 
         self.right_eye_preview_button = QtWidgets.QPushButton()
         self.right_eye_preview_button.setFont(text_font())
@@ -167,6 +170,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.right_eye_preview_button.setStyleSheet(QDevicePreviewButton)
         self.right_eye_preview_button.setFixedWidth(180)
         self.right_eye_preview_button.clicked.connect(self.toggle_right_preview)
+        self.right_eye_preview_button.setGraphicsEffect(get_shadow(30))
 
         self.left_eye_preview_button = QtWidgets.QPushButton()
         self.left_eye_preview_button.setFont(text_font())
@@ -174,6 +178,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.left_eye_preview_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.left_eye_preview_button.setStyleSheet(QDevicePreviewButton)
         self.left_eye_preview_button.clicked.connect(self.toggle_left_preview)
+        self.left_eye_preview_button.setGraphicsEffect(get_shadow(30))
 
         self.world_preview_button = QtWidgets.QPushButton()
         self.world_preview_button.setFont(text_font())
@@ -181,6 +186,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.world_preview_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.world_preview_button.setStyleSheet(QDevicePreviewButton)
         self.world_preview_button.clicked.connect(self.toggle_world_preview)
+        self.world_preview_button.setGraphicsEffect(get_shadow(30))
 
         self.frame_center_layout.addWidget(self.right_eye_label, 0, 0)
         self.frame_center_layout.addWidget(self.right_eye_select, 0, 1)
@@ -222,6 +228,8 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.save_devices_button.setFixedHeight(50)
         self.save_devices_button.setStyleSheet(QControlPanelMainButton)
         self.save_devices_button.clicked.connect(self.save_devices)
+        self.save_devices_button.setDisabled(False)
+        self.save_devices_button.setGraphicsEffect(get_shadow(30))
 
         self.reset_button = QtWidgets.QPushButton()
         self.reset_button.setFont(text_font())
@@ -230,6 +238,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.reset_button.setFixedSize(150, 50)
         self.reset_button.setStyleSheet(QControlPanelButton)
         self.reset_button.clicked.connect(self.reset_devices)
+        self.reset_button.setGraphicsEffect(get_shadow(30))
 
         self.calibrate_device_button = QtWidgets.QPushButton()
         self.calibrate_device_button.setFont(text_font())
@@ -239,6 +248,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.calibrate_device_button.setStyleSheet(QControlPanelMainButton)
         self.calibrate_device_button.setDisabled(True)
         self.calibrate_device_button.clicked.connect(self.calibrate_device)
+        self.calibrate_device_button.setGraphicsEffect(get_shadow(30))
 
         self.frame_bottom_center_layout.addWidget(self.save_devices_button)
         self.frame_bottom_center_layout.addWidget(self.reset_button)
@@ -303,6 +313,9 @@ class UIDeviceScreen(QtWidgets.QWidget):
         elif not Devices.WORLD_DEVICE.supported:
             self.device_not_supported_alert("world")
         else:
+            self.right_eye_select.setStyleSheet(QComboBox_selected)
+            self.left_eye_select.setStyleSheet(QComboBox_selected)
+            self.world_select.setStyleSheet(QComboBox_selected)
             self.status_label.setText("Devices saved successfully")
             self.calibrate_device_button.setDisabled(False)
             self.save_devices_button.setDisabled(True)
@@ -320,8 +333,16 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.calibrate_device_button.setDisabled(True)
         self.save_devices_button.setDisabled(False)
 
+    def refresh_devices(self) -> None:
+        self.fill_device_selects()
+        self.save_devices_button.setDisabled(False)
+
     def fill_device_selects(self):
         self.check_device_list()
+
+        self.right_eye_select.clear()
+        self.left_eye_select.clear()
+        self.world_select.clear()
 
         for device in uvc.device_list():
             self.right_eye_select.addItem(device["name"])

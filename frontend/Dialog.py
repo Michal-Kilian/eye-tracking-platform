@@ -1,15 +1,15 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
-
 from frontend.StyleSheets import text_font
 
 
 class Dialog(QtWidgets.QDialog):
-    def __init__(self, stacked_widget):
+    def __init__(self, stacked_widget: QtWidgets.QStackedWidget, window_title: str, submit_text: str,
+                 cancel_text: str, message: str) -> None:
         super().__init__()
 
         self.stacked_widget = stacked_widget
 
-        self.setWindowTitle("No picture loaded")
+        self.setWindowTitle(window_title)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.SplashScreen)
         self.setFixedSize(300, 250)
 
@@ -20,14 +20,14 @@ class Dialog(QtWidgets.QDialog):
         self.buttonBox = QtWidgets.QDialogButtonBox(q_btn)
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
-        self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setText("Continue")
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setText(submit_text)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setFont(text_font())
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setFixedWidth(133)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setStyleSheet(
             "background-color: rgb(56, 65, 157);"
             "padding: 15px 15px; margin: 3px;"
             "color: white; border-radius: 13px;")
-        self.buttonBox.button(QtWidgets.QDialogButtonBox.Cancel).setText("Cancel")
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.Cancel).setText(cancel_text)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Cancel).setFont(text_font())
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Cancel).setFixedWidth(133)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Cancel).setStyleSheet(
@@ -35,7 +35,7 @@ class Dialog(QtWidgets.QDialog):
             "padding: 15px 15px; margin: 3px;"
             "color: rgb(25, 32, 80); border-radius: 13px;")
         self.layout = QtWidgets.QVBoxLayout()
-        message = QtWidgets.QLabel("Are you sure you want to continue without a picture loaded?")
+        message = QtWidgets.QLabel(message)
         message.setFont(text_font())
         message.setWordWrap(True)
         message.setAlignment(QtCore.Qt.AlignCenter)

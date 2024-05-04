@@ -1,5 +1,4 @@
 from PyQt5 import QtCore, QtWidgets
-
 from frontend.HomeScreen import UIHomeScreen
 from frontend.StyleSheets import QStackedWidget
 

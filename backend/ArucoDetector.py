@@ -2,7 +2,7 @@ import cv2
 from Helpers import MathHelpers
 from backend import Devices
 import numpy as np
-from scipy.spatial.transform import Rotation as r
+from scipy.spatial.transform import Rotation
 
 
 class ArucoDetector:
@@ -53,12 +53,12 @@ class ArucoDetector:
                 total_rvec += rvec.ravel()
                 total_tvec += tvec.ravel()
 
-                cv2.drawFrameAxes(frame_bgr,
-                                  self.matrix_coefficients,
-                                  self.distortion_coefficients,
-                                  rvec,
-                                  tvec,
-                                  100)
+                # cv2.drawFrameAxes(frame_bgr,
+                #                   self.matrix_coefficients,
+                #                   self.distortion_coefficients,
+                #                   rvec,
+                #                   tvec,
+                #                   100)
 
             if len(tvec_dict) != 4:
                 return
@@ -92,16 +92,18 @@ class ArucoDetector:
                                           [n_x[2], n_y[2], n_z[2]]],
                                          dtype=float)
 
+            # first option
             rvec, _ = cv2.Rodrigues(n_rotation_matrix)
 
-            average_rvec = r.from_rotvec(rvec_list).mean().as_rotvec()
+            # second option
+            average_rvec = Rotation.from_rotvec(rvec_list).mean().as_rotvec()
 
-            cv2.drawFrameAxes(frame_bgr,
-                              self.matrix_coefficients,
-                              self.distortion_coefficients,
-                              rvec,
-                              average_tvec,
-                              100)
+            # cv2.drawFrameAxes(frame_bgr,
+            #                   self.matrix_coefficients,
+            #                   self.distortion_coefficients,
+            #                   rvec,
+            #                   average_tvec,
+            #                   100)
 
             # 796 a dalej
             # from pupil_detectors import Detector2D

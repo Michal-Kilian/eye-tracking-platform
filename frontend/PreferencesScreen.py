@@ -1,8 +1,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from backend import CONFIG
+from frontend.Dialog import Dialog
 from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
                                   heading_font, text_font, QWidget_background_color, QControlPanelButton,
-                                  QControlPanelMainButton, QLabel_device, QLabel_2D_3D, QScrollBar)
+                                  QControlPanelMainButton, QLabel_device, QLabel_2D_3D, QScrollBar, get_shadow)
 
 
 class UIPreferencesScreen(QtWidgets.QWidget):
@@ -179,6 +180,7 @@ class UIPreferencesScreen(QtWidgets.QWidget):
         self.save_changes_button.setStyleSheet(QControlPanelMainButton)
         self.save_changes_button.setDisabled(True)
         self.save_changes_button.clicked.connect(self.save_changes)
+        self.save_changes_button.setGraphicsEffect(get_shadow(30))
 
         self.reset_button = QtWidgets.QPushButton()
         self.reset_button.setFont(text_font())
@@ -186,6 +188,7 @@ class UIPreferencesScreen(QtWidgets.QWidget):
         self.reset_button.setFixedSize(250, 50)
         self.reset_button.setStyleSheet(QControlPanelButton)
         self.reset_button.clicked.connect(self.reset_to_default)
+        self.reset_button.setGraphicsEffect(get_shadow(30))
 
         self.frame_bottom_center_layout.addWidget(self.save_changes_button)
         self.frame_bottom_center_layout.addWidget(self.reset_button)
@@ -364,10 +367,17 @@ class UIPreferencesScreen(QtWidgets.QWidget):
         self.save_changes_button.setDisabled(True)
         CONFIG.PARAMETERS_2D = self.dictify_2d_line_edits()
         CONFIG.PARAMETERS_3D = self.dictify_3d_line_edits()
+        CONFIG.update_config("parameters")
 
     def reset_to_default(self) -> None:
+        dlg = Dialog(self.stacked_widget, "Reset to default", "Yes",
+                     "Cancel", "Are you sure you want to reset all parameters to their default values?")
+        if not dlg.exec():
+            return
+
         CONFIG.PARAMETERS_2D = CONFIG.get_2d_default_parameters()
         CONFIG.PARAMETERS_3D = CONFIG.get_3d_default_parameters()
+        CONFIG.reset_config("parameters")
         self.fill_line_edits()
         self.save_changes_button.setDisabled(True)
 
@@ -407,9 +417,9 @@ class UIPreferencesScreen(QtWidgets.QWidget):
         self.long_term_forget_observations_le.setText(str(CONFIG.PARAMETERS_3D["long_term_forget_observations"]))
         self.long_term_mode_le.setText(str(CONFIG.PARAMETERS_3D["long_term_mode"]))
         self.model_update_interval_long_term_le.setText(str(CONFIG.PARAMETERS_3D["model_update_interval_"
-                                                                                     "long_term"]))
+                                                                                 "long_term"]))
         self.model_update_interval_ult_long_term_le.setText(str(CONFIG.PARAMETERS_3D["model_update_interval_"
-                                                                                         "ult_long_term"]))
+                                                                                     "ult_long_term"]))
         self.model_warmup_duration_le.setText(str(CONFIG.PARAMETERS_3D["model_warmup_duration"]))
         self.calculate_rms_residual_le.setText(str(CONFIG.PARAMETERS_3D["calculate_rms_residual"]))
 

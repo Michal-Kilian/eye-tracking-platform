@@ -110,6 +110,7 @@ class UIRecordsScreen(QtWidgets.QWidget):
         self.list_widget = QtWidgets.QListWidget()
         self.list_widget.setStyleSheet(QListWidget)
         self.list_widget.setFont(text_font())
+        self.list_widget.setMaximumWidth(750)
 
         # Dummy values to fill the Records QListWidget
         for item in ["Record 1", "Record 2", "Record 3"]:

@@ -1,4 +1,5 @@
 from PyQt5 import QtGui
+from PyQt5.QtWidgets import QGraphicsDropShadowEffect
 
 
 def heading_font() -> QtGui.QFont:
@@ -19,6 +20,15 @@ def text_font() -> QtGui.QFont:
     return font
 
 
+def heading_text_font() -> QtGui.QFont:
+    font = QtGui.QFont()
+    font.setFamily("Yu Gothic UI Semibold")
+    font.setPointSize(15)
+    font.setBold(True)
+    font.setItalic(False)
+    return font
+
+
 def qcombobox_font() -> QtGui.QFont:
     font = QtGui.QFont()
     font.setFamily("Yu Gothic UI Semibold")
@@ -27,6 +37,12 @@ def qcombobox_font() -> QtGui.QFont:
     font.setItalic(False)
     font.setWeight(75)
     return font
+
+
+def get_shadow(blur_size) -> QGraphicsDropShadowEffect:
+    shadow = QGraphicsDropShadowEffect()
+    shadow.setBlurRadius(blur_size)
+    return shadow
 
 
 QWidget_background_color = ("""
@@ -137,6 +153,7 @@ QListWidget = ("""
         text-align: center;
         padding: 15px;
         border: none;
+        border-radius: 30px;
     }
     QListWidget {
         background-color: rgb(194, 217, 255);
@@ -145,8 +162,8 @@ QListWidget = ("""
         border: none;
     }
     QListWidget::item:hover {
-        background-color: rgb(56, 65, 157);
-        color: white;
+        background-color: rgb(165, 195, 255);
+        color: rgb(56, 65, 157);
     }
 """)
 
@@ -170,6 +187,14 @@ QControlPanelMainButton = ("""
     }
 """)
 
+QControlButton = ("""
+    QPushButton {
+        border-radius: 13px;
+        color: rgb(25, 32, 80);
+        margin: 0px 10px;
+    }
+""")
+
 QLabel_device = ("""
     QLabel {
         padding-top: 10px;
@@ -186,6 +211,11 @@ QLabel_2D_3D = ("""
         margin-left: 60px;
         margin-right: 60px;
         border-radius: 13px;
+    }
+    QToolTip {
+        color: white; 
+        background-color: rgb(56, 65, 157); 
+        border: none;
     }
 """)
 
@@ -268,6 +298,26 @@ QComboBox_device = ("""
     }
 """)
 
+QComboBox_selected = ("""
+    QComboBox {
+        background-color: rgb(165, 195, 255);
+        color: rgb(25, 32, 80);
+        padding: 15px;
+        border: none;
+    }
+    QComboBox::drop-down {
+        width: 0px;
+    }
+    QComboBox QAbstractItemView {
+        padding: 15px;
+        background-color: white;
+        color: rgb(25, 32, 80);
+        selection-background-color: rgb(25, 32, 80);
+        selection-color: white;
+        outline: none;
+    }
+""")
+
 QScrollBar = ("""
     QScrollBar:vertical {
         border: none;
@@ -321,6 +371,78 @@ QScrollBar = ("""
         padding: 7px;
         border: none;
         background-color: rgb(165, 195, 255);
+    }
+    QToolTip {
+        color: white; 
+        background-color: rgb(56, 65, 157); 
+        border: none;
+    }
+""")
+
+QLabel_Analysis = ("""
+    QLabel {
+        background-color: rgb(56,65,157); 
+        color: rgba(255, 255, 255, 95);
+    }
+    QToolTip {
+        color: white; 
+        background-color: rgb(56, 65, 157); 
+        border: none;
+    }
+""")
+
+
+QScrollBar_Images = ("""
+    QScrollBar:vertical {
+        border: none;
+        background: transparent;
+        width: 12px; /* adjust as needed */
+        margin: 0px 0px 0px 0px;
+    }
+    QScrollBar::handle:vertical {
+        background-color: rgb(56, 65, 157);
+        min-height: 20px;
+    }
+    QScrollBar::handle:vertical:hover {
+        background-color: rgb(25, 32, 80);
+    }
+    QScrollBar::sub-line:vertical {
+        border: none;
+        background: transparent;
+        height: 10px;
+        subcontrol-position: top;
+        subcontrol-origin: margin;
+    }
+    QScrollBar::add-line:vertical {
+        border: none;
+        background: transparent;
+        height: 10px;
+        subcontrol-position: bottom;
+        subcontrol-origin: margin;
+    }
+    QScrollBar::sub-line:vertical:hover,
+    QScrollBar::add-line:vertical:hover {
+        background: transparent;
+    }
+    QScrollBar::up-arrow:vertical,
+    QScrollBar::down-arrow:vertical {
+        border: none;
+        width: 0px;
+        height: 0px;
+        background: none;
+    }
+    QScrollBar::add-page:vertical,
+    QScrollBar::sub-page:vertical {
+        background: none;
+    }
+    QScrollArea {
+        border: none;
+    }
+    QPushButton {
+        color: rgb(25, 32, 80);
+        border: none;
+        padding: 5px;
+        border-radius: 20px;
     }
     QToolTip {
         color: white; 

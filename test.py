@@ -1,9 +1,7 @@
 import cv2
-
 from backend import Devices
 from backend.ArucoDetector import ArucoDetector
 import uvc
-import backend.Devices
 
 
 class MainTest:

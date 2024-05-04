@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from frontend.AnalysisScreen import UIAnalysisScreen
+from frontend.ModeSelectionScreen import UIModeSelectionScreen
 from frontend.DeviceScreen import UIDeviceScreen
 from frontend.PreferencesScreen import UIPreferencesScreen
 from frontend.RecordsScreen import UIRecordsScreen
@@ -108,7 +108,7 @@ class UIHomeScreen(QtWidgets.QWidget):
         self.startAnalysisButton.setStyleSheet(QPushButton_left1)
         self.startAnalysisButton.setObjectName("startAnalysisButton")
         self.startAnalysisButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.startAnalysisButton.clicked.connect(self.switch_to_analysis)
+        self.startAnalysisButton.clicked.connect(self.switch_to_mode_selection)
 
         self.recordsButton = QtWidgets.QPushButton(self.frame_center)
         self.recordsButton.setGeometry(QtCore.QRect(610, 120, 211, 61))
@@ -172,10 +172,10 @@ class UIHomeScreen(QtWidgets.QWidget):
         self.deviceButton.setText(_translate("HomeScreen", "Devices"))
         self.preferencesButton.setText(_translate("HomeScreen", "Preferences"))
 
-    def switch_to_analysis(self) -> None:
-        analysis_screen = UIAnalysisScreen(self.application, self.stacked_widget)
-        self.stacked_widget.addWidget(analysis_screen)
-        self.stacked_widget.setCurrentWidget(analysis_screen)
+    def switch_to_mode_selection(self) -> None:
+        mode_selection_screen = UIModeSelectionScreen(self.application, self.stacked_widget)
+        self.stacked_widget.addWidget(mode_selection_screen)
+        self.stacked_widget.setCurrentWidget(mode_selection_screen)
 
     def switch_to_records(self) -> None:
         records_screen = UIRecordsScreen(self.application, self.stacked_widget, "home")
