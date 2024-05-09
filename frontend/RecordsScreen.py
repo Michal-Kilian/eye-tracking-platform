@@ -1,15 +1,19 @@
+from frontend.RecordDetailScreen import UIRecordDetailScreen, format_record_date_time
 from PyQt5 import QtCore, QtGui, QtWidgets
 from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
-                                  heading_font, text_font, QWidget_background_color, QListWidget)
+                                  heading_font, text_font, QWidget_background_color, QScrollBar)
+from backend import RECORDS
 
 
 class UIRecordsScreen(QtWidgets.QWidget):
-    def __init__(self, application, stacked_widget, previous_location):
+    def __init__(self, application, stacked_widget, previous_location, iteration = None):
         super().__init__()
 
         self.application = application
         self.stacked_widget = stacked_widget
         self.previous_location = previous_location
+        self.iteration = 0
+        self.analysis_iteration = iteration
 
         self.setObjectName("RecordsScreen")
         self.setStyleSheet(QWidget_background_color)
@@ -107,21 +111,58 @@ class UIRecordsScreen(QtWidgets.QWidget):
         self.frame_center.setObjectName("frame_center")
         self.frame_center.setFixedHeight(370)
 
-        self.list_widget = QtWidgets.QListWidget()
-        self.list_widget.setStyleSheet(QListWidget)
-        self.list_widget.setFont(text_font())
-        self.list_widget.setMaximumWidth(750)
-
-        # Dummy values to fill the Records QListWidget
-        for item in ["Record 1", "Record 2", "Record 3"]:
-            list_widget_item = QtWidgets.QListWidgetItem(item, self.list_widget)
-            list_widget_item.setTextAlignment(QtCore.Qt.AlignCenter)
-            self.list_widget.addItem(list_widget_item)
-
         self.frame_center_layout = QtWidgets.QVBoxLayout(self.frame_center)
         self.frame_center_layout.setAlignment(QtCore.Qt.AlignCenter)
 
-        self.frame_center_layout.addWidget(self.list_widget)
+        self.scroll_area = QtWidgets.QScrollArea()
+        self.scroll_area.setStyleSheet(QScrollBar)
+        self.scroll_area.setAlignment(QtCore.Qt.AlignCenter)
+        self.scroll_area.setMaximumWidth(750)
+
+        self.scroll_area_widget = QtWidgets.QWidget()
+        self.scroll_area_layout = QtWidgets.QGridLayout(self.scroll_area_widget)
+
+        for record in RECORDS.sorted_records():
+            _record_id = record.id
+
+            widget = QtWidgets.QWidget()
+            widget.setFixedWidth(700)
+            widget.setStyleSheet("background-color: rgb(165, 195, 255); border-radius: 25px;")
+            widget_layout = QtWidgets.QHBoxLayout(widget)
+
+            date_time_label = QtWidgets.QLabel(format_record_date_time(record.timestamp))
+            date_time_label.setFont(text_font())
+            date_time_label.setFixedWidth(150)
+            date_time_label.setAlignment(QtCore.Qt.AlignCenter)
+
+            type_label = QtWidgets.QLabel(record.type.value)
+            type_label.setFont(text_font())
+            type_label.setAlignment(QtCore.Qt.AlignCenter)
+
+            detail_button = QtWidgets.QPushButton("Details")
+            detail_button.setFont(text_font())
+            detail_button.setFixedWidth(150)
+            detail_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+            detail_button.setStyleSheet("QPushButton {background-color: white; color: rgb(25, 32, 80); padding: 10px;}"
+                                        "QPushButton:hover {font: 63 12pt 'Yu Gothic UI Semibold';}")
+            detail_button.clicked.connect(
+                lambda checked, record_id=_record_id: self.switch_to_record_detail(record_id))
+
+            widget_layout.addWidget(date_time_label, stretch=1)
+            widget_layout.addWidget(type_label, stretch=1)
+            widget_layout.addWidget(detail_button, stretch=1)
+            self.scroll_area_layout.addWidget(widget)
+
+        if not RECORDS.RECORDS:
+            label = QtWidgets.QLabel("No records yet")
+            label.setFont(text_font())
+            label.setAlignment(QtCore.Qt.AlignCenter)
+
+            self.scroll_area_layout.addWidget(label)
+
+        self.scroll_area.setWidget(self.scroll_area_widget)
+
+        self.frame_center_layout.addWidget(self.scroll_area)
 
         self.gridLayout.addWidget(self.frame_center, 1, 0, 1, 6)
 
@@ -159,6 +200,14 @@ class UIRecordsScreen(QtWidgets.QWidget):
 
     def back(self):
         if self.previous_location == "analysis":
-            self.stacked_widget.setCurrentIndex(self.stacked_widget.currentIndex() - 1)
+            self.stacked_widget.setCurrentIndex(self.stacked_widget.currentIndex() - self.analysis_iteration)
         elif self.previous_location == "home":
             self.stacked_widget.setCurrentIndex(0)
+
+    def switch_to_record_detail(self, record_id):
+        if self.analysis_iteration:
+            self.iteration += 1
+            record_detail_screen = UIRecordDetailScreen(self.application, self.stacked_widget, record_id,
+                                                        self.iteration)
+            self.stacked_widget.addWidget(record_detail_screen)
+            self.stacked_widget.setCurrentWidget(record_detail_screen)
