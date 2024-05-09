@@ -1,8 +1,12 @@
 import json
 from typing import TextIO
 
+import numpy as np
 
-def get_supported_devices():
+from Helpers import MathHelpers
+
+
+def get_supported_devices() -> list:
     f: TextIO = open("backend/CONFIG.json")
     return json.load(f)["supported_devices"]
 
@@ -51,9 +55,74 @@ def reset_config(section: str) -> None:
             json.dump(config_dict, file, indent=4)
 
 
+def get_focal_length():
+    f = open("backend/CONFIG.json")
+    return json.load(f)["offline_focal_length"]
+
+
+def get_resolution():
+    f = open("backend/CONFIG.json")
+    return json.load(f)["offline_resolution"]
+
+
+def get_elevation():
+    f = open("backend/CONFIG.json")
+    return json.load(f)["elevation"]
+
+
+def get_azimuth():
+    f = open("backend/CONFIG.json")
+    return json.load(f)["azimuth"]
+
+
+def get_scale_factor():
+    f = open("backend/CONFIG.json")
+    return json.load(f)["scale_factor"]
+
+
+def get_records() -> list:
+    f = open("backend/CONFIG.json")
+    return json.load(f)["records"]
+
+
 SUPPORTED_DEVICES = get_supported_devices()
 PARAMETERS_2D = get_2d_parameters()
 PARAMETERS_3D = get_3d_parameters()
 PICTURE_SELECTED = None
 MODE_SELECTED = None
+
 OFFLINE_MODE_DIRECTORY = "images"
+OFFLINE_MODE_MAX_ID = 120
+OFFLINE_MODE_MIN_ID = 0
+OFFLINE_FOCAL_LENGTH = get_focal_length()
+OFFLINE_RESOLUTION = get_resolution()
+OFFLINE_CAMERA_POSITION = np.array([20, -50, -10])
+OFFLINE_CAMERA_ROTATION_MATRIX = np.array([
+    [0.884918212890625, -0.105633445084095, -0.4536091983318329],
+    [0.4657464325428009, 0.20070354640483856, 0.8618574738502502],
+    [0.0, -0.973940372467041, 0.22680459916591644]
+])
+OFFLINE_DISPLAY_POSITION = np.array([0, -500, 0])
+OFFLINE_DISPLAY_ROTATION = np.array([0, 0, 180])
+OFFLINE_DISPLAY_ROTATION_MATRIX = MathHelpers.euler_to_rot(OFFLINE_DISPLAY_ROTATION)
+OFFLINE_DISPLAY_NORMAL_LOCAL = np.array([0, -1, 0])
+OFFLINE_DISPLAY_NORMAL_WORLD = MathHelpers.normalize(MathHelpers.rotate(OFFLINE_DISPLAY_NORMAL_LOCAL,
+                                                                        OFFLINE_DISPLAY_ROTATION_MATRIX))
+OFFLINE_CAMERA_DIRS_WORLD = (
+            MathHelpers.rotate(np.array((1, 0, 0)), OFFLINE_CAMERA_ROTATION_MATRIX),
+            MathHelpers.rotate(np.array((0, 1, 0)), OFFLINE_CAMERA_ROTATION_MATRIX),
+            MathHelpers.rotate(np.array((0, 0, 1)), OFFLINE_CAMERA_ROTATION_MATRIX)
+        )
+
+ELEVATION = get_elevation()
+AZIMUTH = get_azimuth()
+SCALE_FACTOR = get_scale_factor()
+
+LEFT_EYE_CAMERA_POSITION = None
+LEFT_EYE_CAMERA_ROTATION_MATRIX = None
+
+RIGHT_EYE_CAMERA_POSITION = None
+RIGHT_EYE_CAMERA_ROTATION_MATRIX = None
+
+DISPLAY_WIDTH = 310
+DISPLAY_HEIGHT = 174

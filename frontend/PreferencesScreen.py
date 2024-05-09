@@ -3,7 +3,7 @@ from backend import CONFIG
 from frontend.Dialog import Dialog
 from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
                                   heading_font, text_font, QWidget_background_color, QControlPanelButton,
-                                  QControlPanelMainButton, QLabel_device, QLabel_2D_3D, QScrollBar, get_shadow)
+                                  QControlPanelMainButton, QLabel_2D_3D, QScrollBar, get_shadow)
 
 
 class UIPreferencesScreen(QtWidgets.QWidget):
@@ -179,6 +179,7 @@ class UIPreferencesScreen(QtWidgets.QWidget):
         self.save_changes_button.setFixedSize(250, 50)
         self.save_changes_button.setStyleSheet(QControlPanelMainButton)
         self.save_changes_button.setDisabled(True)
+        self.save_changes_button.setToolTip("No changes have been made yet")
         self.save_changes_button.clicked.connect(self.save_changes)
         self.save_changes_button.setGraphicsEffect(get_shadow(30))
 
@@ -365,6 +366,7 @@ class UIPreferencesScreen(QtWidgets.QWidget):
 
     def save_changes(self) -> None:
         self.save_changes_button.setDisabled(True)
+        self.save_changes_button.setToolTip("No changes have been made yet")
         CONFIG.PARAMETERS_2D = self.dictify_2d_line_edits()
         CONFIG.PARAMETERS_3D = self.dictify_3d_line_edits()
         CONFIG.update_config("parameters")
@@ -380,6 +382,7 @@ class UIPreferencesScreen(QtWidgets.QWidget):
         CONFIG.reset_config("parameters")
         self.fill_line_edits()
         self.save_changes_button.setDisabled(True)
+        self.save_changes_button.setToolTip("No changes have been made yet")
 
     def fill_line_edits(self) -> None:
         self.coarse_detection_le.setText(str(CONFIG.PARAMETERS_2D["coarse_detection"]))
@@ -431,6 +434,7 @@ class UIPreferencesScreen(QtWidgets.QWidget):
 
     def check_changes(self) -> None:
         self.save_changes_button.setDisabled(False)
+        self.save_changes_button.setToolTip("")
 
     def dictify_2d_line_edits(self) -> dict:
         if None in [self.coarse_detection_le.text(), self.coarse_filter_min_le.text(), self.coarse_filter_max_le.text(),

@@ -16,7 +16,7 @@ def main() -> None:
     stacked_widget.addWidget(home_screen)
 
     window.setCentralWidget(stacked_widget)
-    window.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+    # window.setWindowFlags(QtCore.Qt.FramelessWindowHint)
     window.setFixedSize(920, 570)
     window.show()
 

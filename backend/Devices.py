@@ -12,53 +12,75 @@ class Device:
         self.matrix_coefficients = self.get_matrix_coefficients()
         self.distortion_coefficients = self.get_distortion_coefficients()
         self.absolute_focus = self.get_absolute_focus()
+        self.focal_length = self.get_focal_length()
+        self.resolution = self.get_resolution()
+        self.auto_focus = self.get_auto_focus()
 
     def get_uid(self):
-        device_list = get_uvc_devices()
-        for device in device_list:
+        for device in get_uvc_devices():
             if device["name"] == self.name:
                 return device["uid"]
-        return False
+        return None
 
     def check_supported(self):
-        supported_devices = CONFIG.SUPPORTED_DEVICES
-        for device in supported_devices:
+        for device in CONFIG.SUPPORTED_DEVICES:
             if device["name"] == self.name:
                 return True
         return False
 
     def get_matrix_coefficients(self):
-        supported_devices = CONFIG.SUPPORTED_DEVICES
         config_matrix = []
-
-        for device in supported_devices:
+        for device in CONFIG.SUPPORTED_DEVICES:
             if device["name"] == self.name:
                 config_matrix = device["matrix_coefficients"]
 
-        return np.array((
-            (config_matrix[0][0], config_matrix[0][1], config_matrix[0][2]),
-            (config_matrix[1][0], config_matrix[1][1], config_matrix[1][2]),
-            (config_matrix[2][0], config_matrix[2][1], config_matrix[2][2])
-        ))
+        if config_matrix:
+            return np.array((
+                (config_matrix[0][0], config_matrix[0][1], config_matrix[0][2]),
+                (config_matrix[1][0], config_matrix[1][1], config_matrix[1][2]),
+                (config_matrix[2][0], config_matrix[2][1], config_matrix[2][2])
+            ))
+        else:
+            return None
 
     def get_distortion_coefficients(self):
-        supported_devices = CONFIG.SUPPORTED_DEVICES
         config_dist = []
-
-        for device in supported_devices:
+        for device in CONFIG.SUPPORTED_DEVICES:
             if device["name"] == self.name:
                 config_dist = device["distortion_coefficients"]
 
-        return np.array((
-            config_dist[0], config_dist[1], config_dist[2], config_dist[3], config_dist[4]
-        ))
+        if config_dist:
+            return np.array((
+                config_dist[0], config_dist[1], config_dist[2], config_dist[3], config_dist[4]
+            ))
+        else:
+            return None
 
     def get_absolute_focus(self):
-        supported_devices = CONFIG.SUPPORTED_DEVICES
-
-        for device in supported_devices:
+        for device in CONFIG.SUPPORTED_DEVICES:
             if device["name"] == self.name:
                 return device["absolute_focus"]
+        return None
+
+    def get_focal_length(self):
+        config_matrix = []
+        for device in CONFIG.SUPPORTED_DEVICES:
+            if device["name"] == self.name:
+                config_matrix = device["matrix_coefficients"]
+
+        if config_matrix:
+            return (config_matrix[0][0] + config_matrix[1][1]) / 2
+        else:
+            return None
+
+    def get_resolution(self):
+        cap = uvc.Capture(self.uid)
+        return [640, 480]
+
+    def get_auto_focus(self):
+        for device in CONFIG.SUPPORTED_DEVICES:
+            if device["name"] == self.name:
+                return device["auto_focus"]
         return None
 
 

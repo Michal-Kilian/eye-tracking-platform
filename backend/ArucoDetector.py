@@ -18,9 +18,7 @@ class ArucoDetector:
         self.matrix_coefficients = self.device.matrix_coefficients
         self.distortion_coefficients = self.device.distortion_coefficients
 
-    def detect(self, frame):
-        frame_gray = frame.gray
-        frame_bgr = frame.bgr
+    def detect(self, frame_gray, frame_bgr):
 
         self.corners, self.ids, self.rejected = self.aruco_detector.detectMarkers(image=frame_gray)
 
@@ -96,17 +94,19 @@ class ArucoDetector:
             rvec, _ = cv2.Rodrigues(n_rotation_matrix)
 
             # second option
-            average_rvec = Rotation.from_rotvec(rvec_list).mean().as_rotvec()
+            # rvec = Rotation.from_rotvec(rvec_list).mean().as_rotvec()
 
-            # cv2.drawFrameAxes(frame_bgr,
-            #                   self.matrix_coefficients,
-            #                   self.distortion_coefficients,
-            #                   rvec,
-            #                   average_tvec,
-            #                   100)
+            cv2.drawFrameAxes(frame_bgr,
+                              self.matrix_coefficients,
+                              self.distortion_coefficients,
+                              rvec,
+                              average_tvec,
+                              100)
 
             # 796 a dalej
             # from pupil_detectors import Detector2D
             # 2D detector, 3D detector, parametre v configu
             # rotacnu maticu do detectoru len dummy udaje (pozicia 0,0,0, rotacia nulova)
 
+            # returns display rotation vector, display rotation matrix, display center position, display normal
+            return rvec, n_rotation_matrix, average_tvec, n_z, frame_bgr

@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from backend import Devices, CONFIG
+from backend import CONFIG
+from backend.RECORDS import RecordType
 from frontend.AnalysisScreen import UIAnalysisScreen
 from frontend.IconLabelButtonWidget import IconLabelButtonWidget
 from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
@@ -115,11 +116,11 @@ class UIModeSelectionScreen(QtWidgets.QWidget):
         self.real_time_widget = IconLabelButtonWidget("./media/RealTimeIcon.png", "REAL-TIME")
         self.offline_widget = IconLabelButtonWidget("./media/DataIcon.png", "OFFLINE")
 
-        if CONFIG.MODE_SELECTED == "real-time":
+        if CONFIG.MODE_SELECTED == RecordType.REAL_TIME:
             self.real_time_widget.icon_button.setStyleSheet(
                 "QPushButton {text-align: center; background-color: white; border-radius: 105; border: 4px solid rgb("
                 "25, 32, 80);}")
-        elif CONFIG.MODE_SELECTED == "offline":
+        elif CONFIG.MODE_SELECTED == RecordType.OFFLINE:
             self.offline_widget.icon_button.setStyleSheet(
                 "QPushButton {text-align: center; background-color: white; border-radius: 105; border: 4px solid rgb("
                 "25, 32, 80);}")
@@ -164,7 +165,7 @@ class UIModeSelectionScreen(QtWidgets.QWidget):
         self.continueButton.setText(_translate("Form", "Continue"))
 
     def real_time_clicked(self) -> None:
-        if CONFIG.MODE_SELECTED == "real-time":
+        if CONFIG.MODE_SELECTED == RecordType.REAL_TIME:
             CONFIG.MODE_SELECTED = None
             self.real_time_widget.icon_button.setStyleSheet(
                 "QPushButton {text-align: center; background-color: white; border-radius: 105; "
@@ -172,7 +173,7 @@ class UIModeSelectionScreen(QtWidgets.QWidget):
             self.real_time_widget.text_label.setStyleSheet("QLabel {color: rgb(56, 65, 157);}")
             self.continueButton.setDisabled(True)
         else:
-            CONFIG.MODE_SELECTED = "real-time"
+            CONFIG.MODE_SELECTED = RecordType.REAL_TIME
             self.real_time_widget.icon_button.setStyleSheet(
                 "QPushButton {text-align: center; background-color: white; border-radius: 105; "
                 "border: 4px solid rgb(25, 32, 80);}")
@@ -184,7 +185,7 @@ class UIModeSelectionScreen(QtWidgets.QWidget):
             self.continueButton.setDisabled(False)
 
     def offline_clicked(self) -> None:
-        if CONFIG.MODE_SELECTED == "offline":
+        if CONFIG.MODE_SELECTED == RecordType.OFFLINE:
             CONFIG.MODE_SELECTED = None
             self.offline_widget.icon_button.setStyleSheet(
                 "QPushButton {text-align: center; background-color: white; border-radius: 105; "
@@ -192,7 +193,7 @@ class UIModeSelectionScreen(QtWidgets.QWidget):
             self.offline_widget.text_label.setStyleSheet("QLabel {color: rgb(56, 65, 157);}")
             self.continueButton.setDisabled(True)
         else:
-            CONFIG.MODE_SELECTED = "offline"
+            CONFIG.MODE_SELECTED = RecordType.OFFLINE
             self.offline_widget.icon_button.setStyleSheet(
                 "QPushButton {text-align: center; background-color: white; border-radius: 105; "
                 "border: 4px solid rgb(25, 32, 80);}")

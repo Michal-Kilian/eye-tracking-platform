@@ -1,20 +1,29 @@
 import os
+import threading
+import uuid
 
+import cv2
 import matplotlib
+import uvc
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QImage
-
-from Model3D import Model3D
+from Helpers import MathHelpers
+import Model3D
 from backend import Devices
+from backend import RECORDS
 from frontend.RecordsScreen import UIRecordsScreen
 from frontend.ArucoOverlay import ArucoOverlay
 from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
                                   heading_font, text_font, QWidget_background_color, QControlPanelButton,
                                   QControlPanelMainButton, QLabel_Analysis, get_shadow, QScrollBar_Images, QLabel_2D_3D,
-                                  QControlButton)
+                                  QControlButton, QScrollBar)
 from frontend.Dialog import Dialog
 from backend.Detector2D import Detector2D
+from backend.Detector3D import Detector3D
 from backend import CONFIG
+from backend.Worker import Worker
+from backend.ArucoDetector import ArucoDetector
+import time
 
 matplotlib.use('Qt5Agg')
 
@@ -31,16 +40,30 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.debug_active = None
         (self.worldDeviceLabel, self.worldDeviceStatusLabel, self.rightEyeDeviceLabel, self.rightEyeDeviceStatusLabel,
          self.leftEyeDeviceLabel, self.leftEyeDeviceStatusLabel, self.pictureLabel, self.picturePathLabel,
-         self.loadPictureButton, self.debug_display_label) = \
-            (None, None, None, None, None, None, None, None, None, None)
+         self.loadPictureButton, self.debug_right_display, self.debug_left_display, self.debug_world_display,
+         self.debug_display) = (None, None, None, None, None, None, None, None, None, None, None, None, None)
         (self.images_scroll_area, self.images_scroll_area_widget, self.images_scroll_area_layout,
          self.image_list_label) = (None, None, None, None)
         self.current_button = None
         self.image_preview, self.image_preview_label = None, None
 
-        self.test = None
-        self.deviceTooltip = "-> Home -> Devices"
-        self.loadPictureTooltip = "-> Load Picture"
+        self.detector_2d = None
+        self.frame_generator = None
+        self.detector_3d_right, self.detector_3d_left = None, None
+        self.detector_3d_offline = None
+        self.aruco_detector = None
+
+        self.threadpool = None
+        self.right_worker = None
+        self.left_worker = None
+        self.world_worker = None
+        self.analysis_worker = None
+
+        self.right_mutex, self.left_mutex, self.world_mutex = threading.Lock(), threading.Lock(), threading.Lock()
+        self.latest_right_frame, self.latest_left_frame, self.latest_world_frame = None, None, None
+        self.right_active, self.left_active, self.world_active = False, False, False
+
+        self.iteration = 0
 
         self.setObjectName("AnalysisScreen")
         self.setStyleSheet(QWidget_background_color)
@@ -140,10 +163,22 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.basic_view.setLayout(self.basic_view_layout)
         self.fill_basic_view()
 
-        self.debug_view = QtWidgets.QWidget()
-        self.debug_view_layout = QtWidgets.QGridLayout()
-        self.debug_view.setLayout(self.debug_view_layout)
-        self.fill_debug_view()
+        if CONFIG.MODE_SELECTED == RECORDS.RecordType.REAL_TIME:
+            self.debug_view = QtWidgets.QScrollArea()
+            self.debug_view.setStyleSheet(QScrollBar)
+            self.debug_view.setAlignment(QtCore.Qt.AlignCenter)
+            self.debug_view_widget = QtWidgets.QWidget()
+            self.debug_view_layout = QtWidgets.QGridLayout(self.debug_view_widget)
+
+            self.fill_real_time_debug_view()
+
+            self.debug_view.setWidget(self.debug_view_widget)
+        else:
+            self.debug_view = QtWidgets.QWidget()
+            self.debug_view_layout = QtWidgets.QGridLayout()
+            self.debug_view.setLayout(self.debug_view_layout)
+
+            self.fill_offline_debug_view()
 
         self.center_stacked_widget.addWidget(self.basic_view)
         self.center_stacked_widget.addWidget(self.debug_view)
@@ -182,7 +217,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.startButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.startButton.setFixedHeight(50)
         self.startButton.setStyleSheet(QControlPanelMainButton)
-        if CONFIG.MODE_SELECTED == "real-time":
+        if CONFIG.MODE_SELECTED == RECORDS.RecordType.REAL_TIME:
             self.startButton.setDisabled(not Devices.WORLD_DEVICE or not Devices.LEFT_EYE_DEVICE or
                                          not Devices.RIGHT_EYE_DEVICE)
         self.startButton.clicked.connect(self.start_analysis)
@@ -209,7 +244,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
     def retranslate_ui(self) -> None:
         _translate = QtCore.QCoreApplication.translate
 
-        if CONFIG.MODE_SELECTED == "real-time":
+        if CONFIG.MODE_SELECTED == RECORDS.RecordType.REAL_TIME:
             self.analysisLabel.setText(_translate("Form", "REAL-TIME ANALYSIS"))
             self.worldDeviceLabel.setText(_translate("Form", "World device:"))
             if not Devices.WORLD_DEVICE:
@@ -247,7 +282,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
                 self.picturePathLabel.setStyleSheet("background-color: rgb(165, 195, 255); rgb(25, 32, 80);")
                 self.picturePathLabel.setText(_translate("Form", CONFIG.PICTURE_SELECTED))
                 self.loadPictureButton.setText(_translate("Form", "Reset Picture"))
-        elif CONFIG.MODE_SELECTED == "offline":
+        elif CONFIG.MODE_SELECTED == RECORDS.RecordType.OFFLINE:
             self.analysisLabel.setText(_translate("Form", "OFFLINE ANALYSIS"))
             self.image_list_label.setText(_translate("Form", "List of Images"))
             self.image_preview_label.setText(_translate("Form", "Image Preview"))
@@ -257,37 +292,154 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.recordsButton.setText(_translate("Form", "Records"))
 
     def start_analysis(self) -> None:
-        if not self.analysis_running:
-            if None in [Devices.WORLD_DEVICE, Devices.LEFT_EYE_DEVICE, Devices.RIGHT_EYE_DEVICE]:
-                dlg = Dialog(self.stacked_widget, "No picture chosen", "Continue",
-                             "Cancel", "Are you sure you want to continue without a picture loaded?")
-                if not dlg.exec():
-                    return
+        if CONFIG.MODE_SELECTED == RECORDS.RecordType.REAL_TIME:
+            if not self.analysis_running:
+                if not CONFIG.PICTURE_SELECTED:
+                    dlg = Dialog(self.stacked_widget, "No picture chosen", "Continue",
+                                 "Cancel", "Are you sure you want to continue without a picture loaded?")
+                    if not dlg.exec():
+                        return
 
-            self.overlay = ArucoOverlay()
-            self.overlay.showFullScreen()
-            self.startButton.setText("Stop")
+                self.overlay = ArucoOverlay()
+                self.overlay.showFullScreen()
+                self.startButton.setText("Stop")
+                self.analysis_running = True
 
-            # self.test = MainTest()
-            # self.test.start()
+                self.detector_2d = Detector2D()
+                self.detector_3d_right = Detector3D("right")
+                self.detector_3d_left = Detector3D("left")
+                self.aruco_detector = ArucoDetector()
 
-            self.test = Detector2D()
-            while self.analysis_running:
-                image = self.test.detect()
+                self.threadpool = QtCore.QThreadPool()
+                self.right_worker = Worker(self.right_frame_thread)
+                self.left_worker = Worker(self.left_frame_thread)
+                self.world_worker = Worker(self.world_frame_thread)
+                self.analysis_worker = Worker(self.real_time_analysis_thread)
 
-            self.analysis_running = True
-        else:
-            self.overlay.close()
-            self.startButton.setText("Start")
+                self.threadpool.start(self.right_worker)
+                self.threadpool.start(self.left_worker)
+                self.threadpool.start(self.world_worker)
+                self.threadpool.start(self.analysis_worker)
 
-            self.test.stop()
-            self.analysis_running = False
+                print("active threads:", self.threadpool.activeThreadCount())
+
+            else:
+                self.overlay.close()
+                self.stop_real_time_workers()
+                self.startButton.setText("Start")
+                self.analysis_running = False
+
+        elif CONFIG.MODE_SELECTED == RECORDS.RecordType.OFFLINE:
+            if not self.debug_active:
+                self.toggle_debug_view()
+
+            if not self.analysis_running:
+                self.startButton.setText("Stop")
+                self.analysis_running = True
+
+                self.detector_2d = Detector2D()
+                self.detector_3d_offline = Detector3D()
+
+                self.frame_generator = frame_generator(CONFIG.OFFLINE_MODE_MAX_ID,
+                                                       "./" + CONFIG.OFFLINE_MODE_DIRECTORY +
+                                                       "/example_{0}.png")
+
+                self.threadpool = QtCore.QThreadPool()
+                worker = Worker(self.offline_analysis_thread)
+                self.threadpool.start(worker)
+
+            else:
+                self.startButton.setText("Start")
+                self.analysis_running = False
+
+    def real_time_analysis_thread(self):
+        record = RECORDS.Record()
+        record.id = uuid.uuid4()
+        record.timestamp = time.time()
+        record.type = RECORDS.RecordType.REAL_TIME
+        record.raw_data = []
+
+        while self.analysis_running:
+            # world
+            world_frame = self.read_world_frame()
+            display_rotation_wcs, display_rotation_matrix, display_position_wcs, normal_wcs, world_img \
+                = self.aruco_detector.detect(world_frame.gray, world_frame.bgr)
+
+            # right eye
+            right_frame = self.read_right_frame()
+            right_result_2d, right_img, right_frame_gray = self.detector_2d.detect(right_frame,
+                                                                                   Devices.RIGHT_EYE_DEVICE)
+            right_result_3d = self.detector_3d_right.detect(right_result_2d, right_frame_gray, normal_wcs,
+                                                            display_position_wcs, display_rotation_wcs)
+
+            # left eye
+            left_frame = self.read_left_frame()
+            left_result_2d, left_img, left_frame_gray = self.detector_2d.detect(left_frame,
+                                                                                Devices.LEFT_EYE_DEVICE)
+            left_result_3d = self.detector_3d_left.detect(left_result_2d, left_frame_gray, normal_wcs,
+                                                          display_position_wcs, display_rotation_wcs)
+
+            avg_uv_coordinates = ((right_result_3d[0] + left_result_3d[0]) / 2,
+                                  (right_result_3d[1] + left_result_3d[1]) / 2)
+
+            record.raw_data.append(list(avg_uv_coordinates))
+
+            self.display_uv_coords(avg_uv_coordinates)
+            display_image(right_img, self.debug_right_display)
+            display_image(left_img, self.debug_left_display)
+            display_image(world_img, self.debug_world_display)
+
+    def offline_analysis_thread(self) -> None:
+        i = CONFIG.OFFLINE_MODE_MIN_ID
+
+        record = RECORDS.Record()
+        record.id = uuid.uuid4()
+        record.timestamp = time.time()
+        record.type = RECORDS.RecordType.OFFLINE
+        record.raw_data = []
+
+        while self.analysis_running:
+            if i == CONFIG.OFFLINE_MODE_MAX_ID:
+                self.startButton.setText("Start")
+                self.analysis_running = False
+                RECORDS.append_record(record)
+
+            frame_bgr = next(self.frame_generator)
+            frame_gray = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2GRAY)
+
+            result_2d, img, frame_gray = self.detector_2d.detect(frame_gray, frame_bgr)
+            result_3d, eye_pos_world, gaze_ray = self.detector_3d_offline.detect_offline(result_2d, frame_gray)
+
+            record.raw_data.append(list(result_3d))
+
+            ###
+
+            model = cv2.cvtColor(Model3D.visualize_raycast(
+                        record.raw_data,
+                        result_3d,
+                        CONFIG.OFFLINE_CAMERA_POSITION,
+                        eye_pos_world,
+                        CONFIG.OFFLINE_CAMERA_DIRS_WORLD,
+                        gaze_ray,
+                        screen_width=CONFIG.DISPLAY_WIDTH,
+                        screen_height=CONFIG.DISPLAY_HEIGHT,
+                        ray_number=0),
+                    cv2.COLOR_BGR2RGB)
+
+            self.display_point(result_3d)
+            display_image(img, self.debug_display)
+            display_image(model, self.model_3d)
+            i += 1
+
+    def stop_real_time_workers(self):
+        self.right_active, self.left_active, self.world_active = False, False, False
 
     def switch_to_main(self) -> None:
         self.stacked_widget.setCurrentIndex(0)
 
     def switch_to_records(self) -> None:
-        records_screen = UIRecordsScreen(self.application, self.stacked_widget, "analysis")
+        self.iteration += 1
+        records_screen = UIRecordsScreen(self.application, self.stacked_widget, "analysis", self.iteration)
         self.stacked_widget.addWidget(records_screen)
         self.stacked_widget.setCurrentWidget(records_screen)
 
@@ -321,7 +473,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
             self.debug_active = True
 
     def fill_basic_view(self) -> None:
-        if CONFIG.MODE_SELECTED == "real-time":
+        if CONFIG.MODE_SELECTED == RECORDS.RecordType.REAL_TIME:
             self.worldDeviceLabel = QtWidgets.QLabel()
             self.worldDeviceLabel.setFont(text_font())
             self.worldDeviceLabel.setLineWidth(1)
@@ -405,7 +557,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
             self.basic_view_layout.addWidget(self.picturePathLabel, 3, 1)
             self.basic_view_layout.addWidget(self.loadPictureButton, 4, 1)
 
-        elif CONFIG.MODE_SELECTED == "offline":
+        elif CONFIG.MODE_SELECTED == RECORDS.RecordType.OFFLINE:
             self.image_list_label = QtWidgets.QLabel()
             self.image_list_label.setFont(text_font())
             self.image_list_label.setStyleSheet(QLabel_2D_3D)
@@ -432,6 +584,8 @@ class UIAnalysisScreen(QtWidgets.QWidget):
                 self.images_scroll_area_layout.addWidget(no_files_label)
             else:
                 files = os.listdir(abs_directory)
+
+            files.sort(key=lambda x: int(x[8:-4]))
 
             for _file in files:
                 file_button: QtWidgets.QPushButton = QtWidgets.QPushButton(_file)
@@ -489,29 +643,202 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         else:
             self.image_preview.setText("<span style='color: '>No preview available</span>")
 
-    def display_image(self, img):
-        qformat = QImage.Format_Indexed8
+    def display_uv_coords(self, uv_coordinates) -> None:
+        # circle_coordinates = (image_pixel_width * uv_coordinates[0], image_pixel_height * uv_coordinates[1])
+        # displaynut tieto coords na obrazku/screene
+        ...
 
-        if len(img.shape) == 3:
-            if img.shape[2] == 4:
-                qformat = QImage.Format_RGBA8888
-            else:
-                qformat = QImage.Format_RGB888
+    def display_point(self, coordinates):
+        # ako u rapcana
+        ...
 
-        out_image = QImage(img, img.shape[1], img.shape[0], img.strides[0], qformat)
-        out_image = out_image.rgbSwapped()
-        self.debug_display_label.setPixmap(QtGui.QPixmap.fromImage(out_image))
-        self.debug_display_label.setScaledContents(True)
+    def fill_real_time_debug_view(self) -> None:
+        debug_right_display_title = QtWidgets.QLabel("Right Eye Detection")
+        debug_right_display_title.setFont(text_font())
+        debug_right_display_title.setAlignment(QtCore.Qt.AlignCenter)
 
-    def fill_debug_view(self) -> None:
-        self.model_3d = Model3D(10, 10)
-        self.model_3d.visualize_graph([(0, -500, 100)], (0, -50, 0), (0, 0, 0),
-                                      (0, 50, 1), scale_factor=0.5)
+        debug_left_display_title = QtWidgets.QLabel("Left Eye Detection")
+        debug_left_display_title.setFont(text_font())
+        debug_left_display_title.setAlignment(QtCore.Qt.AlignCenter)
 
-        self.debug_display_label = QtWidgets.QLabel("Debug Display Label")
-        self.debug_display_label.setFixedWidth(515)
-        self.debug_display_label.setStyleSheet("border: 2px solid black; margin: 20px")
-        self.debug_display_label.setAlignment(QtCore.Qt.AlignCenter)
+        model_3d_title = QtWidgets.QLabel("3D Model")
+        model_3d_title.setFont(text_font())
+        model_3d_title.setAlignment(QtCore.Qt.AlignCenter)
+        model_3d_title.setStyleSheet("margin-top: 30px;")
 
-        self.debug_view_layout.addWidget(self.model_3d, 0, 0)
-        self.debug_view_layout.addWidget(self.debug_display_label, 0, 1)
+        aruco_detection_title = QtWidgets.QLabel("Aruco Detection")
+        aruco_detection_title.setFont(text_font())
+        aruco_detection_title.setAlignment(QtCore.Qt.AlignCenter)
+        aruco_detection_title.setStyleSheet("margin-top: 30px;")
+
+        self.debug_right_display = QtWidgets.QLabel("Debug Right Display Label")
+        self.debug_right_display.setStyleSheet("margin: 20px")
+        self.debug_right_display.setAlignment(QtCore.Qt.AlignCenter)
+        pixmap = QtGui.QPixmap("./media/EyeIcon.png")
+        self.debug_right_display.setPixmap(pixmap)
+        self.debug_right_display.setFixedSize(400, 300)
+        self.debug_right_display.setScaledContents(True)
+
+        self.debug_left_display = QtWidgets.QLabel("Debug Left Display Label")
+        self.debug_left_display.setStyleSheet("margin: 20px")
+        self.debug_left_display.setAlignment(QtCore.Qt.AlignCenter)
+        pixmap = QtGui.QPixmap("./media/EyeIcon.png")
+        self.debug_left_display.setPixmap(pixmap)
+        self.debug_left_display.setFixedSize(400, 300)
+        self.debug_left_display.setScaledContents(True)
+
+        self.model_3d = QtWidgets.QLabel("3D Model Display Label")
+        self.model_3d.setFixedSize(400, 300)
+        self.model_3d.setStyleSheet("margin: 20px; background-color: rgb(194, 217, 255);")
+        self.model_3d.setAlignment(QtCore.Qt.AlignCenter)
+        pixmap = QtGui.QPixmap("./media/EyeIcon.png")
+        self.model_3d.setPixmap(pixmap)
+        self.model_3d.setScaledContents(True)
+
+        self.debug_world_display = QtWidgets.QLabel("Debug World Display Label")
+        self.debug_world_display.setStyleSheet("margin: 20px")
+        self.debug_world_display.setAlignment(QtCore.Qt.AlignCenter)
+        pixmap = QtGui.QPixmap("./media/EyeIcon.png")
+        self.debug_world_display.setPixmap(pixmap)
+        self.debug_world_display.setFixedSize(400, 300)
+        self.debug_world_display.setScaledContents(True)
+
+        self.debug_view_layout.addWidget(debug_right_display_title, 0, 0)
+        self.debug_view_layout.addWidget(debug_left_display_title, 0, 1)
+        self.debug_view_layout.addWidget(self.debug_right_display, 1, 0)
+        self.debug_view_layout.addWidget(self.debug_left_display, 1, 1)
+        self.debug_view_layout.addWidget(model_3d_title, 2, 0)
+        self.debug_view_layout.addWidget(aruco_detection_title, 2, 1)
+        self.debug_view_layout.addWidget(self.model_3d, 3, 0)
+        self.debug_view_layout.addWidget(self.debug_world_display, 3, 1)
+
+    def fill_offline_debug_view(self):
+        self.model_3d = QtWidgets.QLabel("3D Model Display Label")
+        self.model_3d.setFixedSize(400, 300)
+        self.model_3d.setStyleSheet("margin: 20px; background-color: rgb(194, 217, 255);")
+        self.model_3d.setAlignment(QtCore.Qt.AlignCenter)
+        pixmap = QtGui.QPixmap("./media/EyeIcon.png")
+        self.model_3d.setPixmap(pixmap)
+        self.model_3d.setScaledContents(True)
+
+        model_3d_title = QtWidgets.QLabel("3D Model")
+        model_3d_title.setFont(text_font())
+        model_3d_title.setAlignment(QtCore.Qt.AlignCenter)
+
+        debug_display_title = QtWidgets.QLabel("Eye Detection")
+        debug_display_title.setFont(text_font())
+        debug_display_title.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.debug_display = QtWidgets.QLabel("Debug Right Display Label")
+        self.debug_display.setFixedSize(400, 300)
+        self.debug_display.setStyleSheet("margin: 20px")
+        self.debug_display.setAlignment(QtCore.Qt.AlignCenter)
+        pixmap = QtGui.QPixmap("./media/EyeIcon.png")
+        self.debug_display.setPixmap(pixmap)
+        self.debug_display.setScaledContents(True)
+
+        self.debug_view_layout.addWidget(model_3d_title, 0, 1)
+        self.debug_view_layout.addWidget(debug_display_title, 0, 2)
+        self.debug_view_layout.addWidget(self.model_3d, 1, 1)
+        self.debug_view_layout.addWidget(self.debug_display, 1, 2)
+
+    def right_frame_thread(self):
+        cap = uvc.Capture(Devices.RIGHT_EYE_DEVICE.uid)
+        self.right_active = True
+
+        while self.right_active:
+            try:
+                frame = cap.get_frame_robust()
+                if frame:
+                    self.right_mutex.acquire()
+                    self.latest_right_frame = frame
+                    self.right_mutex.release()
+
+                    print("RIGHT")
+                    print(self.latest_right_frame)
+            except TimeoutError:
+                print("R - TimeoutError")
+
+    def read_right_frame(self):
+        ret = None
+        self.right_mutex.acquire()
+        if self.latest_right_frame is not None:
+            ret = self.latest_right_frame
+        self.right_mutex.release()
+        print("RIGHT")
+        print(ret)
+        return ret
+
+    def left_frame_thread(self):
+        cap = uvc.Capture(Devices.LEFT_EYE_DEVICE.uid)
+        self.left_active = True
+
+        while self.left_active:
+            try:
+                frame = cap.get_frame_robust()
+                if frame:
+                    self.left_mutex.acquire()
+                    self.latest_left_frame = frame
+                    self.left_mutex.release()
+
+                    print("LEFT")
+                    print(self.latest_left_frame)
+            except TimeoutError:
+                print("L - TimeoutError")
+
+    def read_left_frame(self):
+        ret = None
+        self.left_mutex.acquire()
+        if self.latest_left_frame is not None:
+            ret = self.latest_left_frame
+        self.left_mutex.release()
+        print("LEFT")
+        print(ret)
+        return ret
+
+    def world_frame_thread(self):
+        cap = uvc.Capture(Devices.WORLD_DEVICE.uid)
+        self.world_active = True
+
+        while self.world_active:
+            try:
+                frame = cap.get_frame_robust()
+                if frame:
+                    self.world_mutex.acquire()
+                    self.latest_world_frame = frame
+                    self.world_mutex.release()
+
+            except TimeoutError:
+                print("W - TimeoutError")
+
+    def read_world_frame(self):
+        ret = None
+        self.world_mutex.acquire()
+        if self.latest_world_frame is not None:
+            ret = self.latest_world_frame
+        self.world_mutex.release()
+        print("WORLD")
+        print(ret)
+        return ret
+
+
+def display_image(img, label):
+    qformat = QImage.Format_Indexed8
+
+    if len(img.shape) == 3:
+        if img.shape[2] == 4:
+            qformat = QImage.Format_RGBA8888
+        else:
+            qformat = QImage.Format_RGB888
+
+    out_image = QImage(img, img.shape[1], img.shape[0], img.strides[0], qformat)
+    out_image = out_image.rgbSwapped()
+    label.setPixmap(QtGui.QPixmap.fromImage(out_image))
+    label.setScaledContents(True)
+
+
+def frame_generator(max_id: int, path_format: str):
+    num = 0
+    while True:
+        yield cv2.imread(path_format.format(num))
+        num = (num + 1) % (max_id + 1)

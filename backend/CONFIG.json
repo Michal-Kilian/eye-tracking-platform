@@ -27,7 +27,8 @@
                 -0.00105836974,
                 0.379719505
             ],
-            "absolute_focus": 13
+            "absolute_focus": 13,
+            "auto_focus": 0
         }
     ],
     "detector_2D_parameters": {
@@ -103,5 +104,13 @@
         "model_update_interval_ult_long_term": 10.0,
         "model_warmup_duration": 5.0,
         "calculate_rms_residual": false
-    }
+    },
+    "offline_focal_length": 772.55,
+    "offline_resolution": [
+        640,
+        480
+    ],
+    "elevation": 15,
+    "azimuth": 270,
+    "scale_factor": 1.0
 }

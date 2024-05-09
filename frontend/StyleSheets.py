@@ -185,6 +185,9 @@ QControlPanelMainButton = ("""
     QPushButton::disabled {
         background-color: rgba(56, 65, 157, 50);
     }
+    QPushButton:hover {
+        font: 63 12pt 'Yu Gothic UI Semibold'
+    }
 """)
 
 QControlButton = ("""
@@ -381,7 +384,7 @@ QScrollBar = ("""
 
 QLabel_Analysis = ("""
     QLabel {
-        background-color: rgb(56,65,157); 
+        background-color: rgb(56, 65, 157); 
         color: rgba(255, 255, 255, 95);
     }
     QToolTip {
@@ -448,5 +451,34 @@ QScrollBar_Images = ("""
         color: white; 
         background-color: rgb(56, 65, 157); 
         border: none;
+    }
+""")
+
+
+QSpeedSlider = ("""
+    QSlider::handle {
+        background-color: rgb(56, 65, 157);
+        height: 30px;
+        border-radius: 10px;
+    }
+    QSlider::groove {
+        background-color: white;
+        border-radius: 10px;
+    }
+    QSlider::handle:hover {
+        background-color: rgb(25, 32, 80);
+    }
+    QToolTip {
+        color: white; 
+        background-color: rgb(56, 65, 157); 
+        border: none;
+    }
+""")
+
+QLabel_Detail = ("""
+    QLabel {
+        background-color: rgb(165, 195, 255);
+        padding: 5px;
+        border-radius: 20px;
     }
 """)
