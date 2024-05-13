@@ -1,8 +1,7 @@
 import cv2
 import ctypes
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout
-from PyQt5.QtGui import QPixmap, QImage
-from PyQt5.QtCore import Qt
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QImage
 from backend import Devices
 
 
@@ -13,32 +12,57 @@ def get_screen_resolution():
     return screen_width, screen_height
 
 
-class ArucoOverlay(QWidget):
+class FullscreenImage(QtWidgets.QWidget):
+    def __init__(self, image_path):
+        super().__init__()
+        self.image_path = image_path
+
+        self.setWindowTitle('Fullscreen Image')
+        self.setGeometry(0, 0, *get_screen_resolution())  # Set the window size to the screen resolution
+        self.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)  # Keep the window always on top
+
+        self.label = QtWidgets.QLabel(self)
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.addWidget(self.label)
+        self.setLayout(layout)
+
+        self.showFullScreen()
+
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        painter.fillRect(self.rect(), QtCore.Qt.black)  # Fill the background with black
+        pixmap = QtGui.QPixmap(self.image_path)
+        scaled_pixmap = pixmap.scaled(self.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        painter.drawPixmap(self.rect(), scaled_pixmap)
+
+
+class ArucoOverlay(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
 
-        self.setWindowFlags(
-            Qt.Window | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.CustomizeWindowHint
-        )
-        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint |
+                            QtCore.Qt.CustomizeWindowHint)
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 
-        layout = QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
-        self.label_top_left = QLabel()
-        self.label_top_right = QLabel()
-        self.label_bottom_left = QLabel()
-        self.label_bottom_right = QLabel()
+        self.label_top_left = QtWidgets.QLabel()
+        self.label_top_right = QtWidgets.QLabel()
+        self.label_bottom_left = QtWidgets.QLabel()
+        self.label_bottom_right = QtWidgets.QLabel()
 
-        top_layout = QHBoxLayout()
-        bottom_layout = QHBoxLayout()
+        top_layout = QtWidgets.QHBoxLayout()
+        bottom_layout = QtWidgets.QHBoxLayout()
 
-        top_layout.addWidget(self.label_top_left, alignment=Qt.AlignLeft)
-        top_layout.addWidget(self.label_top_right, alignment=Qt.AlignRight)
+        top_layout.addWidget(self.label_top_left, alignment=QtCore.Qt.AlignLeft)
+        top_layout.addWidget(self.label_top_right, alignment=QtCore.Qt.AlignRight)
 
-        bottom_layout.addWidget(self.label_bottom_left, alignment=Qt.AlignLeft)
-        bottom_layout.addWidget(self.label_bottom_right, alignment=Qt.AlignRight)
+        bottom_layout.addWidget(self.label_bottom_left, alignment=QtCore.Qt.AlignLeft)
+        bottom_layout.addWidget(self.label_bottom_right, alignment=QtCore.Qt.AlignRight)
 
         layout.addLayout(top_layout)
         layout.addStretch(1)
@@ -66,8 +90,12 @@ class ArucoOverlay(QWidget):
             q_img = QImage(marker_image_rgb.data, marker_image_rgb.shape[1], marker_image_rgb.shape[0],
                            QImage.Format_RGB888)
 
-            pixmap = QPixmap.fromImage(q_img)
+            pixmap = QtGui.QPixmap.fromImage(q_img)
             label.setPixmap(pixmap)
 
         for label in [self.label_top_left, self.label_top_right, self.label_bottom_left, self.label_bottom_right]:
             label.setFixedSize(corner_size + margin + margin, corner_size + margin + margin)
+
+    def show_fullscreen_image(self, image_path):
+        self.fullscreen_image = FullscreenImage(image_path)
+        self.fullscreen_image.show()

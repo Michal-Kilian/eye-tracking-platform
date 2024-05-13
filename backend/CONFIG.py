@@ -1,8 +1,6 @@
 import json
 from typing import TextIO
-
 import numpy as np
-
 from Helpers import MathHelpers
 
 
@@ -80,9 +78,18 @@ def get_scale_factor():
     return json.load(f)["scale_factor"]
 
 
-def get_records() -> list:
-    f = open("backend/CONFIG.json")
-    return json.load(f)["records"]
+def get_camera_position(camera_type: str):
+    if TEST and camera_type == "right":
+        return np.array([-30, -30, 0])
+    elif TEST and camera_type == "left":
+        return np.array([30, -30, 0])
+    ...
+
+
+def get_camera_rotation_matrix(camera_type: str):
+    if TEST:
+        return
+    ...
 
 
 SUPPORTED_DEVICES = get_supported_devices()
@@ -118,11 +125,20 @@ ELEVATION = get_elevation()
 AZIMUTH = get_azimuth()
 SCALE_FACTOR = get_scale_factor()
 
-LEFT_EYE_CAMERA_POSITION = None
-LEFT_EYE_CAMERA_ROTATION_MATRIX = None
+RIGHT_EYE_CAMERA_POSITION = np.array([-30, -30, 0])
+# RIGHT_EYE_CAMERA_POSITION = get_camera_position("right")
+RIGHT_EYE_CAMERA_ROTATION_MATRIX = MathHelpers.euler_to_rot((0, -180, 0))
+# RIGHT_EYE_CAMERA_ROTATION_MATRIX = get_camera_rotation_matrix("right")
 
-RIGHT_EYE_CAMERA_POSITION = None
-RIGHT_EYE_CAMERA_ROTATION_MATRIX = None
+LEFT_EYE_CAMERA_POSITION = np.array([30, -30, 0])
+# LEFT_EYE_CAMERA_POSITION = get_camera_position("left")
+LEFT_EYE_CAMERA_ROTATION_MATRIX = MathHelpers.euler_to_rot((0, -180, 0))
+# LEFT_EYE_CAMERA_ROTATION_MATRIX = get_camera_rotation_matrix("left")
 
 DISPLAY_WIDTH = 310
 DISPLAY_HEIGHT = 174
+
+OFFLINE_DISPLAY_WIDTH = 250
+OFFLINE_DISPLAY_HEIGHT = 250
+
+TEST = False

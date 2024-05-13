@@ -36,6 +36,10 @@ class MathHelpers:
         return cls.rotate(p, rotMat) + position
 
     @classmethod
+    def inverse_transform(cls, p, position, rotMat):
+        return (p - position) @ rotMat
+
+    @classmethod
     def rotate(cls, p, rot_mat):
         return p @ rot_mat.T
 
@@ -53,10 +57,6 @@ class MathHelpers:
         return ray[0] + ray[1] * distance
 
     @classmethod
-    def transfer_vector(cls, vec, position, rotation):
-        return vec @ cls.euler_to_rot(rotation) + position
-
-    @classmethod
     def euler_to_rot(cls, theta, degrees=True):
         r = Rotation.from_euler("zxy", (theta[2], theta[0], theta[1]), degrees)
         return r.as_matrix()
@@ -64,7 +64,7 @@ class MathHelpers:
     @classmethod
     def convert_to_uv(cls, vec, size_x, size_y, flip_y=True, include_outliers=False):
         x = (vec[0] + size_x / 2) / size_x
-        y = (vec[2] + size_y / 2) / size_y
+        y = (vec[1] + size_y / 2) / size_y
         if flip_y:
             y = 1 - y
 
@@ -72,3 +72,11 @@ class MathHelpers:
             if x < 0 or x > 1 or y < 0 or y > 1:
                 return None
         return x, y
+
+    @classmethod
+    def convert_uv_to_px(cls, uv_data, width, height):
+        return int(uv_data[0] * width), int(uv_data[1] * height)
+
+    @classmethod
+    def lerp(cls, a, b, t):
+        return (1 - t) * a + t * b

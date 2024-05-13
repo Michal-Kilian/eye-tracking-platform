@@ -30,7 +30,8 @@ class ArucoDetector:
 
             for i in range(0, len(self.ids)):
                 if self.ids[i][0] > 3:
-                    return
+                    # print("1 - detected other id than 0, 1, 2, 3;", self.ids[i][0])
+                    return False
 
                 cv2.aruco.drawDetectedMarkers(frame_bgr, self.corners, self.ids)
 
@@ -44,22 +45,19 @@ class ArucoDetector:
                 tvec_dict[self.ids[i][0]] = tvec.ravel()
                 rvec_list.append(rvec.ravel())
 
-                # print("rvec:", rvec)
-                # print("tvec:", tvec)
-                # print("tvec.ravel()", tvec.ravel())
-
                 total_rvec += rvec.ravel()
                 total_tvec += tvec.ravel()
 
-                # cv2.drawFrameAxes(frame_bgr,
-                #                   self.matrix_coefficients,
-                #                   self.distortion_coefficients,
-                #                   rvec,
-                #                   tvec,
-                #                   100)
+                cv2.drawFrameAxes(frame_bgr,
+                                  self.matrix_coefficients,
+                                  self.distortion_coefficients,
+                                  rvec,
+                                  tvec,
+                                  100)
 
             if len(tvec_dict) != 4:
-                return
+                # print("2 - not 4 markers detected")
+                return False
 
             average_tvec = total_tvec / 4
 

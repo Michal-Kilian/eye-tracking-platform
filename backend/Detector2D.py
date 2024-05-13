@@ -1,5 +1,4 @@
 import time
-
 import uvc
 import cv2
 from pupil_detectors import Detector2D as Det2D
@@ -13,7 +12,6 @@ class Detector2D:
 
         if CONFIG.MODE_SELECTED == RECORDS.RecordType.REAL_TIME and camera is not None:
             self.cap = uvc.Capture(camera)
-            self.cap.frame_mode = self.cap.available_modes[34]
             self.controls_dict = dict([(c.display_name, c) for c in self.cap.controls])
             self.controls_dict['Auto Focus'].value = camera.auto_focus
             self.controls_dict['Absolute Focus'].value = camera.absolute_focus
@@ -22,4 +20,4 @@ class Detector2D:
         result = self.detector.detect(frame_gray, frame_bgr)
         result["timestamp"] = time.time()
 
-        return result, frame_bgr, frame_gray
+        return result, frame_gray, frame_bgr
