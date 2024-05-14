@@ -13,7 +13,7 @@ class Device:
         self.distortion_coefficients = self.get_distortion_coefficients()
         self.absolute_focus = self.get_absolute_focus()
         self.focal_length = self.get_focal_length()
-        self.resolution = self.get_resolution()
+        self.mode_index = self.get_mode_index()
         self.auto_focus = self.get_auto_focus()
         self.position = self.get_position()
         self.rotation_matrix = self.get_rotation_matrix()
@@ -81,9 +81,12 @@ class Device:
         else:
             return None
 
-    def get_resolution(self):
-        cap = uvc.Capture(self.uid)
-        return [640, 480]
+    def get_mode_index(self):
+        for device in CONFIG.SUPPORTED_DEVICES:
+            if device["name"] == self.name:
+                if "mode_index" in device.keys():
+                    return device["mode_index"]
+        return None
 
     def get_auto_focus(self):
         for device in CONFIG.SUPPORTED_DEVICES:
