@@ -5,11 +5,11 @@ from backend import CONFIG
 
 
 class Device:
-    def __init__(self, name, device_type):
-        self.name = name
+    def __init__(self, name_and_uid, device_type):
+        self.name = name_and_uid.split(CONFIG.DELIMITER)[0]
         self.device_type = device_type
         self.supported_name = self.name + " " + self.device_type.upper()
-        self.uid = self.get_uid()
+        self.uid = name_and_uid.split(CONFIG.DELIMITER)[-1]
         self.supported = self.check_supported()
         self.matrix_coefficients = self.get_matrix_coefficients()
         self.distortion_coefficients = self.get_distortion_coefficients()
@@ -23,7 +23,7 @@ class Device:
 
     def get_uid(self):
         for device in get_uvc_devices():
-            if device["name"] == self.supported_name:
+            if device["name"] == self.name:
                 if "uid" in device.keys():
                     return device["uid"]
         return None

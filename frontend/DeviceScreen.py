@@ -4,7 +4,7 @@ from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
                                   heading_font, QWidget_background_color, text_font, QLabel_device,
                                   QComboBox_device, QControlPanelMainButton, QControlPanelButton, qcombobox_font,
                                   QDevicePreviewButton, QRefreshButton, QComboBox_selected, get_shadow)
-from backend import Devices
+from backend import Devices, CONFIG
 from DevicePreview import DevicePreview
 
 
@@ -348,9 +348,9 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.world_select.clear()
 
         for device in uvc.device_list():
-            self.right_eye_select.addItem(device["name"])
-            self.left_eye_select.addItem(device["name"])
-            self.world_select.addItem(device["name"])
+            self.right_eye_select.addItem(device["name"] + CONFIG.DELIMITER + device["uid"])
+            self.left_eye_select.addItem(device["name"] + CONFIG.DELIMITER + device["uid"])
+            self.world_select.addItem(device["name"] + CONFIG.DELIMITER + device["uid"])
 
     def toggle_right_preview(self) -> None:
         if self.right_eye_select.currentText() == '':
