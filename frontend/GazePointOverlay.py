@@ -31,4 +31,6 @@ class GazePointOverlay(QtWidgets.QWidget):
         gaze_x = uv_x * self.screen_width
         gaze_y = uv_y * self.screen_height
 
+        print(gaze_x, gaze_y)
+
         self.gaze_label.move(gaze_x, gaze_y)

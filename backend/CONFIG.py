@@ -78,20 +78,6 @@ def get_scale_factor():
     return json.load(f)["scale_factor"]
 
 
-def get_camera_position(camera_type: str):
-    if TEST and camera_type == "right":
-        return np.array([-30, -30, 0])
-    elif TEST and camera_type == "left":
-        return np.array([30, -30, 0])
-    ...
-
-
-def get_camera_rotation_matrix(camera_type: str):
-    if TEST:
-        return
-    ...
-
-
 SUPPORTED_DEVICES = get_supported_devices()
 PARAMETERS_2D = get_2d_parameters()
 PARAMETERS_3D = get_3d_parameters()
@@ -125,20 +111,18 @@ ELEVATION = get_elevation()
 AZIMUTH = get_azimuth()
 SCALE_FACTOR = get_scale_factor()
 
-RIGHT_EYE_CAMERA_POSITION = np.array([-30, -30, 0])
-# RIGHT_EYE_CAMERA_POSITION = get_camera_position("right")
-RIGHT_EYE_CAMERA_ROTATION_MATRIX = MathHelpers.euler_to_rot((0, -180, 0))
-# RIGHT_EYE_CAMERA_ROTATION_MATRIX = get_camera_rotation_matrix("right")
+TEST_RIGHT_EYE_CAMERA_POSITION = np.array([-30, -30, 0])
+TEST_RIGHT_EYE_CAMERA_ROTATION_MATRIX = MathHelpers.euler_to_rot((0, -180, 0))
 
-LEFT_EYE_CAMERA_POSITION = np.array([30, -30, 0])
-# LEFT_EYE_CAMERA_POSITION = get_camera_position("left")
-LEFT_EYE_CAMERA_ROTATION_MATRIX = MathHelpers.euler_to_rot((0, -180, 0))
-# LEFT_EYE_CAMERA_ROTATION_MATRIX = get_camera_rotation_matrix("left")
+TEST_LEFT_EYE_CAMERA_POSITION = np.array([30, -30, 0])
+TEST_LEFT_EYE_CAMERA_ROTATION_MATRIX = MathHelpers.euler_to_rot((0, -180, 0))
 
 DISPLAY_WIDTH = 310
 DISPLAY_HEIGHT = 174
 
 OFFLINE_DISPLAY_WIDTH = 250
 OFFLINE_DISPLAY_HEIGHT = 250
+
+MARKER_LENGTH = 34.8
 
 TEST = False

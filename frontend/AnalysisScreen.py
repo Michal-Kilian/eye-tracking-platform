@@ -54,7 +54,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.detector_3d_offline = None
         self.aruco_detector = None
 
-        self.threadpool = None
+        self.threadpool = QtCore.QThreadPool().globalInstance()
         self.right_worker = None
         self.left_worker = None
         self.world_worker = None
@@ -318,8 +318,8 @@ class UIAnalysisScreen(QtWidgets.QWidget):
                 self.analysis_running = True
 
                 self.detector_2d = Detector2D()
-                self.detector_3d_right = Detector3D("right")
-                self.detector_3d_left = Detector3D("left")
+                self.detector_3d_right = Detector3D(Devices.RIGHT_EYE_DEVICE, "right")
+                self.detector_3d_left = Detector3D(Devices.LEFT_EYE_DEVICE, "left")
                 self.aruco_detector = ArucoDetector()
 
                 if CONFIG.TEST:
@@ -327,7 +327,6 @@ class UIAnalysisScreen(QtWidgets.QWidget):
                                                            "./" + CONFIG.OFFLINE_MODE_DIRECTORY +
                                                            "/example_{0}.png")
 
-                self.threadpool = QtCore.QThreadPool()
                 if not CONFIG.TEST:
                     self.right_worker = Worker(self.right_frame_thread)
                     self.left_worker = Worker(self.left_frame_thread)
@@ -385,7 +384,6 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         print("STARTING")
 
         while self.analysis_running:
-            # time.sleep(0.07)
             if i % CONFIG.OFFLINE_MODE_MAX_ID == 0:
                 print("END OF CYCLE")
 
@@ -461,37 +459,33 @@ class UIAnalysisScreen(QtWidgets.QWidget):
             if not right_result_3d and not left_result_3d:
                 i += 1
                 continue
-            elif not right_result_3d:
-                final_uv_coords = left_result_3d
-            elif not left_result_3d:
-                final_uv_coords = right_result_3d
-            else:
-                final_uv_coords = ((right_result_3d[0] + left_result_3d[0]) / 2,
-                                   (right_result_3d[1] + left_result_3d[1]) / 2)
 
-            print(final_uv_coords)
+            final_uv_coords = get_final_uv_coords(right_result_3d, left_result_3d)
+
+            # print(final_uv_coords)
 
             self.gaze_point_overlay.update_gaze_point(final_uv_coords[0], final_uv_coords[1])
 
             # print(right_plane_intersection)
 
             # record.raw_data.append(list(final_uv_coords))
-
-            # model = cv2.cvtColor(Model3D.visualize_raycast(
-            #     record.raw_data,
-            #     avg_uv_coordinates,
-            #     (0, 0, 0),
-            #     eye_pos_world,
-            #     CONFIG.OFFLINE_CAMERA_DIRS_WORLD,
-            #     gaze_ray,
-            #     screen_width=CONFIG.DISPLAY_WIDTH,
-            #     screen_height=CONFIG.DISPLAY_HEIGHT,
-            #    ray_number=0),
-            #     cv2.COLOR_BGR2RGB)
-
+            """
+            model = cv2.cvtColor(Model3D.visualize_raycast_real_time(
+                all_rays=record.raw_data,
+                raycast_end=final_uv_coords,
+                camera_pos=(0, 0, 0),
+                camera_target_right=right_eye_pos_world,
+                camera_target_left=left_eye_pos_world,
+                camera_dirs=CONFIG.OFFLINE_CAMERA_DIRS_WORLD,
+                right_gaze_ray,
+                left_gaze_ray
+                screen_width=CONFIG.DISPLAY_WIDTH,
+                screen_height=CONFIG.DISPLAY_HEIGHT,
+                ray_number=0),
+                cv2.COLOR_BGR2RGB)
+            """
             # display_image(model, self.model_3d_real_time)
 
-            # self.display_uv_coords(avg_uv_coordinates)
             i += 1
 
         print("FINISHED")
@@ -519,7 +513,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
 
             record.raw_data.append(list(result_3d))
 
-            model = cv2.cvtColor(Model3D.visualize_raycast(
+            model = cv2.cvtColor(Model3D.visualize_raycast_offline(
                 record.raw_data,
                 result_3d,
                 CONFIG.OFFLINE_CAMERA_POSITION,
@@ -537,7 +531,11 @@ class UIAnalysisScreen(QtWidgets.QWidget):
             i += 1
 
     def stop_real_time_workers(self):
-        self.right_active, self.left_active, self.world_active, self.analysis_running = None, None, None, None
+        self.right_active, self.left_active, self.world_active, self.analysis_running = False, False, False, False
+        self.right_worker = None
+        self.left_worker = None
+        self.world_worker = None
+        self.analysis_worker = None
 
     def switch_to_main(self) -> None:
         self.stacked_widget.setCurrentIndex(0)
@@ -866,8 +864,8 @@ class UIAnalysisScreen(QtWidgets.QWidget):
                     print(f"Error in right_frame_thread: {e}")
                     break
         finally:
-            print("Closing the right cap")
             cap.close()
+            print("Closing the right cap")
 
     def read_right_frame(self):
         with self.right_mutex:
@@ -889,11 +887,11 @@ class UIAnalysisScreen(QtWidgets.QWidget):
                         with self.left_mutex:
                             self.latest_left_frame = frame
                 except Exception as e:
-                    print(f"Error in right_frame_thread: {e}")
+                    print(f"Error in left_frame_thread: {e}")
                     break
         finally:
-            print("Closing the left cap")
             cap.close()
+            print("Closing the left cap")
 
     def read_left_frame(self):
         with self.left_mutex:
@@ -915,11 +913,12 @@ class UIAnalysisScreen(QtWidgets.QWidget):
                         with self.world_mutex:
                             self.latest_world_frame = frame
                 except Exception as e:
-                    print(f"Error in right_frame_thread: {e}")
+                    print(f"Error in world_frame_thread: {e}")
                     break
         finally:
-            print("Closing the world cap")
             cap.close()
+            cap = None
+            print("Closing the world cap")
 
     def read_world_frame(self):
         with self.world_mutex:
@@ -956,3 +955,14 @@ def frame_generator(max_id: int, path_format: str):
     while True:
         yield cv2.imread(path_format.format(num))
         num = (num + 1) % (max_id + 1)
+
+
+def get_final_uv_coords(right_result_3d, left_result_3d):
+    if not right_result_3d:
+        final_uv_coords = left_result_3d
+    elif not left_result_3d:
+        final_uv_coords = right_result_3d
+    else:
+        final_uv_coords = ((right_result_3d[0] + left_result_3d[0]) / 2,
+                           (right_result_3d[1] + left_result_3d[1]) / 2)
+    return final_uv_coords

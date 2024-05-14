@@ -1,6 +1,6 @@
 import cv2
 from Helpers import MathHelpers
-from backend import Devices
+from backend import Devices, CONFIG
 import numpy as np
 from scipy.spatial.transform import Rotation
 
@@ -37,7 +37,7 @@ class ArucoDetector:
 
                 rvec, tvec, marker_points = cv2.aruco.estimatePoseSingleMarkers(
                     self.corners[i],
-                    34.8,
+                    CONFIG.MARKER_LENGTH,
                     self.matrix_coefficients,
                     self.distortion_coefficients
                 )

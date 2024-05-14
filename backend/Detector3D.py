@@ -7,20 +7,22 @@ from backend import RECORDS
 
 
 class Detector3D:
-    def __init__(self, camera_type: str = None):
+    def __init__(self, device: Devices.Device, device_type: str):
+        self.device = device
+
+        if CONFIG.TEST and device_type == "right":
+            self.device_position = CONFIG.TEST_RIGHT_EYE_CAMERA_POSITION
+            self.device_rotation_matrix = CONFIG.TEST_RIGHT_EYE_CAMERA_ROTATION_MATRIX
+        elif CONFIG.TEST and device_type == "left":
+            self.device_position = CONFIG.TEST_LEFT_EYE_CAMERA_POSITION
+            self.device_rotation_matrix = CONFIG.TEST_LEFT_EYE_CAMERA_ROTATION_MATRIX
+        else:
+            self.device_position = self.device.position
+            self.device_rotation_matrix = self.device.rotation_matrix
+
         if CONFIG.MODE_SELECTED == RECORDS.RecordType.REAL_TIME:
-            if camera_type == "right":
-                self.camera = Devices.RIGHT_EYE_DEVICE
-                self.camera_model: CameraModel = CameraModel(focal_length=Devices.RIGHT_EYE_DEVICE.focal_length,
-                                                             resolution=Devices.RIGHT_EYE_DEVICE.resolution)
-            elif camera_type == "left":
-                self.camera = Devices.LEFT_EYE_DEVICE
-                self.camera_model: CameraModel = CameraModel(focal_length=Devices.LEFT_EYE_DEVICE.focal_length,
-                                                             resolution=Devices.LEFT_EYE_DEVICE.resolution)
-            else:
-                self.camera = Devices.WORLD_DEVICE
-                self.camera_model: CameraModel = CameraModel(focal_length=Devices.WORLD_DEVICE.focal_length,
-                                                             resolution=Devices.WORLD_DEVICE.resolution)
+            self.camera_model: CameraModel = CameraModel(focal_length=device.focal_length,
+                                                         resolution=device.resolution)
             self.apply_refraction_correction: bool = True
         else:
             self.camera_model: CameraModel = CameraModel(focal_length=CONFIG.OFFLINE_FOCAL_LENGTH,
@@ -37,10 +39,11 @@ class Detector3D:
 
         eye_position_wcs = MathHelpers.transform(
             np.array(result["sphere"]["center"]),
-            CONFIG.LEFT_EYE_CAMERA_POSITION, CONFIG.LEFT_EYE_CAMERA_ROTATION_MATRIX)
+            self.device_position, self.device_rotation_matrix
+        )
 
         gaze_ray_wcs = MathHelpers.normalize(MathHelpers.rotate(result["circle_3d"]["normal"],
-                                                                CONFIG.LEFT_EYE_CAMERA_ROTATION_MATRIX))
+                                                                self.device_rotation_matrix))
 
         intersection_time = MathHelpers.intersect_plane(display_normal_wcs, display_position_wcs,
                                                         eye_position_wcs, gaze_ray_wcs)

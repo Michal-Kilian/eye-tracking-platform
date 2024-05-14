@@ -320,6 +320,9 @@ class UIDeviceScreen(QtWidgets.QWidget):
             self.calibrate_device_button.setDisabled(False)
             self.save_devices_button.setDisabled(True)
             QtCore.QTimer.singleShot(2000, self.clear_label)
+            # Devices.WORLD_DEVICE.print_self()
+            # Devices.RIGHT_EYE_DEVICE.print_self()
+            # Devices.LEFT_EYE_DEVICE.print_self()
             return
 
     def clear_label(self) -> None:
