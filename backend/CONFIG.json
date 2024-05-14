@@ -14,7 +14,9 @@
                 0.1155579993131562, 0, 0, 0
             ],
             "type": "world",
-            "mode_index": -1
+            "mode_index": -1,
+            "auto_focus": 0,
+            "absolute_focus": 13
         },
         {
             "name": "PI right v1 RIGHT",

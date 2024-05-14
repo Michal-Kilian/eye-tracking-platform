@@ -900,9 +900,9 @@ class UIAnalysisScreen(QtWidgets.QWidget):
     def world_frame_thread(self):
         cap = uvc.Capture(Devices.WORLD_DEVICE.uid)
         cap.frame_mode = cap.available_modes[Devices.WORLD_DEVICE.mode_index]
-        # controls_dict = dict([(c.display_name, c) for c in cap.controls])
-        # controls_dict['Auto Focus'].value = Devices.WORLD_DEVICE.auto_focus
-        # controls_dict['Absolute Focus'].value = Devices.WORLD_DEVICE.absolute_focus
+        controls_dict = dict([(c.display_name, c) for c in cap.controls])
+        controls_dict['Auto Focus'].value = Devices.WORLD_DEVICE.auto_focus
+        controls_dict['Absolute Focus'].value = Devices.WORLD_DEVICE.absolute_focus
         self.world_active = True
 
         try:
