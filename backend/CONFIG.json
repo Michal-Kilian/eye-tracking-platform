@@ -71,7 +71,8 @@
             "auto_focus": 0,
             "camera_position": [30, -30, 0],
             "camera_rotation_matrix": [0, -180, 0],
-            "type": "test"
+            "type": "test",
+            "mode_index": 11
         }
     ],
     "detector_2D_parameters": {

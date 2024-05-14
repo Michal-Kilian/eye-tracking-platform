@@ -10,7 +10,7 @@ class Device:
         self.name = CONFIG.DELIMITER.join(parts[:-1])
         self.device_type = device_type
         self.supported_name = self.name + " " + self.device_type.upper()
-        self.uid = parts[:-1]
+        self.uid = parts[-1]
         self.supported = self.check_supported()
         self.matrix_coefficients = self.get_matrix_coefficients()
         self.distortion_coefficients = self.get_distortion_coefficients()

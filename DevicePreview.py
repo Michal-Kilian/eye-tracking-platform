@@ -6,7 +6,7 @@ class DevicePreview:
     def __init__(self, device):
         self.device = device
         self.cap = uvc.Capture(self.device.uid)
-        self.cap.frame_mode = self.device.resolution
+        self.cap.frame_mode = self.cap.available_modes[self.device.mode_index]
         self.running = False
 
     def start(self):
