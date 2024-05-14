@@ -6,10 +6,11 @@ from backend import CONFIG
 
 class Device:
     def __init__(self, name_and_uid, device_type):
-        self.name = name_and_uid.split(CONFIG.DELIMITER)[0]
+        split = name_and_uid.split(CONFIG.DELIMITER)[:-1]
+        self.name = CONFIG.DELIMITER.join(split)
         self.device_type = device_type
         self.supported_name = self.name + " " + self.device_type.upper()
-        self.uid = name_and_uid.split(CONFIG.DELIMITER)[-1]
+        self.uid = split
         self.supported = self.check_supported()
         self.matrix_coefficients = self.get_matrix_coefficients()
         self.distortion_coefficients = self.get_distortion_coefficients()
