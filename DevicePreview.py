@@ -6,7 +6,7 @@ class DevicePreview:
     def __init__(self, device):
         self.device = device
         self.cap = uvc.Capture(self.device.uid)
-        self.cap.frame_mode = self.cap.available_modes[15]
+        self.cap.frame_mode = self.device.resolution
         self.running = False
 
     def start(self):
@@ -14,7 +14,7 @@ class DevicePreview:
         while self.running:
             frame = self.cap.get_frame_robust()
             cv2.imshow(self.device.name + " Preview", frame.bgr)
-            cv2.waitKey(10)
+            cv2.waitKey(1)
 
     def stop(self):
         self.running = False

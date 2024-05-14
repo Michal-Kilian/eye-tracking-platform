@@ -302,9 +302,9 @@ class UIDeviceScreen(QtWidgets.QWidget):
             QtCore.QTimer.singleShot(2000, self.clear_label)
             return
 
-        Devices.RIGHT_EYE_DEVICE = Devices.Device(self.right_eye_select.currentText())
-        Devices.LEFT_EYE_DEVICE = Devices.Device(self.left_eye_select.currentText())
-        Devices.WORLD_DEVICE = Devices.Device(self.world_select.currentText())
+        Devices.RIGHT_EYE_DEVICE = Devices.Device(self.right_eye_select.currentText(), "right")
+        Devices.LEFT_EYE_DEVICE = Devices.Device(self.left_eye_select.currentText(), "left")
+        Devices.WORLD_DEVICE = Devices.Device(self.world_select.currentText(), "world")
 
         if not Devices.RIGHT_EYE_DEVICE.supported:
             self.device_not_supported_alert("right eye")

@@ -1,7 +1,7 @@
 {
     "supported_devices": [
         {
-            "name": "Logitech Webcam C930e",
+            "name": "Logitech Webcam C930e WORLD",
             "id": 1,
             "matrix_coefficients": [
                 [1153.82609597707, 0, 952.4573877237405],
@@ -17,7 +17,7 @@
             "mode_index": -1
         },
         {
-            "name": "PI right v1",
+            "name": "PI right v1 RIGHT",
             "id": 2,
             "matrix_coefficients": [
                 [280.8514518416076, 0, 94.55803161896716],
@@ -37,7 +37,7 @@
             "mode_index": 11
         },
         {
-            "name": "PI right v1",
+            "name": "PI right v1 LEFT",
             "id": 3,
             "matrix_coefficients": [
                 [282.656341198442, 0, 104.7237579070373],
