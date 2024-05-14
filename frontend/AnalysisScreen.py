@@ -375,12 +375,6 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         i = CONFIG.OFFLINE_MODE_MIN_ID
         aruco_displayed = False
 
-        record = RECORDS.Record()
-        record.id = uuid.uuid4()
-        record.timestamp = time.time()
-        record.type = RECORDS.RecordType.REAL_TIME
-        record.raw_data = []
-
         print("STARTING")
 
         while self.analysis_running:

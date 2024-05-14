@@ -74,7 +74,7 @@
             "camera_position": [30, -30, 0],
             "camera_rotation_matrix": [0, -180, 0],
             "type": "test",
-            "mode_index": 11
+            "mode_index": 34
         }
     ],
     "detector_2D_parameters": {

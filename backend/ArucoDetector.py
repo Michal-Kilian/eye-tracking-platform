@@ -2,7 +2,6 @@ import cv2
 from Helpers import MathHelpers
 from backend import Devices, CONFIG
 import numpy as np
-from scipy.spatial.transform import Rotation
 
 
 class ArucoDetector:
