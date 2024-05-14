@@ -357,7 +357,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
             self.status_label.setText("No selected right eye device")
             return
 
-        if not Devices.Device(self.right_eye_select.currentText()).supported:
+        if not Devices.Device(self.right_eye_select.currentText(), "right").supported:
             self.device_not_supported_alert("right eye")
             return
 
@@ -365,7 +365,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
             self.left_eye_preview_button.setDisabled(True)
             self.world_preview_button.setDisabled(True)
             self.right_eye_preview_button.setText("Stop preview")
-            self.device_preview = DevicePreview(Devices.Device(self.right_eye_select.currentText()))
+            self.device_preview = DevicePreview(Devices.Device(self.right_eye_select.currentText(), "right"))
             self.device_preview.start()
         else:
             self.device_preview.stop()
@@ -379,7 +379,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
             self.status_label.setText("No selected left eye device")
             return
 
-        if not Devices.Device(self.left_eye_select.currentText()).supported:
+        if not Devices.Device(self.left_eye_select.currentText(), "left").supported:
             self.device_not_supported_alert("left eye")
             return
 
@@ -387,7 +387,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
             self.right_eye_preview_button.setDisabled(True)
             self.world_preview_button.setDisabled(True)
             self.left_eye_preview_button.setText("Stop preview")
-            self.device_preview = DevicePreview(Devices.Device(self.left_eye_select.currentText()))
+            self.device_preview = DevicePreview(Devices.Device(self.left_eye_select.currentText(), "left"))
             self.device_preview.start()
         else:
             self.device_preview.stop()
@@ -401,7 +401,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
             self.status_label.setText("No selected world eye device")
             return
 
-        if not Devices.Device(self.world_select.currentText()).supported:
+        if not Devices.Device(self.world_select.currentText(), "world").supported:
             self.device_not_supported_alert("world")
             return
 
@@ -409,7 +409,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
             self.right_eye_preview_button.setDisabled(True)
             self.left_eye_preview_button.setDisabled(True)
             self.world_preview_button.setText("Stop preview")
-            self.device_preview = DevicePreview(Devices.Device(self.world_select.currentText()))
+            self.device_preview = DevicePreview(Devices.Device(self.world_select.currentText(), "world"))
             self.device_preview.start()
         else:
             self.device_preview.stop()
