@@ -15,7 +15,6 @@ class Device:
         self.focal_length = self.get_focal_length()
         self.resolution = self.get_resolution()
         self.auto_focus = self.get_auto_focus()
-        self.extrinsics_affine_matrix = self.get_extrinsics_affine_matrix()
         self.position = self.get_position()
         self.rotation_matrix = self.get_rotation_matrix()
         self.type = self.get_type()
@@ -93,41 +92,18 @@ class Device:
                     return device["auto_focus"]
         return None
 
-    def get_extrinsics_affine_matrix(self):
+    def get_position(self):
         for device in CONFIG.SUPPORTED_DEVICES:
             if device["name"] == self.name:
-                if "extrinsics_affine_matrix" in device.keys():
-                    return device["extrinsics_affine_matrix"]
+                if "position" in device.keys():
+                    return np.array(device["position"])
         return None
 
-    def get_position(self):
-        if self.extrinsics_affine_matrix is not None:
-            return np.array([
-                self.extrinsics_affine_matrix[0][3],
-                self.extrinsics_affine_matrix[1][3],
-                self.extrinsics_affine_matrix[2][3]
-            ])
-        return np.array([0, 0, 0])
-
     def get_rotation_matrix(self):
-        if self.extrinsics_affine_matrix is not None:
-            return np.array([
-                [
-                    self.extrinsics_affine_matrix[0][0],
-                    self.extrinsics_affine_matrix[0][1],
-                    self.extrinsics_affine_matrix[0][2]
-                ],
-                [
-                    self.extrinsics_affine_matrix[1][0],
-                    self.extrinsics_affine_matrix[1][1],
-                    self.extrinsics_affine_matrix[1][2]
-                ],
-                [
-                    self.extrinsics_affine_matrix[2][0],
-                    self.extrinsics_affine_matrix[2][1],
-                    self.extrinsics_affine_matrix[2][2]
-                ]
-            ])
+        for device in CONFIG.SUPPORTED_DEVICES:
+            if device["name"] == self.name:
+                if "rotation_matrix" in device.keys():
+                    return np.array(device["rotation_matrix"])
         return None
 
     def get_type(self):
