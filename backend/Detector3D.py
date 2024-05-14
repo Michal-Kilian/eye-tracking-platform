@@ -7,16 +7,16 @@ from backend import RECORDS
 
 
 class Detector3D:
-    def __init__(self, device: Devices.Device, device_type: str):
+    def __init__(self, device: Devices.Device = None, device_type: str = None):
         self.device = device
 
-        if CONFIG.TEST and device_type == "right":
+        if CONFIG.TEST and device_type == "right" and CONFIG.MODE_SELECTED == RECORDS.RecordType.REAL_TIME:
             self.device_position = CONFIG.TEST_RIGHT_EYE_CAMERA_POSITION
             self.device_rotation_matrix = CONFIG.TEST_RIGHT_EYE_CAMERA_ROTATION_MATRIX
-        elif CONFIG.TEST and device_type == "left":
+        elif CONFIG.TEST and device_type == "left" and CONFIG.MODE_SELECTED == RECORDS.RecordType.REAL_TIME:
             self.device_position = CONFIG.TEST_LEFT_EYE_CAMERA_POSITION
             self.device_rotation_matrix = CONFIG.TEST_LEFT_EYE_CAMERA_ROTATION_MATRIX
-        else:
+        elif not CONFIG.TEST and CONFIG.MODE_SELECTED == RECORDS.RecordType.REAL_TIME:
             self.device_position = self.device.position
             self.device_rotation_matrix = self.device.rotation_matrix
 

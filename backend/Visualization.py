@@ -7,6 +7,7 @@ from math import sqrt, atan2, cos, sin
 from PyQt5.QtGui import QImage
 from Helpers import MathHelpers
 from backend import CONFIG
+from PySide6.QtUiTools import QUiLoader
 
 
 class VisualizationWindow(QtWidgets.QMainWindow):
@@ -29,10 +30,11 @@ class VisualizationWindow(QtWidgets.QMainWindow):
         self.threshold = 1
 
         self.__mainWidget = QtWidgets.QWidget()
-        ui = QtCore.QFile("./ui/popupWindow.ui")
-        ui.open(QtCore.QFile.ReadOnly)
-        self.__mainWidget = uic.loadUi(ui)
-        ui.close()
+        # ui = QtCore.QFile("./coordinates/popupWindow.ui")
+        # ui.open(QtCore.QFile.ReadOnly)
+        self.loader = QUiLoader()
+        self.__mainWidget = self.loader.load("./coordinates/popupWindow.ui")
+        # ui.close()
         self.setWindowTitle('Image preview')
         self.mainWidget = self.centralWidget()
         lay = self.mainWidget.layout()
@@ -58,8 +60,7 @@ class VisualizationWindow(QtWidgets.QMainWindow):
         self.__mainWidget.color1.clicked.connect(self.set_first_color)
         self.__mainWidget.color2.clicked.connect(self.set_second_color)
 
-        self.__mainWidget.thresholdInput.setValidator(QtGui.QRegularExpressionValidator(
-            QtCore.QRegularExpression("^(1?\d{1,2}|2[0-4]\d|25[0-5])$")))
+        self.__mainWidget.thresholdInput.setValidator(QtGui.QRegularExpressionValidator(self.thresholdRegex))
         self.__mainWidget.thresholdInput.setText(str(self.threshold))
         self.__mainWidget.thresholdInput.textChanged.connect(self.threshold_change)
         self.__mainWidget.thresholdButton.clicked.connect(self.change_threshold)
@@ -111,21 +112,16 @@ class VisualizationWindow(QtWidgets.QMainWindow):
 
     def raw_to_point(self):
         for i in self.rawData:
-            eye_pos_world = MathHelpers.transform(np.array(self.rawData[i]["sphere"]["center"]),
-                                                  CONFIG.OFFLINE_CAMERA_POSITION,
-                                                  CONFIG.OFFLINE_CAMERA_ROTATION_MATRIX)
-            gaze_ray = MathHelpers.normalize(
-                MathHelpers.rotate(self.rawData[i]["circle_3d"]["normal"], CONFIG.OFFLINE_CAMERA_ROTATION_MATRIX))
+            eye_pos_world = self.transform(np.array(self.rawData[i]["sphere"]["center"]), self.cameraPos,
+                                           self.cameraRotMat)
+            gaze_ray = self.normalize(self.rotate(self.rawData[i]["circle_3d"]["normal"], self.cameraRotMat))
 
-            intersection_time = MathHelpers.intersect_plane(CONFIG.OFFLINE_DISPLAY_NORMAL_WORLD,
-                                                            CONFIG.OFFLINE_DISPLAY_POSITION, eye_pos_world,
-                                                            gaze_ray)
+            intersection_time = self.intersectPlane(self.displayNormalWorld, self.displayPos, eye_pos_world, gaze_ray)
 
             if intersection_time > 0.0:
-                plane_intersection = MathHelpers.get_point([eye_pos_world, gaze_ray], intersection_time)
-                plane_intersection = MathHelpers.transform(plane_intersection, CONFIG.OFFLINE_DISPLAY_POSITION,
-                                                           CONFIG.OFFLINE_DISPLAY_ROTATION_MATRIX)
-                result = MathHelpers.convert_to_uv(plane_intersection, 310, 174)
+                plane_intersection = self.getPoint([eye_pos_world, gaze_ray], intersection_time)
+                plane_intersection = self.transform(plane_intersection, self.displayPos, self.displayRotMat)
+                result = self.convert_to_uv(plane_intersection, includeOutliers=True)
                 if result[0] > 1 or result[0] < 0 or result[1] > 1 or result[1] < 0:
                     self.outliers.append(result)
                 else:
@@ -165,7 +161,7 @@ class VisualizationWindow(QtWidgets.QMainWindow):
             self.paddingMax = min(self.imageHeight, self.imageWidth) // 10
 
             for i in range(0, len(self.outliers)):
-                self.outliers[i] = MathHelpers.convert_uv_to_px(self.outliers[i], self.imageWidth, self.imageHeight)
+                self.outliers[i] = self.convert_uv_to_px(self.outliers[i], self.imageWidth, self.imageHeight)
                 if self.outliers[i][0] + self.paddingMax < 0:
                     continue
                 if self.outliers[i][1] + self.paddingMax < 0:
@@ -230,7 +226,7 @@ class VisualizationWindow(QtWidgets.QMainWindow):
 
         if not self.repeat:
             for i in range(0, len(self.uv_coords)):
-                self.uv_coords[i] = MathHelpers.convert_uv_to_px(self.uv_coords[i], image_width, image_height)
+                self.uv_coords[i] = self.convert_uv_to_px(self.uv_coords[i], image_width, image_height)
 
         if not self.thresholdChanged:
             self.thresholdChanged = True
@@ -302,9 +298,9 @@ class VisualizationWindow(QtWidgets.QMainWindow):
         if len(self.points_group) > 1:
             t = 0
             for key in self.points_group:
-                r = min(255, max(0, int(MathHelpers.lerp(self.color1[0], self.color2[0], t))))
-                g = min(255, max(0, int(MathHelpers.lerp(self.color1[1], self.color2[1], t))))
-                b = min(255, max(0, int(MathHelpers.lerp(self.color1[2], self.color2[2], t))))
+                r = min(255, max(0, int(self.lerp(self.color1[0], self.color2[0], t))))
+                g = min(255, max(0, int(self.lerp(self.color1[1], self.color2[1], t))))
+                b = min(255, max(0, int(self.lerp(self.color1[2], self.color2[2], t))))
                 colors[key] = (r, g, b)
                 t += 1 / (len(self.points_group) - 1)
         else:
@@ -357,7 +353,7 @@ class VisualizationWindow(QtWidgets.QMainWindow):
         height = img.shape[0]
 
         for i in range(0, len(self.uv_coords)):
-            self.uv_coords[i] = MathHelpers.convert_uv_to_px(self.uv_coords[i], width, height)
+            self.uv_coords[i] = self.convert_uv_to_px(self.uv_coords[i], width, height)
 
         figsize = (width / dpi, height / dpi)
         fig = pyplot.figure(figsize=figsize, dpi=dpi, frameon=False)
@@ -412,7 +408,8 @@ class VisualizationWindow(QtWidgets.QMainWindow):
                 try:
                     heatmap[y:y + vadj[1], x:x + hadj[1]] += gaus[vadj[0]:vadj[1], hadj[0]:hadj[1]] * self.uv_coords[i][
                         2]
-                except:
+                except Exception as e:
+                    print(e)
                     # fixation was probably outside of display
                     pass
             else:
