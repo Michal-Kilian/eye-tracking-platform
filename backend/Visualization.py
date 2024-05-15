@@ -52,8 +52,6 @@ class VisualizationWindow(PopupWindow):
         self.thresholdInput.setText(str(self.threshold))
         self.thresholdInput.textChanged.connect(self.threshold_change)
         self.thresholdButton.clicked.connect(self.change_threshold)
-        self.color1_button.setStyleSheet(f'QPushButton {{background-color: #000000; border: 5px solid #FFE81F;}}')
-        self.color2_button.setStyleSheet(f'QPushButton {{background-color: #FFFFFF; border: 5px solid #FFE81F;}}')
         if not self.scanpath:
             self.color1_button.hide()
             self.color2_button.hide()
@@ -82,7 +80,8 @@ class VisualizationWindow(PopupWindow):
         if color.isValid():
             r, g, b, _ = color.getRgb()
             self.color1_button.setStyleSheet(
-                f'QPushButton {{background-color: {color.name()}; border: 5px solid #FFE81F;}}')
+                "QPushButton {background-color: " + color.name() + "; border: 5px solid rgb(56, 65, 157); "
+                                                                   "border-radius: 25px;}")
             self.color_1 = (b, g, r)
             self.display_image()
 
@@ -91,7 +90,8 @@ class VisualizationWindow(PopupWindow):
         if color.isValid():
             r, g, b, _ = color.getRgb()
             self.color2_button.setStyleSheet(
-                f'QPushButton {{background-color: {color.name()}; border: 5px solid #FFE81F;}}')
+                "QPushButton {background-color: " + color.name() + "; border: 5px solid rgb(56, 65, 157); "
+                                                                   "border-radius: 25px;}")
             self.color_2 = (b, g, r)
             self.display_image()
 

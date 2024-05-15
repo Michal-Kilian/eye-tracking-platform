@@ -164,10 +164,6 @@ class UIRecordDetailScreen(QtWidgets.QWidget):
         self.time_label.setAlignment(QtCore.Qt.AlignCenter)
         self.time_label.setStyleSheet(QLabel_Detail)
 
-        # self.model_3d = Model3D(10, 10)
-        # self.model_3d.visualize_graph([(0, -500, 100)], (0, -50, 0), (0, 0, 0),
-        #                               (0, 50, 1), scale_factor=CONFIG.SCALE_FACTOR)
-
         self.debug_display_label = QtWidgets.QLabel("Debug Display Label")
         self.debug_display_label.setFixedWidth(426)
         self.debug_display_label.setFixedHeight(320)
@@ -177,17 +173,6 @@ class UIRecordDetailScreen(QtWidgets.QWidget):
         self.control_panel_frame = QtWidgets.QFrame()
         self.control_panel_frame_layout = QtWidgets.QHBoxLayout(self.control_panel_frame)
 
-        self.play_button = QtWidgets.QPushButton()
-        self.play_button.setFont(text_font())
-        self.play_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.play_button.setFixedHeight(50)
-        self.play_button.setStyleSheet("QPushButton {background-color: white; border-radius: 13px; border: none;}"
-                                       "QPushButton:hover{font: 63 12pt 'Yu Gothic UI Semibold'}")
-        self.play_button.clicked.connect(self.play_record)
-        self.play_button.setGraphicsEffect(get_shadow(30))
-
-        self.control_panel_frame_layout.addWidget(self.play_button)
-
         self.scroll_area_layout.addWidget(self.id_label, 0, 0, 1, 2)
         self.scroll_area_layout.addWidget(self.type_label_title, 1, 0)
         self.scroll_area_layout.addWidget(self.type_label, 1, 1)
@@ -195,10 +180,6 @@ class UIRecordDetailScreen(QtWidgets.QWidget):
         self.scroll_area_layout.addWidget(self.date_label, 2, 1)
         self.scroll_area_layout.addWidget(self.time_label_title, 3, 0)
         self.scroll_area_layout.addWidget(self.time_label, 3, 1)
-        # self.scroll_area_layout.addWidget(self.model_3d, 4, 0, 1, 2)
-        # self.scroll_area_layout.addWidget(self.debug_display_label, 4, 0, 1, 2)
-        # self.scroll_area_layout.addWidget(self.control_panel_frame, 5, 0, 1, 2)
-        # self.scroll_area_layout.addWidget(self.debug_display_slider, 4, 2, 1, 1)
 
         self.scroll_area.setWidget(self.scroll_area_widget)
 
@@ -269,7 +250,6 @@ class UIRecordDetailScreen(QtWidgets.QWidget):
         self.time_label.setText(_translate("RecordDetailScreen", format_record_time(self.record.timestamp)))
         self.scanpath_button.setText(_translate("RecordDetailScreen", "Generate Scanpath"))
         self.heatmap_button.setText(_translate("RecordDetailScreen", "Generate Heatmap"))
-        self.play_button.setText(_translate("RecordDetailScreen", "Play"))
 
     def back(self):
         self.stacked_widget.setCurrentIndex(self.stacked_widget.currentIndex() - self.iteration)
@@ -277,19 +257,16 @@ class UIRecordDetailScreen(QtWidgets.QWidget):
     def generate_scanpath(self):
         visualization_image = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', 'c:\\', "Image files (*.jpg "
                                                                                                "*.png *.jpeg)")
-        if visualization_image is not None:
-            self.popup = VisualizationWindow(visualization_image[0], scanpath=True, raw_data=None)
+        if visualization_image != ('', ''):
+            self.popup = VisualizationWindow(visualization_image[0], scanpath=True, raw_data=self.record.raw_data)
             self.popup.show()
 
     def generate_heatmap(self):
         visualization_image = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', 'c:\\', "Image files (*.jpg "
                                                                                                "*.png *.jpeg)")
-        if visualization_image is not None:
-            self.popup = VisualizationWindow(visualization_image[0], heatmap=True, raw_data=None)
+        if visualization_image != ('', ''):
+            self.popup = VisualizationWindow(visualization_image[0], heatmap=True, raw_data=self.record.raw_data)
             self.popup.show()
-
-    def play_record(self):
-        ...
 
 
 def format_record_date(timestamp) -> str:
