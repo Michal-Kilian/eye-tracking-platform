@@ -1,6 +1,7 @@
 from datetime import datetime
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from PopupWindow import PopupWindow
 from backend.Visualization import VisualizationWindow
 from frontend.StyleSheets import (QLabel_heading, QBackButton,
                                   heading_font, text_font, QWidget_background_color, QScrollBar,
@@ -276,14 +277,16 @@ class UIRecordDetailScreen(QtWidgets.QWidget):
     def generate_scanpath(self):
         visualization_image = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', 'c:\\', "Image files (*.jpg "
                                                                                                "*.png *.jpeg)")
-        self.popup = VisualizationWindow(visualization_image[0], scanpath=True, raw_data=self.record.raw_data)
-        self.popup.show()
+        if visualization_image is not None:
+            self.popup = VisualizationWindow(visualization_image[0], scanpath=True, raw_data=None)
+            self.popup.show()
 
     def generate_heatmap(self):
         visualization_image = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', 'c:\\', "Image files (*.jpg "
                                                                                                "*.png *.jpeg)")
-        self.popup = VisualizationWindow(visualization_image[0], heatmap=True, raw_data=self.record.raw_data)
-        self.popup.show()
+        if visualization_image is not None:
+            self.popup = VisualizationWindow(visualization_image[0], heatmap=True, raw_data=None)
+            self.popup.show()
 
     def play_record(self):
         ...

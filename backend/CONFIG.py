@@ -107,6 +107,9 @@ OFFLINE_CAMERA_DIRS_WORLD = (
             MathHelpers.rotate(np.array((0, 0, 1)), OFFLINE_CAMERA_ROTATION_MATRIX)
         )
 
+OFFLINE_MINIMAL_DIAMETER_FIXATION = 1
+OFFLINE_MAXIMAL_DIAMETER_FIXATION = 4
+
 ELEVATION = get_elevation()
 AZIMUTH = get_azimuth()
 SCALE_FACTOR = get_scale_factor()

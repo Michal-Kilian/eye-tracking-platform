@@ -9,6 +9,7 @@ from PyQt5.QtGui import QImage
 import Model3D
 from backend import Devices
 from backend import RECORDS
+from backend.CameraThreads import PyuvcPoseThread, PyuvcCameraThread
 from frontend.GazePointOverlay import GazePointOverlay
 from frontend.RecordsScreen import UIRecordsScreen
 from frontend.ArucoOverlay import ArucoOverlay
@@ -327,17 +328,21 @@ class UIAnalysisScreen(QtWidgets.QWidget):
                                                            "./" + CONFIG.OFFLINE_MODE_DIRECTORY +
                                                            "/example_{0}.png")
 
-                if not CONFIG.TEST:
-                    self.right_worker = Worker(self.right_frame_thread)
-                    self.left_worker = Worker(self.left_frame_thread)
-                self.world_worker = Worker(self.world_frame_thread)
-                self.analysis_worker = Worker(self.real_time_analysis_thread)
+                # if not CONFIG.TEST:
+                #     self.right_worker = Worker(self.right_frame_thread)
+                #     self.left_worker = Worker(self.left_frame_thread)
+                # self.world_worker = Worker(self.world_frame_thread)
+                # self.analysis_worker = Worker(self.real_time_analysis_thread)
 
-                if not CONFIG.TEST:
-                    self.threadpool.start(self.right_worker)
-                    self.threadpool.start(self.left_worker)
-                self.threadpool.start(self.world_worker)
-                self.threadpool.start(self.analysis_worker)
+                # if not CONFIG.TEST:
+                #     self.threadpool.start(self.right_worker)
+                #     self.threadpool.start(self.left_worker)
+                # self.threadpool.start(self.world_worker)
+                # self.threadpool.start(self.analysis_worker)
+
+                self.threadpool = QtCore.QThreadPool()
+                worker = Worker(self.real_time_analysis_thread)
+                self.threadpool.start(worker)
 
                 print("Active threads beside Main GUI thread:", self.threadpool.activeThreadCount())
 
@@ -347,7 +352,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
                 self.gaze_point_overlay.close()
                 self.gaze_point_overlay = None
                 self.toggle_aruco_button.setText("Show Aruco")
-                self.stop_real_time_workers()
+                # self.stop_real_time_workers()
                 self.startButton.setText("Start")
                 self.analysis_running = False
 
@@ -371,7 +376,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
                 self.startButton.setText("Start")
                 self.analysis_running = False
 
-    def real_time_analysis_thread(self):
+    def real_time_analysis_thread_old(self):
         i = CONFIG.OFFLINE_MODE_MIN_ID
         aruco_displayed = False
 
@@ -484,6 +489,56 @@ class UIAnalysisScreen(QtWidgets.QWidget):
 
         print("FINISHED")
 
+    def real_time_analysis_thread(self) -> None:
+        pyuvc_threads = [
+            PyuvcPoseThread(
+                uid=Devices.WORLD_DEVICE.uid,
+                mode_index=-1,
+                controls={"Auto Focus": 0, "Absolute Focus": 14},
+                # camera_matrix=Devices.WORLD_DEVICE.matrix_coefficients,
+                # distortion_coeffs=Devices.WORLD_DEVICE.distortion_coefficients
+            ),
+            PyuvcCameraThread(Devices.RIGHT_EYE_DEVICE.uid, 11),
+            PyuvcCameraThread(Devices.LEFT_EYE_DEVICE.uid, 11)
+        ]
+
+        pose_thread = pyuvc_threads[0]
+        right_eye_thread = pyuvc_threads[1]
+        left_eye_thread = pyuvc_threads[2]
+
+        print("Starting Pose thread and both Camera threads")
+
+        pose_thread.start()
+        # right_eye_thread.start()
+        # left_eye_thread.start()
+
+        while self.analysis_running:
+            pose = pose_thread.latestPose
+            world_ret, world_image = pose_thread.read()
+            if world_ret:
+                display_image(world_image, self.debug_world_display)
+
+            print(pose)
+
+            # right_ret, right_image = right_eye_thread.read()
+            # if right_ret:
+            #     display_image(right_image, self.debug_right_display)
+
+            # left_ret, left_image = left_eye_thread.read()
+            # if left_ret:
+            #     display_image(left_image, self.debug_left_display)
+
+            waited_key = cv2.waitKey(1) & 0xff
+            if waited_key == ord('q'):
+                self.analysis_running = False
+                break
+
+        pose_thread.stop()
+        pose_thread.join()
+        # for thread in pose_thread, right_eye_thread, left_eye_thread:
+        #     thread.stop()
+        #     thread.join()
+
     def offline_analysis_thread(self) -> None:
         i = CONFIG.OFFLINE_MODE_MIN_ID
 
@@ -503,9 +558,9 @@ class UIAnalysisScreen(QtWidgets.QWidget):
             frame_gray = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2GRAY)
 
             result_2d, frame_gray, img = self.detector_2d.detect(frame_gray, frame_bgr)
-            result_3d, eye_pos_world, gaze_ray = self.detector_3d_offline.detect_offline(result_2d, frame_gray)
+            result_3d, eye_pos_world, gaze_ray, result = self.detector_3d_offline.detect_offline(result_2d, frame_gray)
 
-            record.raw_data.append(list(result_3d))
+            record.raw_data.append(result)
 
             model = cv2.cvtColor(Model3D.visualize_raycast_offline(
                 record.raw_data,

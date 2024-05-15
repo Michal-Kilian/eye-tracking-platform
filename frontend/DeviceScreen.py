@@ -306,24 +306,24 @@ class UIDeviceScreen(QtWidgets.QWidget):
         Devices.LEFT_EYE_DEVICE = Devices.Device(self.left_eye_select.currentText(), "left")
         Devices.WORLD_DEVICE = Devices.Device(self.world_select.currentText(), "world")
 
-        if not Devices.RIGHT_EYE_DEVICE.supported:
-            self.device_not_supported_alert("right eye")
-        elif not Devices.LEFT_EYE_DEVICE.supported:
-            self.device_not_supported_alert("left eye")
-        elif not Devices.WORLD_DEVICE.supported:
-            self.device_not_supported_alert("world")
-        else:
-            self.right_eye_select.setStyleSheet(QComboBox_selected)
-            self.left_eye_select.setStyleSheet(QComboBox_selected)
-            self.world_select.setStyleSheet(QComboBox_selected)
-            self.status_label.setText("Devices saved successfully")
-            self.calibrate_device_button.setDisabled(False)
-            self.save_devices_button.setDisabled(True)
-            QtCore.QTimer.singleShot(2000, self.clear_label)
-            # Devices.WORLD_DEVICE.print_self()
-            # Devices.RIGHT_EYE_DEVICE.print_self()
-            # Devices.LEFT_EYE_DEVICE.print_self()
-            return
+        # if not Devices.RIGHT_EYE_DEVICE.supported:
+        #     self.device_not_supported_alert("right eye")
+        # elif not Devices.LEFT_EYE_DEVICE.supported:
+        #     self.device_not_supported_alert("left eye")
+        # elif not Devices.WORLD_DEVICE.supported:
+        #     self.device_not_supported_alert("world")
+        # else:
+        self.right_eye_select.setStyleSheet(QComboBox_selected)
+        self.left_eye_select.setStyleSheet(QComboBox_selected)
+        self.world_select.setStyleSheet(QComboBox_selected)
+        self.status_label.setText("Devices saved successfully")
+        self.calibrate_device_button.setDisabled(False)
+        self.save_devices_button.setDisabled(True)
+        QtCore.QTimer.singleShot(2000, self.clear_label)
+        # Devices.WORLD_DEVICE.print_self()
+        # Devices.RIGHT_EYE_DEVICE.print_self()
+        # Devices.LEFT_EYE_DEVICE.print_self()
+        return
 
     def clear_label(self) -> None:
         self.status_label.setText("")

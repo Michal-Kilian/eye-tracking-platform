@@ -11,23 +11,27 @@
 from PyQt5 import QtCore, QtWidgets
 
 
-class PopupWindow(QtWidgets.QWidget):
-    def __init__(self, form):
+class PopupWindow(QtWidgets.QMainWindow):
+    def __init__(self):
         super().__init__()
 
-        form.setObjectName("Form")
-        form.resize(1024, 601)
-        form.setStyleSheet("QWidget {\n"
+        # self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.setObjectName("Form")
+        self.resize(1024, 601)
+        self.setStyleSheet("QWidget {\n"
                            "background-color: #171923;\n"
                            "}")
-        self.image = QtWidgets.QLabel(form)
+
+        self.old_position = None
+
+        self.image = QtWidgets.QLabel(self)
         self.image.setGeometry(QtCore.QRect(0, 0, 1024, 576))
         self.image.setFrameShape(QtWidgets.QFrame.Box)
         self.image.setLineWidth(0)
         self.image.setText("")
         self.image.setAlignment(QtCore.Qt.AlignCenter)
         self.image.setObjectName("image")
-        self.saveImage = QtWidgets.QPushButton(form)
+        self.saveImage = QtWidgets.QPushButton(self)
         self.saveImage.setGeometry(QtCore.QRect(924, 576, 100, 25))
         self.saveImage.setStyleSheet("QPushButton {\n"
                                      "background-color: #FFE81F;\n"
@@ -50,28 +54,28 @@ class PopupWindow(QtWidgets.QWidget):
                                      "    background-color:  #87814c;\n"
                                      "}")
         self.saveImage.setObjectName("saveImage")
-        self.color1 = QtWidgets.QPushButton(form)
-        self.color1.setGeometry(QtCore.QRect(890, 576, 25, 25))
-        self.color1.setStyleSheet("QPushButton {\n"
+        self.color1_button = QtWidgets.QPushButton(self)
+        self.color1_button.setGeometry(QtCore.QRect(890, 576, 25, 25))
+        self.color1_button.setStyleSheet("QPushButton {\n"
                                   "    border: 5px solid #FFE81F;\n"
                                   "}")
-        self.color1.setText("")
-        self.color1.setObjectName("color1")
-        self.color2 = QtWidgets.QPushButton(form)
-        self.color2.setGeometry(QtCore.QRect(856, 576, 25, 25))
-        self.color2.setStyleSheet("QPushButton {\n"
+        self.color1_button.setText("")
+        self.color1_button.setObjectName("color1")
+        self.color2_button = QtWidgets.QPushButton(self)
+        self.color2_button.setGeometry(QtCore.QRect(856, 576, 25, 25))
+        self.color2_button.setStyleSheet("QPushButton {\n"
                                   "    border: 5px solid #FFE81F;\n"
                                   "}")
-        self.color2.setText("")
-        self.color2.setObjectName("color2")
-        self.thresholdInput = QtWidgets.QLineEdit(form)
+        self.color2_button.setText("")
+        self.color2_button.setObjectName("color2")
+        self.thresholdInput = QtWidgets.QLineEdit(self)
         self.thresholdInput.setGeometry(QtCore.QRect(0, 576, 100, 25))
         self.thresholdInput.setStyleSheet("QLineEdit {\n"
                                           "border: 1px solid #FFE81F;\n"
                                           "color: white;\n"
                                           "}")
         self.thresholdInput.setObjectName("thresholdInput")
-        self.thresholdButton = QtWidgets.QPushButton(form)
+        self.thresholdButton = QtWidgets.QPushButton(self)
         self.thresholdButton.setGeometry(QtCore.QRect(100, 576, 100, 25))
         self.thresholdButton.setStyleSheet("QPushButton {\n"
                                            "background-color: #FFE81F;\n"
@@ -95,11 +99,32 @@ class PopupWindow(QtWidgets.QWidget):
                                            "}")
         self.thresholdButton.setObjectName("thresholdButton")
 
-        self.retranslate_ui(form)
-        QtCore.QMetaObject.connectSlotsByName(form)
+        self.retranslate_ui()
+        QtCore.QMetaObject.connectSlotsByName(self)
 
-    def retranslate_ui(self, form):
+    def retranslate_ui(self):
         _translate = QtCore.QCoreApplication.translate
-        form.setWindowTitle(_translate("Form", "Form"))
+        self.setWindowTitle(_translate("Form", "Form"))
         self.saveImage.setText(_translate("Form", "Save Image"))
         self.thresholdButton.setText(_translate("Form", "Apply Threshold"))
+
+    def mousePressEvent(self, event):
+        self.old_position = event.globalPos()
+
+    def mouseMoveEvent(self, event):
+        delta = QtCore.QPoint(event.globalPos() - self.old_position)
+        self.move(self.x() + delta.x(), self.y() + delta.y())
+        self.old_position = event.globalPos()
+
+
+def setup_title_bar(outer_class):
+    outer_class.getTitleBar().setFixedHeight(35)
+    for button in outer_class.getTitleBar().findChildren(QtWidgets.QPushButton):
+        button.setStyleSheet(
+            "QPushButton {background-color: #FFE81F; border-radius: 7px; margin-right: 15px; width: 25px; height: "
+            "25px} QPushButton:hover {background-color: #ccba18; border-radius: 7px; margin-right: 15px; width: "
+            "25px; height: 25px} QPushButton:pressed {background-color: #ccba18; border-radius: 7px; "
+            "margin-right: 15px; width: 25px; height: 25px}")
+    outer_class.getTitleBar().findChildren(QtWidgets.QLabel)[1].setStyleSheet(
+        "QLabel {font-size: 15px; color: #F7FAFC; font-weight: bold; margin-left: 10px}")
+    outer_class.getTitleBar().findChildren(QtWidgets.QLabel)[0].setStyleSheet("QLabel {margin-left: 10px}")

@@ -77,4 +77,4 @@ class Detector3D:
         if intersection_time > 0.0:
             plane_intersection = MathHelpers.get_point([eye_pos_world, gaze_ray], intersection_time)
 
-        return plane_intersection, eye_pos_world, gaze_ray
+        return plane_intersection, eye_pos_world, gaze_ray, result

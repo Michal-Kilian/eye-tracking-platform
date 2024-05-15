@@ -6,11 +6,11 @@ from matplotlib import pyplot
 from math import sqrt, atan2, cos, sin
 from PyQt5.QtGui import QImage
 from Helpers import MathHelpers
+from PopupWindow import PopupWindow
 from backend import CONFIG
-from PySide6.QtUiTools import QUiLoader
 
 
-class VisualizationWindow(QtWidgets.QMainWindow):
+class VisualizationWindow(PopupWindow):
     def __init__(self, image_path=None, raw_data=None, heatmap=None, scanpath=None):
         super().__init__()
 
@@ -18,31 +18,19 @@ class VisualizationWindow(QtWidgets.QMainWindow):
             reader = csv.reader(f)
             self.raw = list(map(lambda q: (float(q[0]), float(q[1])), reader))
 
-        self.raw = {i: self.raw[i] for i in range(0, len(self.raw))}
+        # self.raw = {i: self.raw[i] for i in range(0, len(self.raw))}
+
+        self.imagePath = image_path
+        img = cv2.imread(self.imagePath)
+        self.imageHeight = img.shape[0]
+        self.imageWidth = img.shape[1]
 
         self.paddedImage = None
-        self.imageWidth = None
-        self.imageHeight = None
         self.paddingMax = None
         self.qimg = None
-        self.color1 = (0, 0, 0)
-        self.color2 = (255, 255, 255)
+        self.color_1 = (0, 0, 0)
+        self.color_2 = (255, 255, 255)
         self.threshold = 1
-
-        self.__mainWidget = QtWidgets.QWidget()
-        # ui = QtCore.QFile("./coordinates/popupWindow.ui")
-        # ui.open(QtCore.QFile.ReadOnly)
-        self.loader = QUiLoader()
-        self.__mainWidget = self.loader.load("./coordinates/popupWindow.ui")
-        # ui.close()
-        self.setWindowTitle('Image preview')
-        self.mainWidget = self.centralWidget()
-        lay = self.mainWidget.layout()
-        lay.addWidget(self.__mainWidget)
-        self.mainWidget.setLayout(lay)
-        self.setCentralWidget(self.mainWidget)
-        self.setGeometry(200, 50, 1024, 636)
-        self.setFixedSize(1024, 636)
 
         self.uv_coords = []
         self.outliers = []
@@ -52,28 +40,31 @@ class VisualizationWindow(QtWidgets.QMainWindow):
         self.repeat = False
         self.thresholdChanged = False
         self.points_group_keys = []
-        self.imagePath = image_path
         self.rawData = raw_data
         self.heatmap = heatmap
         self.scanpath = scanpath
-        self.__mainWidget.saveImage.clicked.connect(self.save_image)
-        self.__mainWidget.color1.clicked.connect(self.set_first_color)
-        self.__mainWidget.color2.clicked.connect(self.set_second_color)
+        self.saveImage.clicked.connect(self.save_image)
+        self.color1_button.clicked.connect(self.set_first_color)
+        self.color2_button.clicked.connect(self.set_second_color)
 
-        self.__mainWidget.thresholdInput.setValidator(QtGui.QRegularExpressionValidator(self.thresholdRegex))
-        self.__mainWidget.thresholdInput.setText(str(self.threshold))
-        self.__mainWidget.thresholdInput.textChanged.connect(self.threshold_change)
-        self.__mainWidget.thresholdButton.clicked.connect(self.change_threshold)
-        self.__mainWidget.color1.setStyleSheet(f'QPushButton {{background-color: #000000; border: 5px solid #FFE81F;}}')
-        self.__mainWidget.color2.setStyleSheet(f'QPushButton {{background-color: #FFFFFF; border: 5px solid #FFE81F;}}')
+        self.thresholdInput.setValidator(QtGui.QRegularExpressionValidator(
+            QtCore.QRegularExpression("^(1?\d{1,2}|2[0-4]\d|25[0-5])$")))
+        self.thresholdInput.setText(str(self.threshold))
+        self.thresholdInput.textChanged.connect(self.threshold_change)
+        self.thresholdButton.clicked.connect(self.change_threshold)
+        self.color1_button.setStyleSheet(f'QPushButton {{background-color: #000000; border: 5px solid #FFE81F;}}')
+        self.color2_button.setStyleSheet(f'QPushButton {{background-color: #FFFFFF; border: 5px solid #FFE81F;}}')
         if not self.scanpath:
-            self.__mainWidget.color1.hide()
-            self.__mainWidget.color2.hide()
-            self.__mainWidget.thresholdInput.hide()
-            self.__mainWidget.thresholdButton.hide()
+            self.color1_button.hide()
+            self.color2_button.hide()
+            self.thresholdInput.hide()
+            self.thresholdButton.hide()
 
         if self.rawData:
             self.raw_to_point()
+        else:
+            for item in self.raw:
+                self.uv_coords.append(MathHelpers.convert_uv_to_px(item, self.imageWidth, self.imageHeight))
 
         if self.imagePath:
             self.display_image()
@@ -82,26 +73,26 @@ class VisualizationWindow(QtWidgets.QMainWindow):
         self.display_image()
 
     def threshold_change(self):
-        if self.__mainWidget.thresholdInput.text() != "":
+        if self.thresholdInput.text() != "":
             self.thresholdChanged = False
-            self.threshold = int(self.__mainWidget.thresholdInput.text())
+            self.threshold = int(self.thresholdInput.text())
 
     def set_first_color(self):
         color = QtWidgets.QColorDialog.getColor()
         if color.isValid():
             r, g, b, _ = color.getRgb()
-            self.__mainWidget.color1.setStyleSheet(
+            self.color1_button.setStyleSheet(
                 f'QPushButton {{background-color: {color.name()}; border: 5px solid #FFE81F;}}')
-            self.color1 = (b, g, r)
+            self.color_1 = (b, g, r)
             self.display_image()
 
     def set_second_color(self):
         color = QtWidgets.QColorDialog.getColor()
         if color.isValid():
             r, g, b, _ = color.getRgb()
-            self.__mainWidget.color2.setStyleSheet(
+            self.color2_button.setStyleSheet(
                 f'QPushButton {{background-color: {color.name()}; border: 5px solid #FFE81F;}}')
-            self.color2 = (b, g, r)
+            self.color_2 = (b, g, r)
             self.display_image()
 
     def save_image(self):
@@ -111,29 +102,35 @@ class VisualizationWindow(QtWidgets.QMainWindow):
             self.qimg.save(file_name)
 
     def raw_to_point(self):
-        for i in self.rawData:
-            eye_pos_world = self.transform(np.array(self.rawData[i]["sphere"]["center"]), self.cameraPos,
-                                           self.cameraRotMat)
-            gaze_ray = self.normalize(self.rotate(self.rawData[i]["circle_3d"]["normal"], self.cameraRotMat))
+        for item in self.rawData:
+            eye_pos_world = MathHelpers.transform(np.array(item["sphere"]["center"]),
+                                                  CONFIG.OFFLINE_CAMERA_POSITION,
+                                                  CONFIG.OFFLINE_CAMERA_ROTATION_MATRIX)
+            gaze_ray = MathHelpers.normalize(
+                MathHelpers.rotate(item["circle_3d"]["normal"], CONFIG.OFFLINE_CAMERA_ROTATION_MATRIX))
 
-            intersection_time = self.intersectPlane(self.displayNormalWorld, self.displayPos, eye_pos_world, gaze_ray)
+            intersection_time = MathHelpers.intersect_plane(CONFIG.OFFLINE_DISPLAY_NORMAL_WORLD,
+                                                            CONFIG.OFFLINE_DISPLAY_POSITION,
+                                                            eye_pos_world,
+                                                            gaze_ray)
 
             if intersection_time > 0.0:
-                plane_intersection = self.getPoint([eye_pos_world, gaze_ray], intersection_time)
-                plane_intersection = self.transform(plane_intersection, self.displayPos, self.displayRotMat)
-                result = self.convert_to_uv(plane_intersection, includeOutliers=True)
+                plane_intersection = MathHelpers.get_point([eye_pos_world, gaze_ray], intersection_time)
+                plane_intersection = MathHelpers.transform(plane_intersection, CONFIG.OFFLINE_DISPLAY_POSITION,
+                                                           CONFIG.OFFLINE_DISPLAY_ROTATION_MATRIX)
+                result = MathHelpers.convert_to_uv_offline(plane_intersection, 250, 250, include_outliers=True)
                 if result[0] > 1 or result[0] < 0 or result[1] > 1 or result[1] < 0:
                     self.outliers.append(result)
                 else:
                     self.uv_coords.append(result)
 
     def display_image(self):
-        if self.scanpath and self.rawData:
+        if self.scanpath:
             image = self.scanpath_visualization()
             if len(self.outliers):
                 image = self.outliers_visualization(image)
             self.repeat = True
-        elif self.heatmap and self.rawData:
+        elif self.heatmap:
             image = self.heatmap_visualization()
             if len(self.outliers):
                 image = self.outliers_visualization(image)
@@ -145,13 +142,13 @@ class VisualizationWindow(QtWidgets.QMainWindow):
         h, w, c = image.shape
         self.qimg = QImage(image.data, w, h, c * w, QImage.Format_RGB888)
 
-        if image.shape[1] > self.__mainWidget.image.width() or image.shape[0] > self.__mainWidget.image.height():
-            self.__mainWidget.image.setPixmap(
-                QtGui.QPixmap.fromImage(self.qimg).scaled(self.__mainWidget.image.size(), QtCore.Qt.KeepAspectRatio,
+        if image.shape[1] > self.image.width() or image.shape[0] > self.image.height():
+            self.image.setPixmap(
+                QtGui.QPixmap.fromImage(self.qimg).scaled(self.image.size(), QtCore.Qt.KeepAspectRatio,
                                                           QtCore.Qt.SmoothTransformation))
         else:
-            self.__mainWidget.image.setPixmap(QtGui.QPixmap.fromImage(self.qimg))
-            self.__mainWidget.image.setAlignment(QtCore.Qt.AlignCenter)
+            self.image.setPixmap(QtGui.QPixmap.fromImage(self.qimg))
+            self.image.setAlignment(QtCore.Qt.AlignCenter)
 
     def outliers_visualization(self, image):
         if not self.repeat:
@@ -161,7 +158,7 @@ class VisualizationWindow(QtWidgets.QMainWindow):
             self.paddingMax = min(self.imageHeight, self.imageWidth) // 10
 
             for i in range(0, len(self.outliers)):
-                self.outliers[i] = self.convert_uv_to_px(self.outliers[i], self.imageWidth, self.imageHeight)
+                self.outliers[i] = MathHelpers.convert_uv_to_px(self.outliers[i], self.imageWidth, self.imageHeight)
                 if self.outliers[i][0] + self.paddingMax < 0:
                     continue
                 if self.outliers[i][1] + self.paddingMax < 0:
@@ -224,9 +221,10 @@ class VisualizationWindow(QtWidgets.QMainWindow):
         colors = {}
         order = 0
 
-        if not self.repeat:
-            for i in range(0, len(self.uv_coords)):
-                self.uv_coords[i] = self.convert_uv_to_px(self.uv_coords[i], image_width, image_height)
+        if self.rawData:
+            if not self.repeat:
+                for i in range(0, len(self.uv_coords)):
+                    self.uv_coords[i] = MathHelpers.convert_uv_to_px(self.uv_coords[i], image_width, image_height)
 
         if not self.thresholdChanged:
             self.thresholdChanged = True
@@ -278,8 +276,8 @@ class VisualizationWindow(QtWidgets.QMainWindow):
 
             # base pixel for diameter ---- diameter = 20 normalize between new_min and new_max ---- normalized_value
             # = ((original_value - min_value) / (max_value - min_value)) * (new_max - new_min) + new_min
-            new_min = 1
-            new_max = 4
+            new_min = CONFIG.OFFLINE_MINIMAL_DIAMETER_FIXATION
+            new_max = CONFIG.OFFLINE_MAXIMAL_DIAMETER_FIXATION
             # normalize between 1 and 2 ---- normalized_value = (value - min_length) / (max_length - min_length) + 1
 
             if len(different_lengths) > 1:
@@ -298,13 +296,13 @@ class VisualizationWindow(QtWidgets.QMainWindow):
         if len(self.points_group) > 1:
             t = 0
             for key in self.points_group:
-                r = min(255, max(0, int(self.lerp(self.color1[0], self.color2[0], t))))
-                g = min(255, max(0, int(self.lerp(self.color1[1], self.color2[1], t))))
-                b = min(255, max(0, int(self.lerp(self.color1[2], self.color2[2], t))))
+                r = min(255, max(0, int(MathHelpers.lerp(self.color_1[0], self.color_2[0], t))))
+                g = min(255, max(0, int(MathHelpers.lerp(self.color_1[1], self.color_2[1], t))))
+                b = min(255, max(0, int(MathHelpers.lerp(self.color_1[2], self.color_2[2], t))))
                 colors[key] = (r, g, b)
                 t += 1 / (len(self.points_group) - 1)
         else:
-            colors[0] = (self.color1[0], self.color1[1], self.color1[2])
+            colors[0] = (self.color_1[0], self.color_1[1], self.color_1[2])
 
         for key in range(0, len(self.points_group)):
             x1 = self.points_group[self.points_group_keys[key]]['middle']['x']
@@ -352,8 +350,9 @@ class VisualizationWindow(QtWidgets.QMainWindow):
         width = img.shape[1]
         height = img.shape[0]
 
-        for i in range(0, len(self.uv_coords)):
-            self.uv_coords[i] = self.convert_uv_to_px(self.uv_coords[i], width, height)
+        if self.rawData:
+            for i in range(0, len(self.uv_coords)):
+                self.uv_coords[i] = MathHelpers.convert_uv_to_px(self.uv_coords[i], width, height)
 
         figsize = (width / dpi, height / dpi)
         fig = pyplot.figure(figsize=figsize, dpi=dpi, frameon=False)

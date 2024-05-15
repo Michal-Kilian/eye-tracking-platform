@@ -100,10 +100,4 @@ class ArucoDetector:
                               average_tvec,
                               100)
 
-            # 796 a dalej
-            # from pupil_detectors import Detector2D
-            # 2D detector, 3D detector, parametre v configu
-            # rotacnu maticu do detectoru len dummy udaje (pozicia 0,0,0, rotacia nulova)
-
-            # returns display rotation vector, display rotation matrix, display center position, display normal
             return rvec, n_rotation_matrix, average_tvec, n_z, frame_bgr

@@ -74,6 +74,18 @@ class MathHelpers:
         return x, y
 
     @classmethod
+    def convert_to_uv_offline(cls, vec, size_x, size_y, flip_y=True, include_outliers=False):
+        x = (vec[0] + size_x / 2) / size_x
+        y = (vec[2] + size_y / 2) / size_y
+        if flip_y:
+            y = 1 - y
+
+        if not include_outliers:
+            if x < 0 or x > 1 or y < 0 or y > 1:
+                return None
+        return x, y
+
+    @classmethod
     def convert_uv_to_px(cls, uv_data, width, height):
         return int(uv_data[0] * width), int(uv_data[1] * height)
 
