@@ -1,6 +1,5 @@
-import ctypes
 from PyQt5 import QtCore, QtWidgets, QtGui
-from frontend.StyleSheets import QControlPanelMainButton, text_font, QWidget_background_color, get_shadow, QBackButton
+from frontend.StyleSheets import Fonts, GraphicEffects, GlobalStyleSheet, VisualizationWindowStyleSheet
 
 
 class PopupWindow(QtWidgets.QMainWindow):
@@ -13,7 +12,7 @@ class PopupWindow(QtWidgets.QMainWindow):
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setObjectName("Form")
         self.resize(self.window_width, self.window_height)
-        self.setStyleSheet(QWidget_background_color)
+        self.setStyleSheet(GlobalStyleSheet.WidgetBackgroundColor)
 
         self.old_position = None
 
@@ -23,10 +22,10 @@ class PopupWindow(QtWidgets.QMainWindow):
         self.image.setLineWidth(0)
         self.image.setText("")
         self.image.setAlignment(QtCore.Qt.AlignCenter)
-        self.image.setStyleSheet("background-color: rgb(194, 217, 255);")
+        self.image.setStyleSheet(VisualizationWindowStyleSheet.Image)
 
         self.exitButton = QtWidgets.QPushButton(self)
-        self.exitButton.setStyleSheet("QPushButton {border: none; background: transparent}")
+        self.exitButton.setStyleSheet(VisualizationWindowStyleSheet.TransparentExitButton)
         self.exitButton.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("./media/Exit.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -39,48 +38,39 @@ class PopupWindow(QtWidgets.QMainWindow):
 
         self.saveImage = QtWidgets.QPushButton(self)
         self.saveImage.setGeometry(QtCore.QRect(self.window_width - 210, self.window_height - 70, 200, 50))
-        self.saveImage.setStyleSheet(QControlPanelMainButton)
-        self.saveImage.setFont(text_font())
+        self.saveImage.setStyleSheet(GlobalStyleSheet.ControlPanelMainButton)
+        self.saveImage.setFont(Fonts.TextFont())
         self.saveImage.setObjectName("saveImage")
         self.saveImage.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.saveImage.setGraphicsEffect(get_shadow(30))
+        self.saveImage.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.color1_button = QtWidgets.QPushButton(self)
         self.color1_button.setGeometry(QtCore.QRect(self.window_width - 340, self.window_height - 70, 50, 50))
-        self.color1_button.setStyleSheet("QPushButton {"
-                                         "    border: 5px solid rgb(56, 65, 157);"
-                                         "    background-color: black;"
-                                         "    border-radius: 25px;"
-                                         "}")
+        self.color1_button.setStyleSheet(VisualizationWindowStyleSheet.ColorButton1)
         self.color1_button.setText("")
         self.color1_button.setObjectName("color1")
         self.color1_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.color1_button.setGraphicsEffect(get_shadow(30))
+        self.color1_button.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.color2_button = QtWidgets.QPushButton(self)
         self.color2_button.setGeometry(QtCore.QRect(self.window_width - 270, self.window_height - 70, 50, 50))
-        self.color2_button.setStyleSheet("QPushButton {"
-                                         "    border: 5px solid rgb(56, 65, 157);"
-                                         "    background-color: white;"
-                                         "    border-radius: 25px;"
-                                         "}")
+        self.color2_button.setStyleSheet(VisualizationWindowStyleSheet.ColorButton2)
         self.color2_button.setText("")
         self.color2_button.setObjectName("color2")
         self.color2_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.color2_button.setGraphicsEffect(get_shadow(30))
+        self.color2_button.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.thresholdInput = QtWidgets.QLineEdit(self)
         self.thresholdInput.setGeometry(QtCore.QRect(270, self.window_height - 70, 70, 50))
-        self.thresholdInput.setStyleSheet("QLineEdit {padding: 7px; border: 3px solid rgb(56, 65, 157); "
-                                          "background-color: rgb(165, 195, 255);}")
-        self.thresholdInput.setFont(text_font())
-        self.thresholdInput.setGraphicsEffect(get_shadow(30))
+        self.thresholdInput.setStyleSheet(VisualizationWindowStyleSheet.ThresholdInput)
+        self.thresholdInput.setFont(Fonts.TextFont())
+        self.thresholdInput.setGraphicsEffect(GraphicEffects.Shadow(30))
         self.thresholdInput.setAlignment(QtCore.Qt.AlignCenter)
 
         self.thresholdButton = QtWidgets.QPushButton(self)
         self.thresholdButton.setGeometry(QtCore.QRect(20, self.window_height - 70, 230, 50))
-        self.thresholdButton.setStyleSheet(QControlPanelMainButton)
-        self.thresholdButton.setFont(text_font())
+        self.thresholdButton.setStyleSheet(GlobalStyleSheet.ControlPanelMainButton)
+        self.thresholdButton.setFont(Fonts.TextFont())
         self.thresholdButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
 
         self.retranslate_ui()
@@ -99,16 +89,3 @@ class PopupWindow(QtWidgets.QMainWindow):
         delta = QtCore.QPoint(event.globalPos() - self.old_position)
         self.move(self.x() + delta.x(), self.y() + delta.y())
         self.old_position = event.globalPos()
-
-
-def setup_title_bar(outer_class):
-    outer_class.getTitleBar().setFixedHeight(35)
-    for button in outer_class.getTitleBar().findChildren(QtWidgets.QPushButton):
-        button.setStyleSheet(
-            "QPushButton {background-color: #FFE81F; border-radius: 7px; margin-right: 15px; width: 25px; height: "
-            "25px} QPushButton:hover {background-color: #ccba18; border-radius: 7px; margin-right: 15px; width: "
-            "25px; height: 25px} QPushButton:pressed {background-color: #ccba18; border-radius: 7px; "
-            "margin-right: 15px; width: 25px; height: 25px}")
-    outer_class.getTitleBar().findChildren(QtWidgets.QLabel)[1].setStyleSheet(
-        "QLabel {font-size: 15px; color: #F7FAFC; font-weight: bold; margin-left: 10px}")
-    outer_class.getTitleBar().findChildren(QtWidgets.QLabel)[0].setStyleSheet("QLabel {margin-left: 10px}")

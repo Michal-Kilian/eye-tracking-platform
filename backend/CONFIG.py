@@ -1,80 +1,80 @@
 import json
 from typing import TextIO
 import numpy as np
-from Helpers import MathHelpers
+from backend.Helpers import MathHelpers
 
 
 def get_supported_devices() -> list:
-    f: TextIO = open("backend/CONFIG.json")
+    f: TextIO = open("CONFIG.json")
     return json.load(f)["supported_devices"]
 
 
 def get_2d_parameters() -> dict:
-    f: TextIO = open("backend/CONFIG.json")
+    f: TextIO = open("CONFIG.json")
     return json.load(f)["detector_2D_parameters"]
 
 
 def get_3d_parameters() -> dict:
-    f: TextIO = open("backend/CONFIG.json")
+    f: TextIO = open("CONFIG.json")
     return json.load(f)["detector_3D_parameters"]
 
 
 def get_2d_default_parameters() -> dict:
-    f: TextIO = open("backend/CONFIG.json")
+    f: TextIO = open("CONFIG.json")
     return json.load(f)["detector_2D_default_parameters"]
 
 
 def get_3d_default_parameters() -> dict:
-    f = open("backend/CONFIG.json")
+    f = open("CONFIG.json")
     return json.load(f)["detector_3D_default_parameters"]
 
 
 def update_config(section: str) -> None:
-    with open("backend/CONFIG.json", "r") as file:
+    with open("CONFIG.json", "r") as file:
         config_dict = json.load(file)
 
     if section == "parameters":
         config_dict["detector_2D_parameters"] = PARAMETERS_2D
         config_dict["detector_3D_parameters"] = PARAMETERS_3D
 
-        with open("backend/CONFIG.json", "w") as file:
+        with open("CONFIG.json", "w") as file:
             json.dump(config_dict, file, indent=4)
 
 
 def reset_config(section: str) -> None:
-    with open("backend/CONFIG.json", "r") as file:
+    with open("CONFIG.json", "r") as file:
         config_dict = json.load(file)
 
     if section == "parameters":
         config_dict["detector_2D_parameters"] = get_2d_default_parameters()
         config_dict["detector_3D_parameters"] = get_3d_default_parameters()
 
-        with open("backend/CONFIG.json", "w") as file:
+        with open("CONFIG.json", "w") as file:
             json.dump(config_dict, file, indent=4)
 
 
 def get_focal_length():
-    f = open("backend/CONFIG.json")
+    f = open("CONFIG.json")
     return json.load(f)["offline_focal_length"]
 
 
 def get_resolution():
-    f = open("backend/CONFIG.json")
+    f = open("CONFIG.json")
     return json.load(f)["offline_resolution"]
 
 
 def get_elevation():
-    f = open("backend/CONFIG.json")
+    f = open("CONFIG.json")
     return json.load(f)["elevation"]
 
 
 def get_azimuth():
-    f = open("backend/CONFIG.json")
+    f = open("CONFIG.json")
     return json.load(f)["azimuth"]
 
 
 def get_scale_factor():
-    f = open("backend/CONFIG.json")
+    f = open("CONFIG.json")
     return json.load(f)["scale_factor"]
 
 

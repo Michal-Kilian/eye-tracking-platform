@@ -99,6 +99,7 @@ def visualize_raycast_offline(all_rays, raycast_end, camera_pos, camera_target, 
     return data
 
 
+"""
 def visualize_raycast_real_time(all_rays, raycast_end, camera_pos, camera_target_right, camera_target_left, camera_dirs,
                                 right_gaze_dir, left_gaze_dir, screen_width=310,
                                 screen_height=174, ray_number=1):
@@ -190,3 +191,4 @@ def visualize_raycast_real_time(all_rays, raycast_end, camera_pos, camera_target
     data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
     pyplot.close(fig)
     return data
+"""

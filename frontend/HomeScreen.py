@@ -4,9 +4,7 @@ from frontend.ModeSelectionScreen import UIModeSelectionScreen
 from frontend.DeviceScreen import UIDeviceScreen
 from frontend.PreferencesScreen import UIPreferencesScreen
 from frontend.RecordsScreen import UIRecordsScreen
-from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
-                                  heading_font, text_font, QWidget_background_color, QPushButton_frame,
-                                  QPushButton_left1, QPushButton_right1, QPushButton_left2, QPushButton_right2)
+from frontend.StyleSheets import Fonts, GlobalStyleSheet, HomeScreenStyleSheet
 
 
 class UIHomeScreen(QtWidgets.QWidget):
@@ -17,7 +15,7 @@ class UIHomeScreen(QtWidgets.QWidget):
         self.stacked_widget = stacked_widget
 
         self.setObjectName("HomeScreen")
-        self.setStyleSheet(QWidget_background_color)
+        self.setStyleSheet(GlobalStyleSheet.WidgetBackgroundColor)
         self.gridLayout = QtWidgets.QGridLayout(self)
         self.gridLayout.setObjectName("gridLayout")
 
@@ -46,8 +44,8 @@ class UIHomeScreen(QtWidgets.QWidget):
         self.frame_top_center_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.eyeTrackingLabel = QtWidgets.QLabel()
-        self.eyeTrackingLabel.setFont(heading_font())
-        self.eyeTrackingLabel.setStyleSheet(QLabel_heading)
+        self.eyeTrackingLabel.setFont(Fonts.HeadingFont())
+        self.eyeTrackingLabel.setStyleSheet(GlobalStyleSheet.Heading)
         self.eyeTrackingLabel.setLineWidth(1)
         self.eyeTrackingLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.eyeTrackingLabel.setObjectName("eyeTrackingLabel")
@@ -74,7 +72,7 @@ class UIHomeScreen(QtWidgets.QWidget):
         self.frame_top_right_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.exitButton = QtWidgets.QPushButton()
-        self.exitButton.setStyleSheet(QBackButton)
+        self.exitButton.setStyleSheet(GlobalStyleSheet.BackAndExitButton)
         self.exitButton.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("./media/Exit.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -94,7 +92,7 @@ class UIHomeScreen(QtWidgets.QWidget):
         self.frame_center.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_center.setObjectName("frame_center")
         self.frame_center.setFixedHeight(400)
-        self.frame_center.setStyleSheet(QPushButton_frame)
+        self.frame_center.setStyleSheet(HomeScreenStyleSheet.ButtonFrame)
 
         self.logo = QtWidgets.QLabel(self.frame_center)
         self.logo.setGeometry(QtCore.QRect(80, 70, 746, 310))
@@ -104,32 +102,32 @@ class UIHomeScreen(QtWidgets.QWidget):
 
         self.startAnalysisButton = QtWidgets.QPushButton(self.frame_center)
         self.startAnalysisButton.setGeometry(QtCore.QRect(90, 120, 211, 61))
-        self.startAnalysisButton.setFont(text_font())
-        self.startAnalysisButton.setStyleSheet(QPushButton_left1)
+        self.startAnalysisButton.setFont(Fonts.TextFont())
+        self.startAnalysisButton.setStyleSheet(HomeScreenStyleSheet.ButtonLeftUp)
         self.startAnalysisButton.setObjectName("startAnalysisButton")
         self.startAnalysisButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.startAnalysisButton.clicked.connect(self.switch_to_mode_selection)
 
         self.recordsButton = QtWidgets.QPushButton(self.frame_center)
         self.recordsButton.setGeometry(QtCore.QRect(610, 120, 211, 61))
-        self.recordsButton.setFont(text_font())
-        self.recordsButton.setStyleSheet(QPushButton_right1)
+        self.recordsButton.setFont(Fonts.TextFont())
+        self.recordsButton.setStyleSheet(HomeScreenStyleSheet.ButtonRightUp)
         self.recordsButton.setObjectName("recordsButton")
         self.recordsButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.recordsButton.clicked.connect(self.switch_to_records)
 
         self.deviceButton = QtWidgets.QPushButton(self.frame_center)
         self.deviceButton.setGeometry(QtCore.QRect(90, 270, 211, 61))
-        self.deviceButton.setFont(text_font())
-        self.deviceButton.setStyleSheet(QPushButton_left2)
+        self.deviceButton.setFont(Fonts.TextFont())
+        self.deviceButton.setStyleSheet(HomeScreenStyleSheet.ButtonLeftDown)
         self.deviceButton.setObjectName("calibrationButton")
         self.deviceButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.deviceButton.clicked.connect(self.switch_to_devices)
 
         self.preferencesButton = QtWidgets.QPushButton(self.frame_center)
         self.preferencesButton.setGeometry(QtCore.QRect(610, 270, 211, 61))
-        self.preferencesButton.setFont(text_font())
-        self.preferencesButton.setStyleSheet(QPushButton_right2)
+        self.preferencesButton.setFont(Fonts.TextFont())
+        self.preferencesButton.setStyleSheet(HomeScreenStyleSheet.ButtonRightDown)
         self.preferencesButton.setObjectName("preferences")
         self.preferencesButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.preferencesButton.clicked.connect(self.switch_to_preferences)
@@ -146,7 +144,7 @@ class UIHomeScreen(QtWidgets.QWidget):
 
         # Bottom Center Frame
         self.frame_bottom_center = QtWidgets.QFrame(self)
-        self.frame_bottom_center.setStyleSheet(QButtonFrame)
+        self.frame_bottom_center.setStyleSheet(GlobalStyleSheet.ButtonFrame)
         self.frame_bottom_center.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_bottom_center.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_bottom_center.setObjectName("frame_bottom_center")
@@ -154,7 +152,7 @@ class UIHomeScreen(QtWidgets.QWidget):
 
         # Bottom Right Frame
         self.frame_bottom_right = QtWidgets.QFrame(self)
-        self.frame_bottom_right.setStyleSheet("")
+        self.frame_bottom_right.setStyleSheet(GlobalStyleSheet.NoStyleSheet)
         self.frame_bottom_right.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_bottom_right.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_bottom_right.setObjectName("frame_bottom_right")

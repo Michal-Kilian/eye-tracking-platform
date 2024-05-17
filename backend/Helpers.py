@@ -1,6 +1,5 @@
 import numpy as np
 import sys
-
 from scipy.spatial.transform import Rotation
 
 
@@ -22,9 +21,9 @@ class MathHelpers:
         return cls.matmul(v, v)
 
     @classmethod
-    def matmul(cls, v1, v2, pad=False, padBy=1.0):
+    def matmul(cls, v1, v2, pad=False, pad_by=1.0):
         if pad is True:
-            return np.matmul(v1, np.append(v2, padBy))[:-1]
+            return np.matmul(v1, np.append(v2, pad_by))[:-1]
         return np.matmul(v1, v2)
 
     @classmethod
@@ -32,20 +31,20 @@ class MathHelpers:
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
     @classmethod
-    def transform(cls, p, position, rotMat):
-        return cls.rotate(p, rotMat) + position
+    def transform(cls, p, position, rot_mat):
+        return cls.rotate(p, rot_mat) + position
 
     @classmethod
-    def inverse_transform(cls, p, position, rotMat):
-        return (p - position) @ rotMat
+    def inverse_transform(cls, p, position, rot_mat):
+        return (p - position) @ rot_mat
 
     @classmethod
     def rotate(cls, p, rot_mat):
         return p @ rot_mat.T
 
     @classmethod
-    def intersect_plane(cls, n, p0, l0, l):
-        denom = cls.matmul(-n, l)
+    def intersect_plane(cls, n, p0, l0, ll):
+        denom = cls.matmul(-n, ll)
         if denom > sys.float_info.min:
             p0l0 = p0 - l0
             t = cls.matmul(p0l0, -n) / denom

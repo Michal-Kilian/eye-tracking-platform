@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, QtCore
-from frontend.StyleSheets import text_font
+from frontend.StyleSheets import Fonts, GlobalStyleSheet, DialogStyleSheet
 
 
 class Dialog(QtWidgets.QDialog):
@@ -13,7 +13,7 @@ class Dialog(QtWidgets.QDialog):
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.SplashScreen)
         self.setFixedSize(300, 250)
 
-        self.setStyleSheet("background-color: white;")
+        self.setStyleSheet(GlobalStyleSheet.WhiteBackgroundColor)
 
         q_btn = QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel
 
@@ -21,22 +21,16 @@ class Dialog(QtWidgets.QDialog):
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setText(submit_text)
-        self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setFont(text_font())
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setFont(Fonts.TextFont())
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setFixedWidth(133)
-        self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setStyleSheet(
-            "background-color: rgb(56, 65, 157);"
-            "padding: 15px 15px; margin: 3px;"
-            "color: white; border-radius: 13px;")
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setStyleSheet(DialogStyleSheet.ButtonOK)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Cancel).setText(cancel_text)
-        self.buttonBox.button(QtWidgets.QDialogButtonBox.Cancel).setFont(text_font())
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.Cancel).setFont(Fonts.TextFont())
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Cancel).setFixedWidth(133)
-        self.buttonBox.button(QtWidgets.QDialogButtonBox.Cancel).setStyleSheet(
-            "background-color: rgb(194, 217, 255);"
-            "padding: 15px 15px; margin: 3px;"
-            "color: rgb(25, 32, 80); border-radius: 13px;")
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.Cancel).setStyleSheet(DialogStyleSheet.ButtonCancel)
         self.layout = QtWidgets.QVBoxLayout()
         message = QtWidgets.QLabel(message)
-        message.setFont(text_font())
+        message.setFont(Fonts.TextFont())
         message.setWordWrap(True)
         message.setAlignment(QtCore.Qt.AlignCenter)
         self.layout.addWidget(message)

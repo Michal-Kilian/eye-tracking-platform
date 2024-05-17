@@ -5,9 +5,10 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 from matplotlib import pyplot
 from math import sqrt, atan2, cos, sin
 from PyQt5.QtGui import QImage
-from Helpers import MathHelpers
-from PopupWindow import PopupWindow
+from backend.Helpers import MathHelpers
+from frontend.PopupWindow import PopupWindow
 from backend import CONFIG
+from frontend.StyleSheets import VisualizationWindowStyleSheet
 
 
 class VisualizationWindow(PopupWindow):
@@ -79,9 +80,7 @@ class VisualizationWindow(PopupWindow):
         color = QtWidgets.QColorDialog.getColor()
         if color.isValid():
             r, g, b, _ = color.getRgb()
-            self.color1_button.setStyleSheet(
-                "QPushButton {background-color: " + color.name() + "; border: 5px solid rgb(56, 65, 157); "
-                                                                   "border-radius: 25px;}")
+            self.color1_button.setStyleSheet(VisualizationWindowStyleSheet.ButtonColorPicked(color.name()))
             self.color_1 = (b, g, r)
             self.display_image()
 
@@ -89,9 +88,7 @@ class VisualizationWindow(PopupWindow):
         color = QtWidgets.QColorDialog.getColor()
         if color.isValid():
             r, g, b, _ = color.getRgb()
-            self.color2_button.setStyleSheet(
-                "QPushButton {background-color: " + color.name() + "; border: 5px solid rgb(56, 65, 157); "
-                                                                   "border-radius: 25px;}")
+            self.color2_button.setStyleSheet(VisualizationWindowStyleSheet.ButtonColorPicked(color.name()))
             self.color_2 = (b, g, r)
             self.display_image()
 
@@ -216,7 +213,6 @@ class VisualizationWindow(PopupWindow):
         text_face = cv2.FONT_HERSHEY_SIMPLEX
         text_scale = 0.8
         text_thickness = 2
-        text_color = (0, 0, 0)
 
         colors = {}
         order = 0
@@ -326,7 +322,7 @@ class VisualizationWindow(PopupWindow):
 
             text_size, _ = cv2.getTextSize(str(self.points_group[self.points_group_keys[key]]['index']), text_face,
                                            text_scale, text_thickness)
-            text_origin = (int(x1 - text_size[0] / 2), int(y1 + text_size[1] / 2))
+            # text_origin = (int(x1 - text_size[0] / 2), int(y1 + text_size[1] / 2))
 
             # cv2.circle(overlay_circles, (x1, y1), radius1, colors[points_group_keys[key]], -1)
             cv2.circle(overlay_circles, (x1, y1), radius1, colors[self.points_group_keys[key]], outline_width)

@@ -2,8 +2,7 @@ import abc
 import threading
 import uvc
 import numpy as np
-from Helpers import MathHelpers
-import cv2
+from backend.Helpers import MathHelpers
 
 
 class CameraThread(threading.Thread, metaclass=abc.ABCMeta):

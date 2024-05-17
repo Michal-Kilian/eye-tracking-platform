@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtWidgets
 from frontend.HomeScreen import UIHomeScreen
-from frontend.StyleSheets import QStackedWidget
+from frontend.StyleSheets import GlobalStyleSheet
 from backend import CONFIG
 
 
@@ -29,7 +29,7 @@ def main() -> None:
     window = UIMainWindow()
 
     stacked_widget = QtWidgets.QStackedWidget()
-    stacked_widget.setStyleSheet(QStackedWidget)
+    stacked_widget.setStyleSheet(GlobalStyleSheet.StackedWidget)
 
     home_screen = UIHomeScreen(app, stacked_widget)
     stacked_widget.addWidget(home_screen)

@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets, QtCore
 import ctypes
+from frontend.StyleSheets import GlobalStyleSheet
 
 
 def get_screen_resolution():
@@ -21,7 +22,7 @@ class GazePointOverlay(QtWidgets.QWidget):
         self.setGeometry(0, 0, self.screen_width, self.screen_height)
 
         self.gaze_label = QtWidgets.QLabel(self)
-        self.gaze_label.setStyleSheet("QLabel {background-color: red; border-radius: 15px}")
+        self.gaze_label.setStyleSheet(GlobalStyleSheet.GazePointOverlay)
         self.gaze_label.resize(30, 30)
 
         self.gaze_x, self.gaze_y = None, None
@@ -30,7 +31,5 @@ class GazePointOverlay(QtWidgets.QWidget):
 
         gaze_x = uv_x * self.screen_width
         gaze_y = uv_y * self.screen_height
-
-        print(gaze_x, gaze_y)
 
         self.gaze_label.move(gaze_x, gaze_y)

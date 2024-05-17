@@ -1,11 +1,8 @@
 import uvc
 from PyQt5 import QtCore, QtGui, QtWidgets
-from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
-                                  heading_font, QWidget_background_color, text_font, QLabel_device,
-                                  QComboBox_device, QControlPanelMainButton, QControlPanelButton, qcombobox_font,
-                                  QDevicePreviewButton, QRefreshButton, QComboBox_selected, get_shadow)
+from frontend.StyleSheets import Fonts, GraphicEffects, GlobalStyleSheet, DeviceScreenStyleSheet
 from backend import Devices, CONFIG
-from DevicePreview import DevicePreview
+from frontend.DevicePreview import DevicePreview
 
 
 class UIDeviceScreen(QtWidgets.QWidget):
@@ -16,7 +13,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.device_preview = None
 
         self.setObjectName("DeviceScreen")
-        self.setStyleSheet(QWidget_background_color)
+        self.setStyleSheet(GlobalStyleSheet.WidgetBackgroundColor)
         self.gridLayout = QtWidgets.QGridLayout(self)
         self.gridLayout.setObjectName("gridLayout")
 
@@ -32,7 +29,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
 
         self.backButton = QtWidgets.QPushButton()
         self.backButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.backButton.setStyleSheet(QBackButton)
+        self.backButton.setStyleSheet(GlobalStyleSheet.BackAndExitButton)
         self.backButton.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("./media/BackButton.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -62,8 +59,8 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.frame_top_center_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.calibrationLabel = QtWidgets.QLabel()
-        self.calibrationLabel.setFont(heading_font())
-        self.calibrationLabel.setStyleSheet(QLabel_heading)
+        self.calibrationLabel.setFont(Fonts.HeadingFont())
+        self.calibrationLabel.setStyleSheet(GlobalStyleSheet.Heading)
         self.calibrationLabel.setLineWidth(1)
         self.calibrationLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.calibrationLabel.setObjectName("calibrationLabel")
@@ -90,7 +87,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.frame_top_right_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.exitButton = QtWidgets.QPushButton()
-        self.exitButton.setStyleSheet(QBackButton)
+        self.exitButton.setStyleSheet(GlobalStyleSheet.BackAndExitButton)
         self.exitButton.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("./media/Exit.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -115,78 +112,78 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.frame_center_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.right_eye_select = QtWidgets.QComboBox()
-        self.right_eye_select.setStyleSheet(QComboBox_device)
+        self.right_eye_select.setStyleSheet(DeviceScreenStyleSheet.ComboBox)
         self.right_eye_select.setFixedWidth(350)
-        self.right_eye_select.setFont(qcombobox_font())
+        self.right_eye_select.setFont(Fonts.ComboBoxFont())
         self.right_eye_select.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.right_eye_select.setGraphicsEffect(get_shadow(30))
+        self.right_eye_select.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.left_eye_select = QtWidgets.QComboBox()
-        self.left_eye_select.setStyleSheet(QComboBox_device)
+        self.left_eye_select.setStyleSheet(DeviceScreenStyleSheet.ComboBox)
         self.left_eye_select.setFixedWidth(350)
-        self.left_eye_select.setFont(qcombobox_font())
+        self.left_eye_select.setFont(Fonts.ComboBoxFont())
         self.left_eye_select.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.left_eye_select.setGraphicsEffect(get_shadow(30))
+        self.left_eye_select.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.world_select = QtWidgets.QComboBox()
-        self.world_select.setStyleSheet(QComboBox_device)
+        self.world_select.setStyleSheet(DeviceScreenStyleSheet.ComboBox)
         self.world_select.setFixedWidth(350)
-        self.world_select.setFont(qcombobox_font())
+        self.world_select.setFont(Fonts.ComboBoxFont())
         self.world_select.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.world_select.setGraphicsEffect(get_shadow(30))
+        self.world_select.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.right_eye_label = QtWidgets.QLabel()
-        self.right_eye_label.setFont(text_font())
-        self.right_eye_label.setStyleSheet(QLabel_device)
+        self.right_eye_label.setFont(Fonts.TextFont())
+        self.right_eye_label.setStyleSheet(DeviceScreenStyleSheet.Label)
 
         self.left_eye_label = QtWidgets.QLabel()
-        self.left_eye_label.setFont(text_font())
-        self.left_eye_label.setStyleSheet(QLabel_device)
+        self.left_eye_label.setFont(Fonts.TextFont())
+        self.left_eye_label.setStyleSheet(DeviceScreenStyleSheet.Label)
 
         self.world_label = QtWidgets.QLabel()
-        self.world_label.setFont(text_font())
-        self.world_label.setStyleSheet(QLabel_device)
+        self.world_label.setFont(Fonts.TextFont())
+        self.world_label.setStyleSheet(DeviceScreenStyleSheet.Label)
 
         self.status_label = QtWidgets.QLabel()
         self.status_label.setObjectName("statusLabel")
         self.status_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.status_label.setFont(text_font())
-        self.status_label.setStyleSheet("color: rgb(56, 65, 157);")
+        self.status_label.setFont(Fonts.TextFont())
+        self.status_label.setStyleSheet(DeviceScreenStyleSheet.Color)
         self.status_label.setFixedHeight(30)
         self.status_label.setWordWrap(True)
 
         self.refresh_devices_button = QtWidgets.QPushButton()
-        self.refresh_devices_button.setFont(text_font())
+        self.refresh_devices_button.setFont(Fonts.TextFont())
         self.refresh_devices_button.setObjectName("refresh_devices_button")
         self.refresh_devices_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.refresh_devices_button.setStyleSheet(QRefreshButton)
+        self.refresh_devices_button.setStyleSheet(DeviceScreenStyleSheet.RefreshButton)
         self.refresh_devices_button.setFixedWidth(180)
         self.refresh_devices_button.clicked.connect(self.refresh_devices)
 
         self.right_eye_preview_button = QtWidgets.QPushButton()
-        self.right_eye_preview_button.setFont(text_font())
+        self.right_eye_preview_button.setFont(Fonts.TextFont())
         self.right_eye_preview_button.setObjectName("right_eye_preview_button")
         self.right_eye_preview_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.right_eye_preview_button.setStyleSheet(QDevicePreviewButton)
+        self.right_eye_preview_button.setStyleSheet(DeviceScreenStyleSheet.DevicePreviewButton)
         self.right_eye_preview_button.setFixedWidth(180)
         self.right_eye_preview_button.clicked.connect(self.toggle_right_preview)
-        self.right_eye_preview_button.setGraphicsEffect(get_shadow(30))
+        self.right_eye_preview_button.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.left_eye_preview_button = QtWidgets.QPushButton()
-        self.left_eye_preview_button.setFont(text_font())
+        self.left_eye_preview_button.setFont(Fonts.TextFont())
         self.left_eye_preview_button.setObjectName("left_eye_preview_button")
         self.left_eye_preview_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.left_eye_preview_button.setStyleSheet(QDevicePreviewButton)
+        self.left_eye_preview_button.setStyleSheet(DeviceScreenStyleSheet.DevicePreviewButton)
         self.left_eye_preview_button.clicked.connect(self.toggle_left_preview)
-        self.left_eye_preview_button.setGraphicsEffect(get_shadow(30))
+        self.left_eye_preview_button.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.world_preview_button = QtWidgets.QPushButton()
-        self.world_preview_button.setFont(text_font())
+        self.world_preview_button.setFont(Fonts.TextFont())
         self.world_preview_button.setObjectName("world_preview_button")
         self.world_preview_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.world_preview_button.setStyleSheet(QDevicePreviewButton)
+        self.world_preview_button.setStyleSheet(DeviceScreenStyleSheet.DevicePreviewButton)
         self.world_preview_button.clicked.connect(self.toggle_world_preview)
-        self.world_preview_button.setGraphicsEffect(get_shadow(30))
+        self.world_preview_button.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.frame_center_layout.addWidget(self.right_eye_label, 0, 0)
         self.frame_center_layout.addWidget(self.right_eye_select, 0, 1)
@@ -213,7 +210,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
 
         # Bottom Center Frame
         self.frame_bottom_center = QtWidgets.QFrame(self)
-        self.frame_bottom_center.setStyleSheet(QButtonFrame)
+        self.frame_bottom_center.setStyleSheet(GlobalStyleSheet.ButtonFrame)
         self.frame_bottom_center.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_bottom_center.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_bottom_center.setObjectName("frame_bottom_center")
@@ -222,33 +219,33 @@ class UIDeviceScreen(QtWidgets.QWidget):
         self.frame_bottom_center_layout.setObjectName("frame_bottom_center_layout")
 
         self.save_devices_button = QtWidgets.QPushButton()
-        self.save_devices_button.setFont(text_font())
+        self.save_devices_button.setFont(Fonts.TextFont())
         self.save_devices_button.setObjectName("saveDevicesButton")
         self.save_devices_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.save_devices_button.setFixedHeight(50)
-        self.save_devices_button.setStyleSheet(QControlPanelMainButton)
+        self.save_devices_button.setStyleSheet(GlobalStyleSheet.ControlPanelMainButton)
         self.save_devices_button.clicked.connect(self.save_devices)
         self.save_devices_button.setDisabled(False)
-        self.save_devices_button.setGraphicsEffect(get_shadow(30))
+        self.save_devices_button.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.reset_button = QtWidgets.QPushButton()
-        self.reset_button.setFont(text_font())
+        self.reset_button.setFont(Fonts.TextFont())
         self.reset_button.setObjectName("reset_button")
         self.reset_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.reset_button.setFixedSize(150, 50)
-        self.reset_button.setStyleSheet(QControlPanelButton)
+        self.reset_button.setStyleSheet(GlobalStyleSheet.ControlPanelButton)
         self.reset_button.clicked.connect(self.reset_devices)
-        self.reset_button.setGraphicsEffect(get_shadow(30))
+        self.reset_button.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.calibrate_device_button = QtWidgets.QPushButton()
-        self.calibrate_device_button.setFont(text_font())
+        self.calibrate_device_button.setFont(Fonts.TextFont())
         self.calibrate_device_button.setObjectName("calibrateDeviceButton")
         self.calibrate_device_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.calibrate_device_button.setFixedHeight(50)
-        self.calibrate_device_button.setStyleSheet(QControlPanelMainButton)
+        self.calibrate_device_button.setStyleSheet(GlobalStyleSheet.ControlPanelMainButton)
         self.calibrate_device_button.setDisabled(True)
         self.calibrate_device_button.clicked.connect(self.calibrate_device)
-        self.calibrate_device_button.setGraphicsEffect(get_shadow(30))
+        self.calibrate_device_button.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.frame_bottom_center_layout.addWidget(self.save_devices_button)
         self.frame_bottom_center_layout.addWidget(self.reset_button)
@@ -258,7 +255,7 @@ class UIDeviceScreen(QtWidgets.QWidget):
 
         # Bottom Right Frame
         self.frame_bottom_right = QtWidgets.QFrame(self)
-        self.frame_bottom_right.setStyleSheet("")
+        self.frame_bottom_right.setStyleSheet(GlobalStyleSheet.NoStyleSheet)
         self.frame_bottom_right.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_bottom_right.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_bottom_right.setObjectName("frame_bottom_right")
@@ -313,9 +310,9 @@ class UIDeviceScreen(QtWidgets.QWidget):
         # elif not Devices.WORLD_DEVICE.supported:
         #     self.device_not_supported_alert("world")
         # else:
-        self.right_eye_select.setStyleSheet(QComboBox_selected)
-        self.left_eye_select.setStyleSheet(QComboBox_selected)
-        self.world_select.setStyleSheet(QComboBox_selected)
+        self.right_eye_select.setStyleSheet(DeviceScreenStyleSheet.ComboBoxSelected)
+        self.left_eye_select.setStyleSheet(DeviceScreenStyleSheet.ComboBoxSelected)
+        self.world_select.setStyleSheet(DeviceScreenStyleSheet.ComboBoxSelected)
         self.status_label.setText("Devices saved successfully")
         self.calibrate_device_button.setDisabled(False)
         self.save_devices_button.setDisabled(True)

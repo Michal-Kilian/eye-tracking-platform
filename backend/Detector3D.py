@@ -1,7 +1,7 @@
 import numpy as np
-from pye3d.detector_3d import Detector3D as Det3D, CameraModel, DetectorMode
+from pye3d.detector_3d import Detector3D as Det3D, CameraModel
 from backend import Devices
-from Helpers import MathHelpers
+from backend.Helpers import MathHelpers
 from backend import CONFIG
 from backend import RECORDS
 

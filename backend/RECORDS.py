@@ -1,6 +1,5 @@
 import uuid
 from enum import Enum
-
 import ndjson
 
 
@@ -20,7 +19,7 @@ class Record:
 
 
 def get_records() -> list[Record]:
-    with open('backend/RECORDS.ndjson') as f:
+    with open("RECORDS.ndjson") as f:
         data = ndjson.load(f)
         records = []
         for item in data:
@@ -44,7 +43,7 @@ def sorted_records() -> list[Record]:
 
 
 def append_record(new_record: Record) -> None:
-    with open('backend/RECORDS.ndjson') as f:
+    with open("RECORDS.ndjson") as f:
         records = ndjson.load(f)
         records.append({
             "id": str(new_record.id),
@@ -55,12 +54,12 @@ def append_record(new_record: Record) -> None:
 
         RECORDS.append(new_record)
 
-        with open("backend/RECORDS.ndjson", "w") as file:
+        with open("RECORDS.ndjson", "w") as file:
             ndjson.dump(records, file)
 
 
 def clear_records_file() -> None:
-    open('backend/RECORDS.ndjson', 'w').close()
+    open("RECORDS.ndjson", "w").close()
 
 
 clear_records_file()

@@ -6,17 +6,14 @@ import matplotlib
 import uvc
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QImage
-import Model3D
+from frontend import Model3D
 from backend import Devices
 from backend import RECORDS
 from backend.CameraThreads import PyuvcPoseThread, PyuvcCameraThread
 from frontend.GazePointOverlay import GazePointOverlay
 from frontend.RecordsScreen import UIRecordsScreen
 from frontend.ArucoOverlay import ArucoOverlay
-from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
-                                  heading_font, text_font, QWidget_background_color, QControlPanelButton,
-                                  QControlPanelMainButton, QLabel_Analysis, get_shadow, QScrollBar_Images, QLabel_2D_3D,
-                                  QControlButton, QScrollBar)
+from frontend.StyleSheets import Fonts, GraphicEffects, AnalysisScreenStyleSheet, GlobalStyleSheet
 from frontend.Dialog import Dialog
 from backend.Detector2D import Detector2D
 from backend.Detector3D import Detector3D
@@ -68,7 +65,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.iteration = 0
 
         self.setObjectName("AnalysisScreen")
-        self.setStyleSheet(QWidget_background_color)
+        self.setStyleSheet(GlobalStyleSheet.WidgetBackgroundColor)
         self.gridLayout = QtWidgets.QGridLayout(self)
         self.gridLayout.setObjectName("gridLayout")
 
@@ -84,7 +81,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
 
         self.backButton = QtWidgets.QPushButton()
         self.backButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.backButton.setStyleSheet(QBackButton)
+        self.backButton.setStyleSheet(GlobalStyleSheet.BackAndExitButton)
         self.backButton.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("./media/BackButton.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -114,8 +111,8 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.frame_top_center_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.analysisLabel = QtWidgets.QLabel()
-        self.analysisLabel.setFont(heading_font())
-        self.analysisLabel.setStyleSheet(QLabel_heading)
+        self.analysisLabel.setFont(Fonts.HeadingFont())
+        self.analysisLabel.setStyleSheet(GlobalStyleSheet.Heading)
         self.analysisLabel.setLineWidth(1)
         self.analysisLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.analysisLabel.setObjectName("analysisLabel")
@@ -142,7 +139,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.frame_top_right_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.exitButton = QtWidgets.QPushButton()
-        self.exitButton.setStyleSheet(QBackButton)
+        self.exitButton.setStyleSheet(GlobalStyleSheet.BackAndExitButton)
         self.exitButton.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("./media/Exit.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -167,7 +164,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
 
         if CONFIG.MODE_SELECTED == RECORDS.RecordType.REAL_TIME:
             self.debug_view = QtWidgets.QScrollArea()
-            self.debug_view.setStyleSheet(QScrollBar)
+            self.debug_view.setStyleSheet(GlobalStyleSheet.ScrollBar)
             self.debug_view.setAlignment(QtCore.Qt.AlignCenter)
             self.debug_view_widget = QtWidgets.QWidget()
             self.debug_view_layout = QtWidgets.QGridLayout(self.debug_view_widget)
@@ -187,17 +184,9 @@ class UIAnalysisScreen(QtWidgets.QWidget):
 
         self.gridLayout.addWidget(self.center_stacked_widget, 1, 0, 1, 6)
 
-        # self.frame_center = QtWidgets.QFrame(self)
-        # self.frame_center.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        # self.frame_center.setFrameShadow(QtWidgets.QFrame.Raised)
-        # self.frame_center.setObjectName("frame_center_right")
-        # self.frame_center.setFixedHeight(370)
-
-        # self.frame_center_layout = QtWidgets.QGridLayout(self.frame_center)
-
         # Bottom Center Frame
         self.frame_bottom_center = QtWidgets.QFrame(self)
-        self.frame_bottom_center.setStyleSheet(QButtonFrame)
+        self.frame_bottom_center.setStyleSheet(GlobalStyleSheet.ButtonFrame)
         self.frame_bottom_center.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_bottom_center.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_bottom_center.setObjectName("frame_bottom_center")
@@ -205,33 +194,33 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.frame_bottom_center_layout = QtWidgets.QHBoxLayout(self.frame_bottom_center)
 
         self.debugViewButton = QtWidgets.QPushButton()
-        self.debugViewButton.setFont(text_font())
+        self.debugViewButton.setFont(Fonts.TextFont())
         self.debugViewButton.setObjectName("debugViewButton")
         self.debugViewButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.debugViewButton.setFixedHeight(50)
-        self.debugViewButton.setStyleSheet(QControlPanelButton)
+        self.debugViewButton.setStyleSheet(GlobalStyleSheet.ControlPanelButton)
         self.debugViewButton.clicked.connect(self.toggle_debug_view)
-        self.debugViewButton.setGraphicsEffect(get_shadow(30))
+        self.debugViewButton.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.startButton = QtWidgets.QPushButton()
-        self.startButton.setFont(text_font())
+        self.startButton.setFont(Fonts.TextFont())
         self.startButton.setObjectName("startButton")
         self.startButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.startButton.setFixedHeight(50)
-        self.startButton.setStyleSheet(QControlPanelMainButton)
+        self.startButton.setStyleSheet(GlobalStyleSheet.ControlPanelMainButton)
         if CONFIG.MODE_SELECTED == RECORDS.RecordType.REAL_TIME:
             self.startButton.setDisabled(not Devices.WORLD_DEVICE or not Devices.LEFT_EYE_DEVICE or
                                          not Devices.RIGHT_EYE_DEVICE)
         self.startButton.clicked.connect(self.start_analysis)
-        self.startButton.setGraphicsEffect(get_shadow(30))
+        self.startButton.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.toggle_aruco_button = QtWidgets.QPushButton()
-        self.toggle_aruco_button.setFont(text_font())
+        self.toggle_aruco_button.setFont(Fonts.TextFont())
         self.toggle_aruco_button.setObjectName("toggle_aruco_button")
         self.toggle_aruco_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.toggle_aruco_button.setFixedHeight(50)
-        self.toggle_aruco_button.setStyleSheet(QControlPanelButton)
-        self.toggle_aruco_button.setGraphicsEffect(get_shadow(30))
+        self.toggle_aruco_button.setStyleSheet(GlobalStyleSheet.ControlPanelButton)
+        self.toggle_aruco_button.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         if CONFIG.MODE_SELECTED == RECORDS.RecordType.REAL_TIME:
             self.toggle_aruco_button.setText("Show Aruco")
@@ -256,38 +245,35 @@ class UIAnalysisScreen(QtWidgets.QWidget):
             self.analysisLabel.setText(_translate("Form", "REAL-TIME ANALYSIS"))
             self.worldDeviceLabel.setText(_translate("Form", "World device:"))
             if not Devices.WORLD_DEVICE:
-                self.worldDeviceStatusLabel.setStyleSheet("background-color: rgb(165, 195, 255); color: white;")
+                self.worldDeviceStatusLabel.setStyleSheet(AnalysisScreenStyleSheet.DeviceStatusLabelNoData)
                 self.worldDeviceStatusLabel.setText(_translate("Form", "No world device saved yet"))
             else:
-                self.worldDeviceStatusLabel.setStyleSheet(
-                    "background-color: rgb(165, 195, 255); color: rgb(25, 32, 80);")
+                self.worldDeviceStatusLabel.setStyleSheet(AnalysisScreenStyleSheet.DeviceStatusLabel)
                 self.worldDeviceStatusLabel.setText(_translate("Form", Devices.WORLD_DEVICE.name))
 
             self.rightEyeDeviceLabel.setText(_translate("Form", "Right eye device:"))
             if not Devices.RIGHT_EYE_DEVICE:
-                self.rightEyeDeviceStatusLabel.setStyleSheet("background-color: rgb(165, 195, 255); color: white;")
+                self.rightEyeDeviceStatusLabel.setStyleSheet(AnalysisScreenStyleSheet.DeviceStatusLabelNoData)
                 self.rightEyeDeviceStatusLabel.setText(_translate("Form", "No right eye device saved yet"))
             else:
-                self.rightEyeDeviceStatusLabel.setStyleSheet(
-                    "background-color: rgb(165, 195, 255); color: rgb(25, 32, 80);")
+                self.rightEyeDeviceStatusLabel.setStyleSheet(AnalysisScreenStyleSheet.DeviceStatusLabel)
                 self.rightEyeDeviceStatusLabel.setText(_translate("Form", Devices.RIGHT_EYE_DEVICE.name))
 
             self.leftEyeDeviceLabel.setText(_translate("Form", "Left eye device:"))
             if not Devices.RIGHT_EYE_DEVICE:
-                self.leftEyeDeviceStatusLabel.setStyleSheet("background-color: rgb(165, 195, 255); color: white;")
+                self.leftEyeDeviceStatusLabel.setStyleSheet(AnalysisScreenStyleSheet.DeviceStatusLabelNoData)
                 self.leftEyeDeviceStatusLabel.setText(_translate("Form", "No left eye device saved yet"))
             else:
-                self.leftEyeDeviceStatusLabel.setStyleSheet(
-                    "background-color: rgb(165, 195, 255); color: rgb(25, 32, 80);")
+                self.leftEyeDeviceStatusLabel.setStyleSheet(AnalysisScreenStyleSheet.DeviceStatusLabel)
                 self.leftEyeDeviceStatusLabel.setText(_translate("Form", Devices.LEFT_EYE_DEVICE.name))
 
             self.pictureLabel.setText(_translate("Form", "Picture loaded:"))
             if not CONFIG.PICTURE_SELECTED:
-                self.picturePathLabel.setStyleSheet("background-color: rgb(165, 195, 255); color: white;")
+                self.picturePathLabel.setStyleSheet(AnalysisScreenStyleSheet.DeviceStatusLabelNoData)
                 self.picturePathLabel.setText(_translate("Form", "No picture loaded yet"))
                 self.loadPictureButton.setText(_translate("Form", "Load Picture"))
             else:
-                self.picturePathLabel.setStyleSheet("background-color: rgb(165, 195, 255); rgb(25, 32, 80);")
+                self.picturePathLabel.setStyleSheet(AnalysisScreenStyleSheet.DeviceStatusLabel)
                 self.picturePathLabel.setText(_translate("Form", CONFIG.PICTURE_SELECTED))
                 self.loadPictureButton.setText(_translate("Form", "Reset Picture"))
         elif CONFIG.MODE_SELECTED == RECORDS.RecordType.OFFLINE:
@@ -605,12 +591,12 @@ class UIAnalysisScreen(QtWidgets.QWidget):
             )
             if check:
                 CONFIG.PICTURE_SELECTED = picture
-                self.picturePathLabel.setStyleSheet("background-color: rgb(165, 195, 255); color: rgb(25, 32, 80);")
+                self.picturePathLabel.setStyleSheet(AnalysisScreenStyleSheet.DeviceStatusLabel)
                 self.picturePathLabel.setText(CONFIG.PICTURE_SELECTED)
                 self.loadPictureButton.setText("Reset picture")
         else:
             CONFIG.PICTURE_SELECTED = None
-            self.picturePathLabel.setStyleSheet("background-color: rgb(165, 195, 255); color: white;")
+            self.picturePathLabel.setStyleSheet(AnalysisScreenStyleSheet.DeviceStatusLabelNoData)
             self.picturePathLabel.setText("No picture loaded yet")
             self.loadPictureButton.setText("Load picture")
 
@@ -627,75 +613,75 @@ class UIAnalysisScreen(QtWidgets.QWidget):
     def fill_basic_view(self) -> None:
         if CONFIG.MODE_SELECTED == RECORDS.RecordType.REAL_TIME:
             self.worldDeviceLabel = QtWidgets.QLabel()
-            self.worldDeviceLabel.setFont(text_font())
+            self.worldDeviceLabel.setFont(Fonts.TextFont())
             self.worldDeviceLabel.setLineWidth(1)
             self.worldDeviceLabel.setAlignment(QtCore.Qt.AlignCenter)
             self.worldDeviceLabel.setObjectName("worldDeviceLabel")
             self.worldDeviceLabel.setFixedWidth(252)
 
             self.worldDeviceStatusLabel = QtWidgets.QLabel()
-            self.worldDeviceStatusLabel.setFont(text_font())
+            self.worldDeviceStatusLabel.setFont(Fonts.TextFont())
             self.worldDeviceStatusLabel.setLineWidth(1)
             self.worldDeviceStatusLabel.setAlignment(QtCore.Qt.AlignCenter)
             self.worldDeviceStatusLabel.setObjectName("worldDeviceStatusLabel")
             self.worldDeviceStatusLabel.setWordWrap(True)
-            self.worldDeviceStatusLabel.setStyleSheet(QLabel_Analysis)
+            self.worldDeviceStatusLabel.setStyleSheet(AnalysisScreenStyleSheet.LabelWithTooltip)
             self.worldDeviceStatusLabel.setFixedWidth(253)
 
             self.rightEyeDeviceLabel = QtWidgets.QLabel()
-            self.rightEyeDeviceLabel.setFont(text_font())
+            self.rightEyeDeviceLabel.setFont(Fonts.TextFont())
             self.rightEyeDeviceLabel.setLineWidth(1)
             self.rightEyeDeviceLabel.setAlignment(QtCore.Qt.AlignCenter)
             self.rightEyeDeviceLabel.setObjectName("worldDeviceLabel")
             self.rightEyeDeviceLabel.setFixedWidth(252)
 
             self.rightEyeDeviceStatusLabel = QtWidgets.QLabel()
-            self.rightEyeDeviceStatusLabel.setFont(text_font())
+            self.rightEyeDeviceStatusLabel.setFont(Fonts.TextFont())
             self.rightEyeDeviceStatusLabel.setLineWidth(1)
             self.rightEyeDeviceStatusLabel.setAlignment(QtCore.Qt.AlignCenter)
             self.rightEyeDeviceStatusLabel.setObjectName("worldDeviceStatusLabel")
             self.rightEyeDeviceStatusLabel.setWordWrap(True)
-            self.rightEyeDeviceStatusLabel.setStyleSheet(QLabel_Analysis)
+            self.rightEyeDeviceStatusLabel.setStyleSheet(AnalysisScreenStyleSheet.LabelWithTooltip)
             self.rightEyeDeviceStatusLabel.setFixedWidth(253)
 
             self.leftEyeDeviceLabel = QtWidgets.QLabel()
-            self.leftEyeDeviceLabel.setFont(text_font())
+            self.leftEyeDeviceLabel.setFont(Fonts.TextFont())
             self.leftEyeDeviceLabel.setLineWidth(1)
             self.leftEyeDeviceLabel.setAlignment(QtCore.Qt.AlignCenter)
             self.leftEyeDeviceLabel.setObjectName("worldDeviceLabel")
             self.leftEyeDeviceLabel.setFixedWidth(252)
 
             self.leftEyeDeviceStatusLabel = QtWidgets.QLabel()
-            self.leftEyeDeviceStatusLabel.setFont(text_font())
+            self.leftEyeDeviceStatusLabel.setFont(Fonts.TextFont())
             self.leftEyeDeviceStatusLabel.setLineWidth(1)
             self.leftEyeDeviceStatusLabel.setAlignment(QtCore.Qt.AlignCenter)
             self.leftEyeDeviceStatusLabel.setObjectName("worldDeviceStatusLabel")
             self.leftEyeDeviceStatusLabel.setWordWrap(True)
-            self.leftEyeDeviceStatusLabel.setStyleSheet(QLabel_Analysis)
+            self.leftEyeDeviceStatusLabel.setStyleSheet(AnalysisScreenStyleSheet.LabelWithTooltip)
             self.leftEyeDeviceStatusLabel.setFixedWidth(253)
 
             self.pictureLabel = QtWidgets.QLabel()
-            self.pictureLabel.setFont(text_font())
+            self.pictureLabel.setFont(Fonts.TextFont())
             self.pictureLabel.setLineWidth(1)
             self.pictureLabel.setAlignment(QtCore.Qt.AlignCenter)
             self.pictureLabel.setObjectName("pictureLabel")
             self.pictureLabel.setFixedWidth(252)
 
             self.picturePathLabel = QtWidgets.QLabel()
-            self.picturePathLabel.setFont(text_font())
+            self.picturePathLabel.setFont(Fonts.TextFont())
             self.picturePathLabel.setLineWidth(1)
             self.picturePathLabel.setAlignment(QtCore.Qt.AlignCenter)
             self.picturePathLabel.setObjectName("picturePathLabel")
             self.picturePathLabel.setWordWrap(True)
-            self.picturePathLabel.setStyleSheet(QLabel_Analysis)
+            self.picturePathLabel.setStyleSheet(AnalysisScreenStyleSheet.LabelWithTooltip)
             self.picturePathLabel.setFixedWidth(253)
 
             self.loadPictureButton = QtWidgets.QPushButton()
-            self.loadPictureButton.setFont(text_font())
+            self.loadPictureButton.setFont(Fonts.TextFont())
             self.loadPictureButton.setObjectName("loadPictureButton")
             self.loadPictureButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
             self.loadPictureButton.setFixedHeight(50)
-            self.loadPictureButton.setStyleSheet(QControlButton)
+            self.loadPictureButton.setStyleSheet(GlobalStyleSheet.ControlButton)
             self.loadPictureButton.clicked.connect(self.load_picture)
             # self.loadPictureButton.setGraphicsEffect(get_shadow(30))
 
@@ -711,13 +697,13 @@ class UIAnalysisScreen(QtWidgets.QWidget):
 
         elif CONFIG.MODE_SELECTED == RECORDS.RecordType.OFFLINE:
             self.image_list_label = QtWidgets.QLabel()
-            self.image_list_label.setFont(text_font())
-            self.image_list_label.setStyleSheet(QLabel_2D_3D)
+            self.image_list_label.setFont(Fonts.TextFont())
+            self.image_list_label.setStyleSheet(GlobalStyleSheet.WhiteLabel)
             self.image_list_label.setFixedHeight(60)
             self.image_list_label.setAlignment(QtCore.Qt.AlignCenter)
 
             self.images_scroll_area = QtWidgets.QScrollArea()
-            self.images_scroll_area.setStyleSheet(QScrollBar_Images)
+            self.images_scroll_area.setStyleSheet(AnalysisScreenStyleSheet.ImageScrollBar)
             self.images_scroll_area.setAlignment(QtCore.Qt.AlignCenter)
             self.images_scroll_area.setFixedHeight(250)
             self.images_scroll_area.setFixedWidth(300)
@@ -731,7 +717,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
                 no_files_label = QtWidgets.QLabel("<span style='color: rgba(25, 32, 80, 90)'>No files found in <span "
                                                   "style='color: rgb(56, 65, 157);'><b>images</b></span> "
                                                   "directory.</span>")
-                no_files_label.setFont(text_font())
+                no_files_label.setFont(Fonts.TextFont())
                 no_files_label.setWordWrap(True)
                 self.images_scroll_area_layout.addWidget(no_files_label)
             else:
@@ -741,7 +727,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
 
             for _file in files:
                 file_button: QtWidgets.QPushButton = QtWidgets.QPushButton(_file)
-                file_button.setFont(text_font())
+                file_button.setFont(Fonts.TextFont())
                 file_button.setFixedWidth(230)
                 file_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
                 file_button.clicked.connect(
@@ -751,16 +737,16 @@ class UIAnalysisScreen(QtWidgets.QWidget):
             self.images_scroll_area.setWidget(self.images_scroll_area_widget)
 
             self.image_preview_label = QtWidgets.QLabel()
-            self.image_preview_label.setFont(text_font())
-            self.image_preview_label.setStyleSheet(QLabel_2D_3D)
+            self.image_preview_label.setFont(Fonts.TextFont())
+            self.image_preview_label.setStyleSheet(GlobalStyleSheet.WhiteLabel)
             self.image_preview_label.setFixedHeight(60)
             self.image_preview_label.setAlignment(QtCore.Qt.AlignCenter)
 
             self.image_preview = QtWidgets.QLabel("Image Preview")
             self.image_preview.setAlignment(QtCore.Qt.AlignCenter)
-            self.image_preview.setStyleSheet("background-color: white;")
+            self.image_preview.setStyleSheet(GlobalStyleSheet.WhiteBackgroundColor)
             self.image_preview.setMaximumSize(300, 200)
-            self.image_preview.setFont(text_font())
+            self.image_preview.setFont(Fonts.TextFont())
             pixmap = QtGui.QPixmap("./media/EyeIcon.png")
             self.image_preview.setPixmap(pixmap)
             self.image_preview.setScaledContents(True)
@@ -772,17 +758,17 @@ class UIAnalysisScreen(QtWidgets.QWidget):
 
     def show_image_preview(self, file_name, button):
         if self.current_button == button:
-            button.setStyleSheet("")
+            button.setStyleSheet(GlobalStyleSheet.NoStyleSheet)
             self.current_button = None
             pixmap = QtGui.QPixmap("./media/EyeIcon.png")
             self.image_preview.setPixmap(pixmap)
             self.image_preview.setScaledContents(True)
             return
 
-        button.setStyleSheet("background-color: rgb(56, 65, 157); color: white;")
+        button.setStyleSheet(GlobalStyleSheet.BackgroundAndWhiteColor)
 
         if self.current_button and self.current_button != button:
-            self.current_button.setStyleSheet("")
+            self.current_button.setStyleSheet(GlobalStyleSheet.NoStyleSheet)
 
         self.current_button = button
 
@@ -806,25 +792,25 @@ class UIAnalysisScreen(QtWidgets.QWidget):
 
     def fill_real_time_debug_view(self) -> None:
         debug_right_display_title = QtWidgets.QLabel("Right Eye Detection")
-        debug_right_display_title.setFont(text_font())
+        debug_right_display_title.setFont(Fonts.TextFont())
         debug_right_display_title.setAlignment(QtCore.Qt.AlignCenter)
 
         debug_left_display_title = QtWidgets.QLabel("Left Eye Detection")
-        debug_left_display_title.setFont(text_font())
+        debug_left_display_title.setFont(Fonts.TextFont())
         debug_left_display_title.setAlignment(QtCore.Qt.AlignCenter)
 
         model_3d_title = QtWidgets.QLabel("3D Model")
-        model_3d_title.setFont(text_font())
+        model_3d_title.setFont(Fonts.TextFont())
         model_3d_title.setAlignment(QtCore.Qt.AlignCenter)
-        model_3d_title.setStyleSheet("margin-top: 30px;")
+        model_3d_title.setStyleSheet(GlobalStyleSheet.MarginTop30)
 
         aruco_detection_title = QtWidgets.QLabel("Aruco Detection")
-        aruco_detection_title.setFont(text_font())
+        aruco_detection_title.setFont(Fonts.TextFont())
         aruco_detection_title.setAlignment(QtCore.Qt.AlignCenter)
-        aruco_detection_title.setStyleSheet("margin-top: 30px;")
+        aruco_detection_title.setStyleSheet(GlobalStyleSheet.MarginTop30)
 
         self.debug_right_display = QtWidgets.QLabel("Debug Right Display Label")
-        self.debug_right_display.setStyleSheet("margin: 20px")
+        self.debug_right_display.setStyleSheet(GlobalStyleSheet.Margin20)
         self.debug_right_display.setAlignment(QtCore.Qt.AlignCenter)
         pixmap = QtGui.QPixmap("./media/EyeIcon.png")
         self.debug_right_display.setPixmap(pixmap)
@@ -832,7 +818,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.debug_right_display.setScaledContents(True)
 
         self.debug_left_display = QtWidgets.QLabel("Debug Left Display Label")
-        self.debug_left_display.setStyleSheet("margin: 20px")
+        self.debug_left_display.setStyleSheet(GlobalStyleSheet.Margin20)
         self.debug_left_display.setAlignment(QtCore.Qt.AlignCenter)
         pixmap = QtGui.QPixmap("./media/EyeIcon.png")
         self.debug_left_display.setPixmap(pixmap)
@@ -841,14 +827,14 @@ class UIAnalysisScreen(QtWidgets.QWidget):
 
         self.model_3d_real_time = QtWidgets.QLabel("3D Model Display Label")
         self.model_3d_real_time.setFixedSize(400, 300)
-        self.model_3d_real_time.setStyleSheet("margin: 20px; background-color: rgb(194, 217, 255);")
+        self.model_3d_real_time.setStyleSheet(GlobalStyleSheet.Margin20AndBackground)
         self.model_3d_real_time.setAlignment(QtCore.Qt.AlignCenter)
         pixmap = QtGui.QPixmap("./media/EyeIcon.png")
         self.model_3d_real_time.setPixmap(pixmap)
         self.model_3d_real_time.setScaledContents(True)
 
         self.debug_world_display = QtWidgets.QLabel("Debug World Display Label")
-        self.debug_world_display.setStyleSheet("margin: 20px")
+        self.debug_world_display.setStyleSheet(GlobalStyleSheet.Margin20)
         self.debug_world_display.setAlignment(QtCore.Qt.AlignCenter)
         pixmap = QtGui.QPixmap("./media/EyeIcon.png")
         self.debug_world_display.setPixmap(pixmap)
@@ -867,23 +853,23 @@ class UIAnalysisScreen(QtWidgets.QWidget):
     def fill_offline_debug_view(self):
         self.model_3d_offline = QtWidgets.QLabel("3D Model Display Label")
         self.model_3d_offline.setFixedSize(400, 300)
-        self.model_3d_offline.setStyleSheet("margin: 20px; background-color: rgb(194, 217, 255);")
+        self.model_3d_offline.setStyleSheet(GlobalStyleSheet.Margin20AndBackground)
         self.model_3d_offline.setAlignment(QtCore.Qt.AlignCenter)
         pixmap = QtGui.QPixmap("./media/EyeIcon.png")
         self.model_3d_offline.setPixmap(pixmap)
         self.model_3d_offline.setScaledContents(True)
 
         model_3d_title = QtWidgets.QLabel("3D Model")
-        model_3d_title.setFont(text_font())
+        model_3d_title.setFont(Fonts.TextFont())
         model_3d_title.setAlignment(QtCore.Qt.AlignCenter)
 
         debug_display_title = QtWidgets.QLabel("Eye Detection")
-        debug_display_title.setFont(text_font())
+        debug_display_title.setFont(Fonts.TextFont())
         debug_display_title.setAlignment(QtCore.Qt.AlignCenter)
 
         self.debug_display = QtWidgets.QLabel("Debug Right Display Label")
         self.debug_display.setFixedSize(400, 300)
-        self.debug_display.setStyleSheet("margin: 20px")
+        self.debug_display.setStyleSheet(GlobalStyleSheet.Margin20)
         self.debug_display.setAlignment(QtCore.Qt.AlignCenter)
         pixmap = QtGui.QPixmap("./media/EyeIcon.png")
         self.debug_display.setPixmap(pixmap)

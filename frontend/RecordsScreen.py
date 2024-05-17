@@ -1,12 +1,11 @@
 from frontend.RecordDetailScreen import UIRecordDetailScreen, format_record_date_time
 from PyQt5 import QtCore, QtGui, QtWidgets
-from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
-                                  heading_font, text_font, QWidget_background_color, QScrollBar)
+from frontend.StyleSheets import Fonts, GlobalStyleSheet, RecordsScreenStyleSheet
 from backend import RECORDS
 
 
 class UIRecordsScreen(QtWidgets.QWidget):
-    def __init__(self, application, stacked_widget, previous_location, iteration = None):
+    def __init__(self, application, stacked_widget, previous_location, iteration=None):
         super().__init__()
 
         self.application = application
@@ -16,7 +15,7 @@ class UIRecordsScreen(QtWidgets.QWidget):
         self.analysis_iteration = iteration
 
         self.setObjectName("RecordsScreen")
-        self.setStyleSheet(QWidget_background_color)
+        self.setStyleSheet(GlobalStyleSheet.WidgetBackgroundColor)
         self.gridLayout = QtWidgets.QGridLayout(self)
         self.gridLayout.setObjectName("gridLayout")
 
@@ -32,7 +31,7 @@ class UIRecordsScreen(QtWidgets.QWidget):
 
         self.backButton = QtWidgets.QPushButton()
         self.backButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.backButton.setStyleSheet(QBackButton)
+        self.backButton.setStyleSheet(GlobalStyleSheet.BackAndExitButton)
         self.backButton.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("./media/BackButton.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -62,8 +61,8 @@ class UIRecordsScreen(QtWidgets.QWidget):
         self.frame_top_center_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.recordsLabel = QtWidgets.QLabel()
-        self.recordsLabel.setFont(heading_font())
-        self.recordsLabel.setStyleSheet(QLabel_heading)
+        self.recordsLabel.setFont(Fonts.HeadingFont())
+        self.recordsLabel.setStyleSheet(GlobalStyleSheet.Heading)
         self.recordsLabel.setLineWidth(1)
         self.recordsLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.recordsLabel.setObjectName("recordsLabel")
@@ -90,7 +89,7 @@ class UIRecordsScreen(QtWidgets.QWidget):
         self.frame_top_right_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.exitButton = QtWidgets.QPushButton()
-        self.exitButton.setStyleSheet(QBackButton)
+        self.exitButton.setStyleSheet(GlobalStyleSheet.BackAndExitButton)
         self.exitButton.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("./media/Exit.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -115,7 +114,7 @@ class UIRecordsScreen(QtWidgets.QWidget):
         self.frame_center_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.scroll_area = QtWidgets.QScrollArea()
-        self.scroll_area.setStyleSheet(QScrollBar)
+        self.scroll_area.setStyleSheet(GlobalStyleSheet.ScrollBar)
         self.scroll_area.setAlignment(QtCore.Qt.AlignCenter)
         self.scroll_area.setMaximumWidth(750)
 
@@ -127,24 +126,23 @@ class UIRecordsScreen(QtWidgets.QWidget):
 
             widget = QtWidgets.QWidget()
             widget.setFixedWidth(700)
-            widget.setStyleSheet("background-color: rgb(165, 195, 255); border-radius: 25px;")
+            widget.setStyleSheet(RecordsScreenStyleSheet.ItemWidget)
             widget_layout = QtWidgets.QHBoxLayout(widget)
 
             date_time_label = QtWidgets.QLabel(format_record_date_time(record.timestamp))
-            date_time_label.setFont(text_font())
+            date_time_label.setFont(Fonts.TextFont())
             date_time_label.setFixedWidth(150)
             date_time_label.setAlignment(QtCore.Qt.AlignCenter)
 
             type_label = QtWidgets.QLabel(record.type.value)
-            type_label.setFont(text_font())
+            type_label.setFont(Fonts.TextFont())
             type_label.setAlignment(QtCore.Qt.AlignCenter)
 
             detail_button = QtWidgets.QPushButton("Details")
-            detail_button.setFont(text_font())
+            detail_button.setFont(Fonts.TextFont())
             detail_button.setFixedWidth(150)
             detail_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-            detail_button.setStyleSheet("QPushButton {background-color: white; color: rgb(25, 32, 80); padding: 10px;}"
-                                        "QPushButton:hover {font: 63 12pt 'Yu Gothic UI Semibold';}")
+            detail_button.setStyleSheet(RecordsScreenStyleSheet.DetailButton)
             detail_button.clicked.connect(
                 lambda checked, record_id=_record_id: self.switch_to_record_detail(record_id))
 
@@ -155,7 +153,7 @@ class UIRecordsScreen(QtWidgets.QWidget):
 
         if not RECORDS.RECORDS:
             label = QtWidgets.QLabel("No records yet")
-            label.setFont(text_font())
+            label.setFont(Fonts.TextFont())
             label.setAlignment(QtCore.Qt.AlignCenter)
 
             self.scroll_area_layout.addWidget(label)
@@ -176,7 +174,7 @@ class UIRecordsScreen(QtWidgets.QWidget):
 
         # Bottom Center Frame
         self.frame_bottom_center = QtWidgets.QFrame(self)
-        self.frame_bottom_center.setStyleSheet(QButtonFrame)
+        self.frame_bottom_center.setStyleSheet(GlobalStyleSheet.ButtonFrame)
         self.frame_bottom_center.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_bottom_center.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_bottom_center.setObjectName("frame_bottom_center")
@@ -184,7 +182,7 @@ class UIRecordsScreen(QtWidgets.QWidget):
 
         # Bottom Right Frame
         self.frame_bottom_right = QtWidgets.QFrame(self)
-        self.frame_bottom_right.setStyleSheet("")
+        self.frame_bottom_right.setStyleSheet(GlobalStyleSheet.NoStyleSheet)
         self.frame_bottom_right.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_bottom_right.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_bottom_right.setObjectName("frame_bottom_right")

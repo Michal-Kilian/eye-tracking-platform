@@ -1,6 +1,5 @@
 import time
 import uvc
-import cv2
 from pupil_detectors import Detector2D as Det2D
 from backend import Devices, CONFIG
 from backend import RECORDS

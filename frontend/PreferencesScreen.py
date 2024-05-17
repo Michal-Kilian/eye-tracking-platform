@@ -1,9 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from backend import CONFIG
 from frontend.Dialog import Dialog
-from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
-                                  heading_font, text_font, QWidget_background_color, QControlPanelButton,
-                                  QControlPanelMainButton, QLabel_2D_3D, QScrollBar, get_shadow)
+from frontend.StyleSheets import Fonts, GraphicEffects, GlobalStyleSheet, PreferencesScreenStyleSheet
 
 
 class UIPreferencesScreen(QtWidgets.QWidget):
@@ -29,7 +27,7 @@ class UIPreferencesScreen(QtWidgets.QWidget):
          self.model_warmup_duration_le, self.calculate_rms_residual_le) = (None, None, None, None, None, None, None,
                                                                            None, None, None, None, None)
 
-        self.setStyleSheet(QWidget_background_color)
+        self.setStyleSheet(GlobalStyleSheet.WidgetBackgroundColor)
         self.gridLayout = QtWidgets.QGridLayout(self)
 
         # Top Left Frame
@@ -43,7 +41,7 @@ class UIPreferencesScreen(QtWidgets.QWidget):
 
         self.backButton = QtWidgets.QPushButton()
         self.backButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.backButton.setStyleSheet(QBackButton)
+        self.backButton.setStyleSheet(GlobalStyleSheet.BackAndExitButton)
         self.backButton.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("./media/BackButton.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -70,8 +68,8 @@ class UIPreferencesScreen(QtWidgets.QWidget):
         self.frame_top_center_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.preferencesLabel = QtWidgets.QLabel()
-        self.preferencesLabel.setFont(heading_font())
-        self.preferencesLabel.setStyleSheet(QLabel_heading)
+        self.preferencesLabel.setFont(Fonts.HeadingFont())
+        self.preferencesLabel.setStyleSheet(GlobalStyleSheet.Heading)
         self.preferencesLabel.setLineWidth(1)
         self.preferencesLabel.setAlignment(QtCore.Qt.AlignCenter)
 
@@ -95,7 +93,7 @@ class UIPreferencesScreen(QtWidgets.QWidget):
         self.frame_top_right_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.exitButton = QtWidgets.QPushButton()
-        self.exitButton.setStyleSheet(QBackButton)
+        self.exitButton.setStyleSheet(GlobalStyleSheet.BackAndExitButton)
         self.exitButton.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("./media/Exit.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -117,24 +115,24 @@ class UIPreferencesScreen(QtWidgets.QWidget):
         self.frame_center_layout = QtWidgets.QGridLayout(self.frame_center)
 
         self.detector_2d_label = QtWidgets.QLabel()
-        self.detector_2d_label.setFont(text_font())
-        self.detector_2d_label.setStyleSheet(QLabel_2D_3D)
+        self.detector_2d_label.setFont(Fonts.TextFont())
+        self.detector_2d_label.setStyleSheet(PreferencesScreenStyleSheet.LabelWithTooltip)
         self.detector_2d_label.setFixedHeight(60)
         self.detector_2d_label.setAlignment(QtCore.Qt.AlignCenter)
 
         self.detector_3d_label = QtWidgets.QLabel()
-        self.detector_3d_label.setFont(text_font())
-        self.detector_3d_label.setStyleSheet(QLabel_2D_3D)
+        self.detector_3d_label.setFont(Fonts.TextFont())
+        self.detector_3d_label.setStyleSheet(PreferencesScreenStyleSheet.LabelWithTooltip)
         self.detector_3d_label.setFixedHeight(60)
         self.detector_3d_label.setAlignment(QtCore.Qt.AlignCenter)
 
         self.scroll_area_2d = QtWidgets.QScrollArea()
-        self.scroll_area_2d.setStyleSheet(QScrollBar)
+        self.scroll_area_2d.setStyleSheet(GlobalStyleSheet.ScrollBar)
         self.scroll_area_2d.setAlignment(QtCore.Qt.AlignCenter)
         self.scroll_area_2d.setFixedHeight(250)
 
         self.scroll_area_3d = QtWidgets.QScrollArea()
-        self.scroll_area_3d.setStyleSheet(QScrollBar)
+        self.scroll_area_3d.setStyleSheet(GlobalStyleSheet.ScrollBar)
         self.scroll_area_3d.setAlignment(QtCore.Qt.AlignCenter)
         self.scroll_area_3d.setFixedHeight(250)
 
@@ -167,29 +165,29 @@ class UIPreferencesScreen(QtWidgets.QWidget):
 
         # Bottom Center Frame
         self.frame_bottom_center = QtWidgets.QFrame(self)
-        self.frame_bottom_center.setStyleSheet(QButtonFrame)
+        self.frame_bottom_center.setStyleSheet(GlobalStyleSheet.ButtonFrame)
         self.frame_bottom_center.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_bottom_center.setFrameShadow(QtWidgets.QFrame.Raised)
 
         self.frame_bottom_center_layout = QtWidgets.QHBoxLayout(self.frame_bottom_center)
 
         self.save_changes_button = QtWidgets.QPushButton()
-        self.save_changes_button.setFont(text_font())
+        self.save_changes_button.setFont(Fonts.TextFont())
         self.save_changes_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.save_changes_button.setFixedSize(250, 50)
-        self.save_changes_button.setStyleSheet(QControlPanelMainButton)
+        self.save_changes_button.setStyleSheet(GlobalStyleSheet.ControlPanelMainButton)
         self.save_changes_button.setDisabled(True)
         self.save_changes_button.setToolTip("No changes have been made yet")
         self.save_changes_button.clicked.connect(self.save_changes)
-        self.save_changes_button.setGraphicsEffect(get_shadow(30))
+        self.save_changes_button.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.reset_button = QtWidgets.QPushButton()
-        self.reset_button.setFont(text_font())
+        self.reset_button.setFont(Fonts.TextFont())
         self.reset_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.reset_button.setFixedSize(250, 50)
-        self.reset_button.setStyleSheet(QControlPanelButton)
+        self.reset_button.setStyleSheet(GlobalStyleSheet.ControlPanelButton)
         self.reset_button.clicked.connect(self.reset_to_default)
-        self.reset_button.setGraphicsEffect(get_shadow(30))
+        self.reset_button.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.frame_bottom_center_layout.addWidget(self.save_changes_button)
         self.frame_bottom_center_layout.addWidget(self.reset_button)
@@ -198,7 +196,7 @@ class UIPreferencesScreen(QtWidgets.QWidget):
 
         # Bottom Right Frame
         self.frame_bottom_right = QtWidgets.QFrame(self)
-        self.frame_bottom_right.setStyleSheet("")
+        self.frame_bottom_right.setStyleSheet(GlobalStyleSheet.NoStyleSheet)
         self.frame_bottom_right.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_bottom_right.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_bottom_right.setFixedWidth(100)
@@ -276,7 +274,7 @@ class UIPreferencesScreen(QtWidgets.QWidget):
 
         for i in range(len(parameters_2d.keys())):
             parameter_title: QtWidgets.QLabel = QtWidgets.QLabel(f"Label {i}")
-            parameter_title.setFont(text_font())
+            parameter_title.setFont(Fonts.TextFont())
             parameter_title.setFixedWidth(230)
             parameter_title.setText(get_parameter_display_text(list(parameters_2d.keys())[i], i + 1))
             parameter_title.setToolTip(get_parameter_tooltip(list(parameters_2d.keys())[i]))
@@ -319,7 +317,7 @@ class UIPreferencesScreen(QtWidgets.QWidget):
 
         for i in range(len(parameters_3d.keys())):
             parameter_title: QtWidgets.QLabel = QtWidgets.QLabel(f"Label {i}")
-            parameter_title.setFont(text_font())
+            parameter_title.setFont(Fonts.TextFont())
             parameter_title.setFixedWidth(230)
             parameter_title.setText(get_parameter_display_text(list(parameters_3d.keys())[i], i + 1))
             parameter_title.setToolTip(get_parameter_tooltip(list(parameters_3d.keys())[i]))
@@ -427,7 +425,7 @@ class UIPreferencesScreen(QtWidgets.QWidget):
         self.calculate_rms_residual_le.setText(str(CONFIG.PARAMETERS_3D["calculate_rms_residual"]))
 
     def setup_line_edit(self, line_edit: QtWidgets.QLineEdit, value) -> None:
-        line_edit.setFont(text_font())
+        line_edit.setFont(Fonts.TextFont())
         line_edit.setFixedWidth(100)
         line_edit.setText(str(value))
         line_edit.textEdited.connect(self.check_changes)

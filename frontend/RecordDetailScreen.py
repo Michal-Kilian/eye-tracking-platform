@@ -1,11 +1,7 @@
 from datetime import datetime
 from PyQt5 import QtCore, QtGui, QtWidgets
-
-from PopupWindow import PopupWindow
 from backend.Visualization import VisualizationWindow
-from frontend.StyleSheets import (QLabel_heading, QBackButton,
-                                  heading_font, text_font, QWidget_background_color, QScrollBar,
-                                  QControlPanelMainButton, get_shadow, QLabel_Detail)
+from frontend.StyleSheets import Fonts, GraphicEffects, GlobalStyleSheet, RecordsScreenStyleSheet
 from backend import RECORDS
 
 
@@ -20,7 +16,7 @@ class UIRecordDetailScreen(QtWidgets.QWidget):
         self.popup = None
 
         self.setObjectName("RecordDetailScreen")
-        self.setStyleSheet(QWidget_background_color)
+        self.setStyleSheet(GlobalStyleSheet.WidgetBackgroundColor)
         self.gridLayout = QtWidgets.QGridLayout(self)
         self.gridLayout.setObjectName("gridLayout")
 
@@ -36,7 +32,7 @@ class UIRecordDetailScreen(QtWidgets.QWidget):
 
         self.backButton = QtWidgets.QPushButton()
         self.backButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.backButton.setStyleSheet(QBackButton)
+        self.backButton.setStyleSheet(GlobalStyleSheet.BackAndExitButton)
         self.backButton.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("./media/BackButton.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -66,8 +62,8 @@ class UIRecordDetailScreen(QtWidgets.QWidget):
         self.frame_top_center_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.record_detail_label = QtWidgets.QLabel()
-        self.record_detail_label.setFont(heading_font())
-        self.record_detail_label.setStyleSheet(QLabel_heading)
+        self.record_detail_label.setFont(Fonts.HeadingFont())
+        self.record_detail_label.setStyleSheet(GlobalStyleSheet.Heading)
         self.record_detail_label.setLineWidth(1)
         self.record_detail_label.setAlignment(QtCore.Qt.AlignCenter)
         self.record_detail_label.setObjectName("record_detail_label")
@@ -94,7 +90,7 @@ class UIRecordDetailScreen(QtWidgets.QWidget):
         self.frame_top_right_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.exitButton = QtWidgets.QPushButton()
-        self.exitButton.setStyleSheet(QBackButton)
+        self.exitButton.setStyleSheet(GlobalStyleSheet.BackAndExitButton)
         self.exitButton.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("./media/Exit.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -119,7 +115,7 @@ class UIRecordDetailScreen(QtWidgets.QWidget):
         self.frame_center_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.scroll_area = QtWidgets.QScrollArea()
-        self.scroll_area.setStyleSheet(QScrollBar)
+        self.scroll_area.setStyleSheet(GlobalStyleSheet.ScrollBar)
         self.scroll_area.setAlignment(QtCore.Qt.AlignCenter)
         self.scroll_area.setMaximumWidth(750)
 
@@ -127,47 +123,47 @@ class UIRecordDetailScreen(QtWidgets.QWidget):
         self.scroll_area_layout = QtWidgets.QGridLayout(self.scroll_area_widget)
 
         self.id_label = QtWidgets.QLabel()
-        self.id_label.setFont(text_font())
+        self.id_label.setFont(Fonts.TextFont())
         self.id_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.id_label.setStyleSheet("margin-bottom: 30px; background-color: white; padding: 15px; border-radius: 30px;")
+        self.id_label.setStyleSheet(RecordsScreenStyleSheet.IdLabel)
 
         self.type_label_title = QtWidgets.QLabel()
         self.type_label_title.setMinimumWidth(250)
-        self.type_label_title.setFont(text_font())
+        self.type_label_title.setFont(Fonts.TextFont())
         self.type_label_title.setAlignment(QtCore.Qt.AlignCenter)
 
         self.type_label = QtWidgets.QLabel()
         self.type_label.setMinimumWidth(250)
-        self.type_label.setFont(text_font())
+        self.type_label.setFont(Fonts.TextFont())
         self.type_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.type_label.setStyleSheet(QLabel_Detail)
+        self.type_label.setStyleSheet(RecordsScreenStyleSheet.DetailLabel)
 
         self.date_label_title = QtWidgets.QLabel()
         self.date_label_title.setMinimumWidth(250)
-        self.date_label_title.setFont(text_font())
+        self.date_label_title.setFont(Fonts.TextFont())
         self.date_label_title.setAlignment(QtCore.Qt.AlignCenter)
 
         self.date_label = QtWidgets.QLabel()
         self.date_label.setMinimumWidth(250)
-        self.date_label.setFont(text_font())
+        self.date_label.setFont(Fonts.TextFont())
         self.date_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.date_label.setStyleSheet(QLabel_Detail)
+        self.date_label.setStyleSheet(RecordsScreenStyleSheet.DetailLabel)
 
         self.time_label_title = QtWidgets.QLabel()
         self.time_label_title.setMinimumWidth(250)
-        self.time_label_title.setFont(text_font())
+        self.time_label_title.setFont(Fonts.TextFont())
         self.time_label_title.setAlignment(QtCore.Qt.AlignCenter)
 
         self.time_label = QtWidgets.QLabel()
         self.time_label.setMinimumWidth(250)
-        self.time_label.setFont(text_font())
+        self.time_label.setFont(Fonts.TextFont())
         self.time_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.time_label.setStyleSheet(QLabel_Detail)
+        self.time_label.setStyleSheet(RecordsScreenStyleSheet.DetailLabel)
 
         self.debug_display_label = QtWidgets.QLabel("Debug Display Label")
         self.debug_display_label.setFixedWidth(426)
         self.debug_display_label.setFixedHeight(320)
-        self.debug_display_label.setStyleSheet("margin: 20px")
+        self.debug_display_label.setStyleSheet(GlobalStyleSheet.Margin20)
         self.debug_display_label.setAlignment(QtCore.Qt.AlignCenter)
 
         self.control_panel_frame = QtWidgets.QFrame()
@@ -204,22 +200,22 @@ class UIRecordDetailScreen(QtWidgets.QWidget):
         self.frame_bottom_center_layout = QtWidgets.QHBoxLayout(self.frame_bottom_center)
 
         self.scanpath_button = QtWidgets.QPushButton()
-        self.scanpath_button.setFont(text_font())
+        self.scanpath_button.setFont(Fonts.TextFont())
         self.scanpath_button.setObjectName("generate_scanpath_button")
         self.scanpath_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.scanpath_button.setFixedHeight(50)
-        self.scanpath_button.setStyleSheet(QControlPanelMainButton)
+        self.scanpath_button.setStyleSheet(GlobalStyleSheet.ControlPanelMainButton)
         self.scanpath_button.clicked.connect(self.generate_scanpath)
-        self.scanpath_button.setGraphicsEffect(get_shadow(30))
+        self.scanpath_button.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.heatmap_button = QtWidgets.QPushButton()
-        self.heatmap_button.setFont(text_font())
+        self.heatmap_button.setFont(Fonts.TextFont())
         self.heatmap_button.setObjectName("generate_scanpath_button")
         self.heatmap_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.heatmap_button.setFixedHeight(50)
-        self.heatmap_button.setStyleSheet(QControlPanelMainButton)
+        self.heatmap_button.setStyleSheet(GlobalStyleSheet.ControlPanelMainButton)
         self.heatmap_button.clicked.connect(self.generate_heatmap)
-        self.heatmap_button.setGraphicsEffect(get_shadow(30))
+        self.heatmap_button.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.frame_bottom_center_layout.addWidget(self.scanpath_button)
         self.frame_bottom_center_layout.addWidget(self.heatmap_button)
@@ -228,7 +224,7 @@ class UIRecordDetailScreen(QtWidgets.QWidget):
 
         # Bottom Right Frame
         self.frame_bottom_right = QtWidgets.QFrame(self)
-        self.frame_bottom_right.setStyleSheet("")
+        self.frame_bottom_right.setStyleSheet(GlobalStyleSheet.NoStyleSheet)
         self.frame_bottom_right.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_bottom_right.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_bottom_right.setObjectName("frame_bottom_right")

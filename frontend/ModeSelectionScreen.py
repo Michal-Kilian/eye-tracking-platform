@@ -3,9 +3,7 @@ from backend import CONFIG
 from backend.RECORDS import RecordType
 from frontend.AnalysisScreen import UIAnalysisScreen
 from frontend.IconLabelButtonWidget import IconLabelButtonWidget
-from frontend.StyleSheets import (QLabel_heading, QBackButton, QButtonFrame,
-                                  heading_font, text_font, QWidget_background_color, QControlPanelMainButton,
-                                  get_shadow)
+from frontend.StyleSheets import Fonts, GraphicEffects, GlobalStyleSheet, ModeSelectionScreenStyleSheet
 
 
 class UIModeSelectionScreen(QtWidgets.QWidget):
@@ -16,7 +14,7 @@ class UIModeSelectionScreen(QtWidgets.QWidget):
         self.stacked_widget = stacked_widget
 
         self.setObjectName("ModeSelectionScreen")
-        self.setStyleSheet(QWidget_background_color)
+        self.setStyleSheet(GlobalStyleSheet.WidgetBackgroundColor)
         self.gridLayout = QtWidgets.QGridLayout(self)
         self.gridLayout.setObjectName("gridLayout")
 
@@ -32,7 +30,7 @@ class UIModeSelectionScreen(QtWidgets.QWidget):
 
         self.backButton = QtWidgets.QPushButton()
         self.backButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.backButton.setStyleSheet(QBackButton)
+        self.backButton.setStyleSheet(GlobalStyleSheet.BackAndExitButton)
         self.backButton.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("./media/BackButton.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -62,8 +60,8 @@ class UIModeSelectionScreen(QtWidgets.QWidget):
         self.frame_top_center_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.chooseModeLabel = QtWidgets.QLabel()
-        self.chooseModeLabel.setFont(heading_font())
-        self.chooseModeLabel.setStyleSheet(QLabel_heading)
+        self.chooseModeLabel.setFont(Fonts.HeadingFont())
+        self.chooseModeLabel.setStyleSheet(GlobalStyleSheet.Heading)
         self.chooseModeLabel.setLineWidth(1)
         self.chooseModeLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.chooseModeLabel.setObjectName("analysisLabel")
@@ -90,7 +88,7 @@ class UIModeSelectionScreen(QtWidgets.QWidget):
         self.frame_top_right_layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.exitButton = QtWidgets.QPushButton()
-        self.exitButton.setStyleSheet(QBackButton)
+        self.exitButton.setStyleSheet(GlobalStyleSheet.BackAndExitButton)
         self.exitButton.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("./media/Exit.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -117,13 +115,9 @@ class UIModeSelectionScreen(QtWidgets.QWidget):
         self.offline_widget = IconLabelButtonWidget("./media/DataIcon.png", "OFFLINE")
 
         if CONFIG.MODE_SELECTED == RecordType.REAL_TIME:
-            self.real_time_widget.icon_button.setStyleSheet(
-                "QPushButton {text-align: center; background-color: white; border-radius: 105; border: 4px solid rgb("
-                "25, 32, 80);}")
+            self.real_time_widget.icon_button.setStyleSheet(ModeSelectionScreenStyleSheet.IconButtonSelected)
         elif CONFIG.MODE_SELECTED == RecordType.OFFLINE:
-            self.offline_widget.icon_button.setStyleSheet(
-                "QPushButton {text-align: center; background-color: white; border-radius: 105; border: 4px solid rgb("
-                "25, 32, 80);}")
+            self.offline_widget.icon_button.setStyleSheet(ModeSelectionScreenStyleSheet.IconButtonSelected)
 
         self.real_time_widget.icon_button.clicked.connect(self.real_time_clicked)
         self.offline_widget.icon_button.clicked.connect(self.offline_clicked)
@@ -135,7 +129,7 @@ class UIModeSelectionScreen(QtWidgets.QWidget):
 
         # Bottom Center Frame
         self.frame_bottom_center = QtWidgets.QFrame(self)
-        self.frame_bottom_center.setStyleSheet(QButtonFrame)
+        self.frame_bottom_center.setStyleSheet(GlobalStyleSheet.ButtonFrame)
         self.frame_bottom_center.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_bottom_center.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_bottom_center.setObjectName("frame_bottom_center")
@@ -143,14 +137,14 @@ class UIModeSelectionScreen(QtWidgets.QWidget):
         self.frame_bottom_center_layout = QtWidgets.QHBoxLayout(self.frame_bottom_center)
 
         self.continueButton = QtWidgets.QPushButton()
-        self.continueButton.setFont(text_font())
+        self.continueButton.setFont(Fonts.TextFont())
         self.continueButton.setObjectName("startButton")
         self.continueButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.continueButton.setFixedSize(300, 50)
-        self.continueButton.setStyleSheet(QControlPanelMainButton)
+        self.continueButton.setStyleSheet(GlobalStyleSheet.ControlPanelMainButton)
         self.continueButton.setDisabled(CONFIG.MODE_SELECTED is None)
         self.continueButton.clicked.connect(self.switch_to_analysis)
-        self.continueButton.setGraphicsEffect(get_shadow(30))
+        self.continueButton.setGraphicsEffect(GraphicEffects.Shadow(30))
 
         self.frame_bottom_center_layout.addWidget(self.continueButton)
 
@@ -167,41 +161,29 @@ class UIModeSelectionScreen(QtWidgets.QWidget):
     def real_time_clicked(self) -> None:
         if CONFIG.MODE_SELECTED == RecordType.REAL_TIME:
             CONFIG.MODE_SELECTED = None
-            self.real_time_widget.icon_button.setStyleSheet(
-                "QPushButton {text-align: center; background-color: white; border-radius: 105; "
-                "border: 4px solid white;}")
+            self.real_time_widget.icon_button.setStyleSheet(ModeSelectionScreenStyleSheet.IconButton)
             self.real_time_widget.text_label.setStyleSheet("QLabel {color: rgb(56, 65, 157);}")
             self.continueButton.setDisabled(True)
         else:
             CONFIG.MODE_SELECTED = RecordType.REAL_TIME
-            self.real_time_widget.icon_button.setStyleSheet(
-                "QPushButton {text-align: center; background-color: white; border-radius: 105; "
-                "border: 4px solid rgb(25, 32, 80);}")
-            self.offline_widget.icon_button.setStyleSheet(
-                "QPushButton {text-align: center; background-color: white; border-radius: 105; "
-                "border: 4px solid white;}")
-            self.real_time_widget.text_label.setStyleSheet("QLabel {color: rgb(25, 32, 80);}")
-            self.offline_widget.text_label.setStyleSheet("QLabel {color: rgb(56, 65, 157);}")
+            self.real_time_widget.icon_button.setStyleSheet(ModeSelectionScreenStyleSheet.IconButtonSelected)
+            self.offline_widget.icon_button.setStyleSheet(ModeSelectionScreenStyleSheet.IconButton)
+            self.real_time_widget.text_label.setStyleSheet(ModeSelectionScreenStyleSheet.LabelSelected)
+            self.offline_widget.text_label.setStyleSheet(ModeSelectionScreenStyleSheet.Label)
             self.continueButton.setDisabled(False)
 
     def offline_clicked(self) -> None:
         if CONFIG.MODE_SELECTED == RecordType.OFFLINE:
             CONFIG.MODE_SELECTED = None
-            self.offline_widget.icon_button.setStyleSheet(
-                "QPushButton {text-align: center; background-color: white; border-radius: 105; "
-                "border: 4px solid white;}")
-            self.offline_widget.text_label.setStyleSheet("QLabel {color: rgb(56, 65, 157);}")
+            self.offline_widget.icon_button.setStyleSheet(ModeSelectionScreenStyleSheet.IconButton)
+            self.offline_widget.text_label.setStyleSheet(ModeSelectionScreenStyleSheet.Label)
             self.continueButton.setDisabled(True)
         else:
             CONFIG.MODE_SELECTED = RecordType.OFFLINE
-            self.offline_widget.icon_button.setStyleSheet(
-                "QPushButton {text-align: center; background-color: white; border-radius: 105; "
-                "border: 4px solid rgb(25, 32, 80);}")
-            self.real_time_widget.icon_button.setStyleSheet(
-                "QPushButton {text-align: center; background-color: white; border-radius: 105; "
-                "border: 4px solid white;}")
-            self.offline_widget.text_label.setStyleSheet("QLabel {color: rgb(25, 32, 80);}")
-            self.real_time_widget.text_label.setStyleSheet("QLabel {color: rgb(56, 65, 157);}")
+            self.offline_widget.icon_button.setStyleSheet(ModeSelectionScreenStyleSheet.IconButtonSelected)
+            self.real_time_widget.icon_button.setStyleSheet(ModeSelectionScreenStyleSheet.IconButton)
+            self.offline_widget.text_label.setStyleSheet(ModeSelectionScreenStyleSheet.LabelSelected)
+            self.real_time_widget.text_label.setStyleSheet(ModeSelectionScreenStyleSheet.Label)
             self.continueButton.setDisabled(False)
 
     def switch_to_main(self) -> None:
