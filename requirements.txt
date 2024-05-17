@@ -1,0 +1,7 @@
+numpy==1.26.4
+PyQt5==5.15.10
+opencv-python==4.9.0.80
+scipy==1.13.0
+ndjson==0.3.1
+pye3d==0.3.2
+matplotlib==3.8.3
