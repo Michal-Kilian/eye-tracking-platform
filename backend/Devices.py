@@ -17,8 +17,7 @@ class Device:
         self.absolute_focus = self.get_absolute_focus()
         self.focal_length = self.get_focal_length()
         self.mode_index = self.get_mode_index()
-        # self.resolution = self.get_resolution()
-        self.resolution = [640, 480]
+        self.resolution = self.get_resolution()
         self.auto_focus = self.get_auto_focus()
         self.position = self.get_position()
         self.rotation_matrix = self.get_rotation_matrix()

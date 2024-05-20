@@ -9,7 +9,7 @@ from PyQt5.QtGui import QImage
 import Model3D
 from backend import Devices
 from backend import RECORDS
-from backend.CameraThreads import PyuvcPoseThread, PyuvcCameraThread
+from CameraThreads import PyuvcPoseThread, PyuvcCameraThread
 from frontend.GazePointOverlay import GazePointOverlay
 from frontend.RecordsScreen import UIRecordsScreen
 from frontend.ArucoOverlay import ArucoOverlay
@@ -66,6 +66,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.right_active, self.left_active, self.world_active = False, False, False
 
         self.iteration = 0
+        self.analysis_thread = None
 
         self.setObjectName("AnalysisScreen")
         self.setStyleSheet(QWidget_background_color)
@@ -328,23 +329,7 @@ class UIAnalysisScreen(QtWidgets.QWidget):
                                                            "./" + CONFIG.OFFLINE_MODE_DIRECTORY +
                                                            "/example_{0}.png")
 
-                # if not CONFIG.TEST:
-                #     self.right_worker = Worker(self.right_frame_thread)
-                #     self.left_worker = Worker(self.left_frame_thread)
-                # self.world_worker = Worker(self.world_frame_thread)
-                # self.analysis_worker = Worker(self.real_time_analysis_thread)
-
-                # if not CONFIG.TEST:
-                #     self.threadpool.start(self.right_worker)
-                #     self.threadpool.start(self.left_worker)
-                # self.threadpool.start(self.world_worker)
-                # self.threadpool.start(self.analysis_worker)
-
-                self.threadpool = QtCore.QThreadPool()
-                worker = Worker(self.real_time_analysis_thread)
-                self.threadpool.start(worker)
-
-                print("Active threads beside Main GUI thread:", self.threadpool.activeThreadCount())
+                ###
 
             else:
                 self.aruco_overlay.close()
@@ -352,9 +337,8 @@ class UIAnalysisScreen(QtWidgets.QWidget):
                 self.gaze_point_overlay.close()
                 self.gaze_point_overlay = None
                 self.toggle_aruco_button.setText("Show Aruco")
-                # self.stop_real_time_workers()
                 self.startButton.setText("Start")
-                self.analysis_running = False
+                self.analysis_thread.stop()
 
         elif CONFIG.MODE_SELECTED == RECORDS.RecordType.OFFLINE:
             if not self.analysis_running:

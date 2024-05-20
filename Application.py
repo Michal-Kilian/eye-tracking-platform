@@ -9,13 +9,13 @@ class UIMainWindow(QtWidgets.QMainWindow):
         super().__init__()
         self.old_position = None
 
-    def mousePressEvent(self, event):
-        self.old_position = event.globalPos()
+    # def mousePressEvent(self, event):
+    #     self.old_position = event.globalPos()
 
-    def mouseMoveEvent(self, event):
-        delta = QtCore.QPoint(event.globalPos() - self.old_position)
-        self.move(self.x() + delta.x(), self.y() + delta.y())
-        self.old_position = event.globalPos()
+    # def mouseMoveEvent(self, event):
+    #     delta = QtCore.QPoint(event.globalPos() - self.old_position)
+    #     self.move(self.x() + delta.x(), self.y() + delta.y())
+    #     self.old_position = event.globalPos()
 
 
 def main() -> None:

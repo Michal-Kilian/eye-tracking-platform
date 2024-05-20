@@ -276,8 +276,8 @@ class VisualizationWindow(PopupWindow):
 
             # base pixel for diameter ---- diameter = 20 normalize between new_min and new_max ---- normalized_value
             # = ((original_value - min_value) / (max_value - min_value)) * (new_max - new_min) + new_min
-            new_min = CONFIG.OFFLINE_MINIMAL_DIAMETER_FIXATION
-            new_max = CONFIG.OFFLINE_MAXIMAL_DIAMETER_FIXATION
+            new_min = CONFIG.OFFLINE_SCANPATH_MINIMAL_DIAMETER_FIXATION
+            new_max = CONFIG.OFFLINE_SCANPATH_MAXIMAL_DIAMETER_FIXATION
             # normalize between 1 and 2 ---- normalized_value = (value - min_length) / (max_length - min_length) + 1
 
             if len(different_lengths) > 1:
