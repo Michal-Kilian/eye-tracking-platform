@@ -70,7 +70,7 @@ class MathHelpers:
         if not include_outliers:
             if x < 0 or x > 1 or y < 0 or y > 1:
                 return None
-        return x, y
+        return np.array([x, y])
 
     @classmethod
     def convert_to_uv_offline(cls, vec, size_x, size_y, flip_y=True, include_outliers=False):

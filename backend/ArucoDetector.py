@@ -1,11 +1,14 @@
 import cv2
-from backend.Helpers import MathHelpers
-from backend import Devices, CONFIG
 import numpy as np
+from scipy.spatial.transform import Rotation
+
+from backend import CONFIG
+from backend import Devices
+from backend.Helpers import MathHelpers
 
 
 class ArucoDetector:
-    def __init__(self):
+    def __init__(self, matrix=None, distortion=None):
         super().__init__()
         self.detector_dictionary = cv2.aruco.getPredefinedDictionary(Devices.ARUCO_TYPE)
         self.detector_parameters = cv2.aruco.DetectorParameters()
@@ -14,8 +17,12 @@ class ArucoDetector:
         self.ids = None
         self.rejected = None
         self.device = Devices.WORLD_DEVICE
-        self.matrix_coefficients = self.device.matrix_coefficients
-        self.distortion_coefficients = self.device.distortion_coefficients
+        if matrix is None and distortion is None:
+            self.matrix_coefficients = self.device.matrix_coefficients
+            self.distortion_coefficients = self.device.distortion_coefficients
+        else:
+            self.matrix_coefficients = matrix
+            self.distortion_coefficients = distortion
 
     def detect(self, frame_gray, frame_bgr):
 
@@ -30,9 +37,9 @@ class ArucoDetector:
             for i in range(0, len(self.ids)):
                 if self.ids[i][0] > 3:
                     # print("1 - detected other id than 0, 1, 2, 3;", self.ids[i][0])
-                    return False
+                    return None, None, None, None, None, None
 
-                cv2.aruco.drawDetectedMarkers(frame_bgr, self.corners, self.ids)
+                # cv2.aruco.drawDetectedMarkers(frame_bgr, self.corners, self.ids)
 
                 rvec, tvec, marker_points = cv2.aruco.estimatePoseSingleMarkers(
                     self.corners[i],
@@ -47,16 +54,16 @@ class ArucoDetector:
                 total_rvec += rvec.ravel()
                 total_tvec += tvec.ravel()
 
-                cv2.drawFrameAxes(frame_bgr,
-                                  self.matrix_coefficients,
-                                  self.distortion_coefficients,
-                                  rvec,
-                                  tvec,
-                                  100)
+                # cv2.drawFrameAxes(frame_bgr,
+                #                   self.matrix_coefficients,
+                #                   self.distortion_coefficients,
+                #                   rvec,
+                #                   tvec,
+                #                   100)
 
             if len(tvec_dict) != 4:
                 # print("2 - not 4 markers detected")
-                return False
+                return None, None, None, None, None, None
 
             average_tvec = total_tvec / 4
 
@@ -68,7 +75,7 @@ class ArucoDetector:
                 self.distortion_coefficients
             )
 
-            cv2.circle(frame_bgr, image_points.ravel().astype(int), 10, (0, 0, 255), 2)
+            # cv2.circle(frame_bgr, image_points.ravel().astype(int), 10, (0, 0, 255), 2)
 
             avg_1_3 = (tvec_dict[1] + tvec_dict[3]) * 0.5
             avg_0_2 = (tvec_dict[0] + tvec_dict[2]) * 0.5
@@ -93,11 +100,25 @@ class ArucoDetector:
             # second option
             # rvec = Rotation.from_rotvec(rvec_list).mean().as_rotvec()
 
-            cv2.drawFrameAxes(frame_bgr,
-                              self.matrix_coefficients,
-                              self.distortion_coefficients,
-                              rvec,
-                              average_tvec,
-                              100)
+            # cv2.drawFrameAxes(frame_bgr,
+            #                   self.matrix_coefficients,
+            #                   self.distortion_coefficients,
+            #                   rvec,
+            #                   average_tvec,
+            #                   100)
 
-            return rvec, n_rotation_matrix, average_tvec, n_z, frame_bgr
+            ###
+            CONFIG.ARUCO_TEST = True
+            corners_from_sub_pix = None
+            if CONFIG.ARUCO_TEST:
+                nline = CONFIG.CHECKERBOARD_ROWS - 1
+                ncol = CONFIG.CHECKERBOARD_COLUMNS - 1
+                criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+                ret, corners = cv2.findChessboardCorners(frame_gray, (nline, ncol), None)
+                if ret is True:
+                    corners_from_sub_pix = cv2.cornerSubPix(frame_gray, corners, (11, 11), (-1, -1), criteria)
+                    # cv2.drawChessboardCorners(frame_gray, (nline, ncol), corners_from_sub_pix, ret)
+
+            ###
+
+            return rvec, n_rotation_matrix, average_tvec, n_z, frame_bgr, corners_from_sub_pix

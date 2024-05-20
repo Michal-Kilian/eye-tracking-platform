@@ -18,13 +18,21 @@ class UIMainWindow(QtWidgets.QMainWindow):
         self.old_position = event.globalPos()
 
 
+def handle_arguments():
+    import sys
+    if len(sys.argv) > 1:
+        if sys.argv[1].lower() in ['--test', '-T']:
+            CONFIG.TEST = True
+        elif sys.argv[1].lower() in ['--arucotest', '-at']:
+            CONFIG.ARUCO_TEST = True
+
+
 def main() -> None:
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
 
-    if len(sys.argv) > 1 and sys.argv[1] in ['--test', '-T']:
-        CONFIG.TEST = True
+    handle_arguments()
 
     window = UIMainWindow()
 

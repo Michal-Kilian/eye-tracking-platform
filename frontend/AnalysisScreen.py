@@ -9,18 +9,17 @@ from PyQt5.QtGui import QImage
 from frontend import Model3D
 from backend import Devices
 from backend import RECORDS
-from backend.CameraThreads import PyuvcPoseThread, PyuvcCameraThread
-from frontend.GazePointOverlay import GazePointOverlay
+from CameraThreads import PyuvcPoseThread, PyuvcCameraThread
 from frontend.RecordsScreen import UIRecordsScreen
 from frontend.ArucoOverlay import ArucoOverlay
 from frontend.StyleSheets import Fonts, GraphicEffects, AnalysisScreenStyleSheet, GlobalStyleSheet
-from frontend.Dialog import Dialog
 from backend.Detector2D import Detector2D
 from backend.Detector3D import Detector3D
 from backend import CONFIG
 from backend.Worker import Worker
 from backend.ArucoDetector import ArucoDetector
 import time
+from scripts.CheckerboardOverlay import CheckerboardOverlay
 
 matplotlib.use('agg')
 
@@ -32,9 +31,12 @@ class UIAnalysisScreen(QtWidgets.QWidget):
         self.application = application
         self.stacked_widget = stacked_widget
         self.analysis_running = False
+
         self.aruco_overlay = None
+        self.checkerboard_overlay = None
         self.gaze_point_overlay = None
         self.picture_overlay = None
+
         self.model_3d_real_time, self.model_3d_offline = None, None
         self.debug_active = None
         (self.worldDeviceLabel, self.worldDeviceStatusLabel, self.rightEyeDeviceLabel, self.rightEyeDeviceStatusLabel,
@@ -291,16 +293,20 @@ class UIAnalysisScreen(QtWidgets.QWidget):
             if not self.aruco_overlay:
                 self.toggle_aruco_overlay()
             if not self.analysis_running:
-                if not CONFIG.PICTURE_SELECTED:
-                    dlg = Dialog(self.stacked_widget, "No picture chosen", "Continue",
-                                 "Cancel", "Are you sure you want to continue without a picture loaded?")
-                    if not dlg.exec():
-                        return
+                # if not CONFIG.PICTURE_SELECTED:
+                #     dlg = Dialog(self.stacked_widget, "No picture chosen", "Continue",
+                #                  "Cancel", "Are you sure you want to continue without a picture loaded?")
+                #     if not dlg.exec():
+                #         return
 
                 self.aruco_overlay = ArucoOverlay()
                 self.aruco_overlay.showFullScreen()
-                self.gaze_point_overlay = GazePointOverlay()
-                self.gaze_point_overlay.showFullScreen()
+                self.checkerboard_overlay = CheckerboardOverlay(rows=CONFIG.CHECKERBOARD_ROWS,
+                                                                cols=CONFIG.CHECKERBOARD_COLUMNS,
+                                                                square_size=CONFIG.CHECKERBOARD_SQUARE_SIZE)
+                self.checkerboard_overlay.showFullScreen()
+                # self.gaze_point_overlay = GazePointOverlay()
+                # self.gaze_point_overlay.showFullScreen()
                 self.startButton.setText("Stop")
                 self.analysis_running = True
 
@@ -317,17 +323,20 @@ class UIAnalysisScreen(QtWidgets.QWidget):
                 # if not CONFIG.TEST:
                 #     self.right_worker = Worker(self.right_frame_thread)
                 #     self.left_worker = Worker(self.left_frame_thread)
-                # self.world_worker = Worker(self.world_frame_thread)
+                self.world_worker = Worker(self.world_frame_thread)
                 # self.analysis_worker = Worker(self.real_time_analysis_thread)
 
                 # if not CONFIG.TEST:
                 #     self.threadpool.start(self.right_worker)
                 #     self.threadpool.start(self.left_worker)
-                # self.threadpool.start(self.world_worker)
+                self.threadpool.start(self.world_worker)
                 # self.threadpool.start(self.analysis_worker)
 
                 self.threadpool = QtCore.QThreadPool()
-                worker = Worker(self.real_time_analysis_thread)
+                if CONFIG.ARUCO_TEST:
+                    worker = Worker(self.aruco_test_thread)
+                else:
+                    worker = Worker(self.real_time_analysis_thread)
                 self.threadpool.start(worker)
 
                 print("Active threads beside Main GUI thread:", self.threadpool.activeThreadCount())
@@ -335,8 +344,12 @@ class UIAnalysisScreen(QtWidgets.QWidget):
             else:
                 self.aruco_overlay.close()
                 self.aruco_overlay = None
-                self.gaze_point_overlay.close()
-                self.gaze_point_overlay = None
+                if self.checkerboard_overlay is not None:
+                    self.checkerboard_overlay.close()
+                    self.checkerboard_overlay = None
+                if self.gaze_point_overlay is not None:
+                    self.gaze_point_overlay.close()
+                    self.gaze_point_overlay = None
                 self.toggle_aruco_button.setText("Show Aruco")
                 # self.stop_real_time_workers()
                 self.startButton.setText("Start")
@@ -564,6 +577,23 @@ class UIAnalysisScreen(QtWidgets.QWidget):
             display_image(img, self.debug_display)
             display_image(model, self.model_3d_offline)
             i += 1
+
+    def aruco_test_thread(self):
+        print("Starting aruco test thread")
+        while self.analysis_running:
+            if not self.latest_world_frame:
+                print("no world frame detected")
+                continue
+
+            world_frame = self.latest_world_frame
+            aruco_detection = self.aruco_detector.detect(world_frame.gray, world_frame.bgr)
+            if not aruco_detection:
+                continue
+
+            display_rotation_wcs, display_rotation_matrix, display_position_wcs, normal_wcs, world_img \
+                = aruco_detection
+            cv2.imshow("world", world_img)
+            cv2.waitKey(0)
 
     def stop_real_time_workers(self):
         self.right_active, self.left_active, self.world_active, self.analysis_running = False, False, False, False
@@ -961,12 +991,20 @@ class UIAnalysisScreen(QtWidgets.QWidget):
 
     def toggle_aruco_overlay(self):
         if self.aruco_overlay is not None:
+            if self.checkerboard_overlay is not None:
+                self.checkerboard_overlay.close()
+                self.checkerboard_overlay = None
             self.aruco_overlay.close()
             self.aruco_overlay = None
             self.toggle_aruco_button.setText("Show Aruco")
         else:
             self.aruco_overlay = ArucoOverlay()
             self.aruco_overlay.showFullScreen()
+            if CONFIG.ARUCO_TEST:
+                self.checkerboard_overlay = CheckerboardOverlay(rows=CONFIG.CHECKERBOARD_ROWS,
+                                                                cols=CONFIG.CHECKERBOARD_COLUMNS,
+                                                                square_size=CONFIG.CHECKERBOARD_SQUARE_SIZE)
+                self.checkerboard_overlay.showFullScreen()
             self.toggle_aruco_button.setText("Hide Aruco")
 
 

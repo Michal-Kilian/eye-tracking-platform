@@ -1,8 +1,12 @@
 import abc
+import ctypes
 import threading
 import uvc
 import numpy as np
 from backend.Helpers import MathHelpers
+from backend.ArucoDetector import ArucoDetector
+from backend import CONFIG
+import math
 
 
 class CameraThread(threading.Thread, metaclass=abc.ABCMeta):
@@ -228,11 +232,22 @@ class PyuvcPoseThread(PyuvcCameraThread):
 if __name__ == "__main__":
     import cv2
 
+    world_matrix = np.array([[686.26555927, 0, 328.88594766],
+                             [0, 680.31999716, 248.20539324],
+                             [0, 0, 1]], dtype=np.float32)
+    world_distortion = np.array([0.176468296, -0.765735942, 0.00031101025,
+                                 -0.00105836974, 0.379719505], dtype=np.float32)
+
+    aruco_detector = ArucoDetector(world_matrix, world_distortion)
+    CONFIG.ARUCO_TEST = True
+
+    corners_dict = {}
+
     device_list = uvc.device_list()
     pyuvcThreads = [
-        PyuvcPoseThread(device_list[0]["uid"], -1, {"Auto Focus": 0, "Absolute Focus": 14}),
-        PyuvcCameraThread(device_list[2]["uid"], 11),
-        PyuvcCameraThread(device_list[3]["uid"], 11)
+        # PyuvcPoseThread(device_list[0]["uid"], 34, {"Auto Focus": 0, "Absolute Focus": 14}),
+        PyuvcCameraThread(device_list[0]["uid"], 34, {"Auto Focus": 0, "Absolute Focus": 13}),
+        # PyuvcCameraThread(device_list[3]["uid"], 11)
     ]
 
     for thread in pyuvcThreads:
@@ -240,11 +255,82 @@ if __name__ == "__main__":
 
     while True:
         for iteration, thread in enumerate(pyuvcThreads):
-            if isinstance(thread, PyuvcPoseThread):
-                print(thread.latestPose)
+            #     if isinstance(thread, PyuvcPoseThread):
+            #         print(thread.latestPose)
             ret, frame = thread.read()
             if ret is True:
-                cv2.imshow(f"frame_{iteration}", frame)
+                aruco_detection = aruco_detector.detect(frame, frame)
+                if not aruco_detection:
+                    cv2.imshow(f"frame_{iteration}", frame)
+                    continue
+
+                display_rotation_wcs, display_rotation_matrix, display_position_wcs, normal_wcs, world_img, corners \
+                    = aruco_detection
+                if corners is not None:
+                    POINTS_ROW = CONFIG.CHECKERBOARD_COLUMNS - 1
+                    POINTS_COL = CONFIG.CHECKERBOARD_ROWS - 1
+                    SQUARE_LENGTH = 16.146
+                    OBJ_POINTS = (np.array(
+                        [(i // POINTS_COL, i % POINTS_COL, 0) for i in
+                         range(POINTS_ROW * POINTS_COL)]) * SQUARE_LENGTH - [
+                                      SQUARE_LENGTH * (POINTS_ROW - 1) / 2, SQUARE_LENGTH * (POINTS_COL - 1) / 2,
+                                      0]) * [1, 1, 1]
+
+                    # obj_points_transformed = MathHelpers.inverse_transform(OBJ_POINTS, display_position_wcs,
+                    #                                                        display_rotation_matrix)
+
+                    image_points, _ = cv2.projectPoints(
+                        objectPoints=OBJ_POINTS,
+                        rvec=display_rotation_wcs,
+                        tvec=display_position_wcs,
+                        cameraMatrix=world_matrix,
+                        distCoeffs=world_distortion
+                    )
+
+                    distance_total = 0
+                    min_pixel_error = ctypes.windll.user32.GetSystemMetrics(0)
+                    max_pixel_error = 0
+
+                    for ip, point in enumerate(corners):
+                        dist = np.linalg.norm(point - image_points[ip])
+                        distance_total += dist
+
+                        if dist < min_pixel_error:
+                            min_pixel_error = dist
+                        if dist > max_pixel_error:
+                            max_pixel_error = dist
+                        cv2.circle(frame, (point.ravel()[0].astype(int), point.ravel()[1].astype(int)), 2, (0, 0, 0), -1)
+
+                    for point in image_points:
+                        cv2.circle(frame, (point.ravel()[0].astype(int), point.ravel()[1].astype(int)), 1, (150, 150, 150), -1)
+
+                    camera_display_dist_mm = np.linalg.norm(display_position_wcs)
+
+                    # Converting average pixel error to angle
+                    average_dist_px = distance_total / len(corners)
+                    average_dist_mm = CONFIG.PPMM * average_dist_px
+                    print("Average distance in mm:", average_dist_mm)
+                    angle_tan = average_dist_mm / 2 / camera_display_dist_mm
+                    average_angle_error = np.rad2deg(math.atan(angle_tan) * 2)
+                    print("Average angle error:", average_angle_error)
+
+                    # Converting maximal pixel error to angle
+                    max_mm_error = CONFIG.PPMM * max_pixel_error
+                    max_angle_tan_error = max_mm_error / 2 / camera_display_dist_mm
+                    max_angle_error = np.rad2deg(math.atan(max_angle_tan_error) * 2)
+                    print("Maximal angle error:", max_angle_error)
+
+                    # Converting minimal pixel error to angle
+                    min_mm_error = CONFIG.PPMM * min_pixel_error
+                    min_angle_tan_error = min_mm_error / 2 / camera_display_dist_mm
+                    min_angle_error = np.rad2deg(math.atan(min_angle_tan_error) * 2)
+                    print("Minimal angle error:", min_angle_error)
+
+                    # print("CORNERS (GROUND TRUTH):", corners)
+                    # print("IMAGE POINTS:", image_points)
+
+                cv2.imshow(f"frame_{iteration}", cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR))
+
         waitedKey = cv2.waitKey(1) & 0xff
         if waitedKey == ord('q'):
             break
