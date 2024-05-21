@@ -329,7 +329,7 @@ def main():
         pass
     finally:
         print("Stopping...")
-        device.close()  # explicitly stop auto-update
+        device.close()
         cv2.destroyWindow("Gaze Debug")
 
 
