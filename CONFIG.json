@@ -189,7 +189,7 @@
         }
     ],
     "detector_2D_parameters": {
-        "coarse_detection": 1,
+        "coarse_detection": true,
         "coarse_filter_min": 128,
         "coarse_filter_max": 280,
         "intensity_range": 23,
@@ -198,7 +198,7 @@
         "canny_ration": 2,
         "canny_aperture": 5,
         "pupil_size_max": 100,
-        "pupil_size_min": 50,
+        "pupil_size_min": 10,
         "strong_perimeter_ratio_range_min": 0.8,
         "strong_perimeter_ratio_range_max": 1.1,
         "strong_area_ratio_range_min": 0.6,
@@ -219,11 +219,11 @@
         "long_term_buffer_size": 30,
         "long_term_forget_time": 5,
         "long_term_forget_observations": 300,
-        "long_term_mode": 0,
+        "long_term_mode": "blocking",
         "model_update_interval_long_term": 1.0,
         "model_update_interval_ult_long_term": 10.0,
         "model_warmup_duration": 5.0,
-        "calculate_rms_residual": 0
+        "calculate_rms_residual": false
     },
     "detector_2D_default_parameters": {
         "coarse_detection": true,

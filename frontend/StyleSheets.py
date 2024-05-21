@@ -2,6 +2,17 @@ from PyQt5 import QtGui
 from PyQt5.QtWidgets import QGraphicsDropShadowEffect
 
 
+class Colors:
+    PrimaryBackgroundColor: str = "rgb(194, 217, 255)"
+    PrimaryTextColor: str = "rgb(25, 32, 80)"
+    PrimaryButtonColor: str = "rgb(56, 65, 157)"
+    SecondaryBackgroundColor: str = "rgb(165, 195, 255)"
+    White: str = "rgb(255, 255, 255)"
+    PrimaryButtonDisabledColor: str = "rgba(56, 65, 157, 50)"
+    SecondaryButtonDisabledColor: str = "rgba(255, 255, 255, 95)"
+    BlackHalfOpacity: str = "rgba(0, 0, 0, 50)"
+
+
 class Fonts:
     @staticmethod
     def HeadingFont() -> QtGui.QFont:
@@ -50,303 +61,303 @@ class GraphicEffects:
 
 
 class GlobalStyleSheet:
-    StackedWidget: str = ("""
-        QStackedWidget {
-            background-color: rgb(194, 217, 255)
-        }
+    StackedWidget: str = (f"""
+        QStackedWidget {{
+            background-color: {Colors.PrimaryBackgroundColor};
+        }}
     """)
-    WidgetBackgroundColor: str = ("""
-        QWidget {
-            background-color: rgb(194, 217, 255);
-        }
+    WidgetBackgroundColor: str = (f"""
+        QWidget {{
+            background-color: {Colors.PrimaryBackgroundColor};
+        }}
         """)
     BackAndExitButton: str = ("""
         QPushButton {
             border: none;
         }
     """)
-    Heading: str = ("""
-        QLabel {
-            color: rgb(25, 32, 80);
-        }
+    Heading: str = (f"""
+        QLabel {{
+            color: {Colors.PrimaryTextColor};
+        }}
     """)
-    ScrollBar: str = ("""
-        QScrollBar:vertical {
+    ScrollBar: str = (f"""
+        QScrollBar:vertical {{
             border: none;
             background: transparent;
-            width: 12px; /* adjust as needed */
+            width: 12px;
             margin: 0px 0px 0px 0px;
-        }
-        QScrollBar::handle:vertical {
-            background-color: rgb(56, 65, 157);
+        }}
+        QScrollBar::handle:vertical {{
+            background-color: {Colors.PrimaryButtonColor};
             min-height: 20px;
-        }
-        QScrollBar::handle:vertical:hover {
-            background-color: rgb(25, 32, 80);
-        }
-        QScrollBar::sub-line:vertical {
+        }}
+        QScrollBar::handle:vertical:hover {{
+            background-color: {Colors.PrimaryTextColor};
+        }}
+        QScrollBar::sub-line:vertical {{
             border: none;
             background: transparent;
             height: 10px;
             subcontrol-position: top;
             subcontrol-origin: margin;
-        }
-        QScrollBar::add-line:vertical {
+        }}
+        QScrollBar::add-line:vertical {{
             border: none;
             background: transparent;
             height: 10px;
             subcontrol-position: bottom;
             subcontrol-origin: margin;
-        }
+        }}
         QScrollBar::sub-line:vertical:hover,
-        QScrollBar::add-line:vertical:hover {
+        QScrollBar::add-line:vertical:hover {{
             background: transparent;
-        }
+        }}
         QScrollBar::up-arrow:vertical,
-        QScrollBar::down-arrow:vertical {
+        QScrollBar::down-arrow:vertical {{
             border: none;
             width: 0px;
             height: 0px;
             background: none;
-        }
+        }}
         QScrollBar::add-page:vertical,
-        QScrollBar::sub-page:vertical {
+        QScrollBar::sub-page:vertical {{
             background: none;
-        }
-        QScrollArea {
+        }}
+        QScrollArea {{
             border: none;
-        }
-        QLabel {
-            color: rgb(25, 32, 80);
-        }
-        QLineEdit {
+        }}
+        QLabel {{
+            color: {Colors.PrimaryTextColor};
+        }}
+        QLineEdit {{
             padding: 7px;
             border: none;
-            background-color: rgb(165, 195, 255);
-        }
-        QToolTip {
-            color: white; 
-            background-color: rgb(56, 65, 157); 
+            background-color: {Colors.SecondaryBackgroundColor};
+        }}
+        QToolTip {{
+            color: {Colors.White}; 
+            background-color: {Colors.PrimaryButtonColor}; 
             border: none;
-        }
+        }}
     """)
-    ButtonFrame: str = ("""
-        QPushButton {
+    ButtonFrame: str = (f"""
+        QPushButton {{
             border: none;
-            background-color: rgb(255, 255, 255);
-        }
-        QPushButton:hover{
+            background-color: {Colors.White};
+        }}
+        QPushButton:hover{{
            font: 63 12pt "Yu Gothic UI Semibold";
-        }
+        }}
     """)
-    ControlPanelButton: str = ("""
-        QPushButton {
+    ControlPanelButton: str = (f"""
+        QPushButton {{
             border-radius: 13px;
-            color: rgb(25, 32, 80);
+            color: {Colors.PrimaryTextColor};
             margin: 0px 10px;
-        }
+        }}
     """)
-    ControlPanelMainButton: str = ("""
-        QPushButton {
+    ControlPanelMainButton: str = (f"""
+        QPushButton {{
             border-radius: 13px;
-            background-color: rgb(56, 65, 157);
-            color: white;
+            background-color: {Colors.PrimaryButtonColor};
+            color: {Colors.White};
             margin: 0px 10px;
-        }
-        QPushButton::disabled {
-            background-color: rgba(56, 65, 157, 50);
-        }
-        QPushButton:hover {
-            font: 63 12pt 'Yu Gothic UI Semibold'
-        }
+        }}
+        QPushButton::disabled {{
+            background-color: {Colors.PrimaryButtonDisabledColor};
+        }}
+        QPushButton:hover {{
+            font: 63 12pt 'Yu Gothic UI Semibold';
+        }}
     """)
-    ControlButton: str = ("""
-        QPushButton {
+    ControlButton: str = (f"""
+        QPushButton {{
             border-radius: 13px;
-            color: rgb(25, 32, 80);
+            color: {Colors.PrimaryTextColor};
             margin: 0px 10px;
-        }
+        }}
     """)
-    WhiteLabel: str = ("""
-        QLabel {
+    WhiteLabel: str = (f"""
+        QLabel {{
             padding: 5px;
-            background-color: white;
-            color: rgb(25, 32, 80);
+            background-color: {Colors.White};
+            color: {Colors.PrimaryTextColor};
             margin-left: 60px;
             margin-right: 60px;
             border-radius: 13px;
-        }
-        QToolTip {
-            color: white; 
-            background-color: rgb(56, 65, 157); 
+        }}
+        QToolTip {{
+            color: {Colors.White}; 
+            background-color: {Colors.PrimaryButtonColor}; 
             border: none;
-        }
+        }}
     """)
-    WhiteBackgroundColor: str = "background-color: white;"
+    WhiteBackgroundColor: str = f"background-color: {Colors.White};"
     NoStyleSheet: str = ""
-    BackgroundAndWhiteColor: str = "background-color: rgb(56, 65, 157); color: white;"
+    BackgroundAndWhiteColor: str = f"background-color: {Colors.PrimaryButtonColor}; color: {Colors.White};"
     MarginTop30: str = "margin-top: 30px;"
-    Margin20: str = "margin: 20px"
-    Margin20AndBackground: str = "margin: 20px; background-color: rgb(194, 217, 255);"
+    Margin20: str = "margin: 20px;"
+    Margin20AndBackground: str = f"margin: 20px; background-color: {Colors.PrimaryBackgroundColor};"
     GazePointOverlay: str = "QLabel {background-color: red; border-radius: 15px}"
 
 
 class HomeScreenStyleSheet:
-    ButtonFrame: str = ("""
-        QPushButton {
-            background-color: rgb(56,65,157);
-            color: white;
+    ButtonFrame: str = (f"""
+        QPushButton {{
+            background-color: {Colors.PrimaryButtonColor};
+            color: {Colors.White};
             border: 0;
-        }
+        }}
     """)
-    ButtonLeftUp: str = ("""
-        QPushButton {
+    ButtonLeftUp: str = (f"""
+        QPushButton {{
             text-align: left;
             padding-bottom: 4;
             padding-left: 8;
-            color: rgb(255, 255, 255);
-        }
-        QPushButton:hover{
+            color: {Colors.White};
+        }}
+        QPushButton:hover{{
             font: 63 12pt "Yu Gothic UI Semibold";
-        }
+        }}
     """)
-    ButtonRightUp: str = ("""
-        QPushButton {
+    ButtonRightUp: str = (f"""
+        QPushButton {{
             text-align: right;
             padding-right: 15;
             padding-bottom: 4;
-            color: rgb(255, 255, 255);
-        }
-        QPushButton:hover{
+            color: {Colors.White};
+        }}
+        QPushButton:hover{{
             font: 63 12pt "Yu Gothic UI Semibold";
-        }
+        }}
     """)
-    ButtonLeftDown: str = ("""
-        QPushButton {
+    ButtonLeftDown: str = (f"""
+        QPushButton {{
             text-align: left;
             padding-bottom: 4;
             padding-left: 8;
-            color: rgb(255, 255, 255);
-        }
-        QPushButton:hover{
+            color: {Colors.White};
+        }}
+        QPushButton:hover{{
             font: 63 12pt "Yu Gothic UI Semibold";
-        }
+        }}
     """)
-    ButtonRightDown: str = ("""
-        QPushButton {
+    ButtonRightDown: str = (f"""
+        QPushButton {{
             text-align: right;
             padding-right: 15;
             padding-bottom: 4;
-            color: rgb(255, 255, 255);
-        }
-        QPushButton:hover{
+            color: {Colors.White};
+        }}
+        QPushButton:hover{{
             font: 63 12pt "Yu Gothic UI Semibold";
-        }
+        }}
     """)
 
 
 class AnalysisScreenStyleSheet:
-    DeviceStatusLabel: str = "background-color: rgb(165, 195, 255); color: rgb(25, 32, 80);"
-    DeviceStatusLabelNoData: str = "background-color: rgb(165, 195, 255); color: white;"
-    LabelWithTooltip: str = ("""
-        QLabel {
-            background-color: rgb(56, 65, 157); 
-            color: rgba(255, 255, 255, 95);
-        }
-        QToolTip {
-            color: white; 
-            background-color: rgb(56, 65, 157); 
+    DeviceStatusLabel: str = f"background-color: {Colors.SecondaryBackgroundColor}; color: {Colors.PrimaryTextColor};"
+    DeviceStatusLabelNoData: str = f"background-color: {Colors.SecondaryBackgroundColor}; color: {Colors.White};"
+    LabelWithTooltip: str = (f"""
+        QLabel {{
+            background-color: {Colors.PrimaryButtonColor}; 
+            color: {Colors.SecondaryButtonDisabledColor};
+        }}
+        QToolTip {{
+            color: {Colors.White}; 
+            background-color: {Colors.PrimaryButtonColor}; 
             border: none;
-        }
+        }}
     """)
-    ImageScrollBar: str = ("""
-        QScrollBar:vertical {
+    ImageScrollBar: str = (f"""
+        QScrollBar:vertical {{
             border: none;
             background: transparent;
-            width: 12px; /* adjust as needed */
+            width: 12px;
             margin: 0px 0px 0px 0px;
-        }
-        QScrollBar::handle:vertical {
-            background-color: rgb(56, 65, 157);
+        }}
+        QScrollBar::handle:vertical {{
+            background-color: {Colors.PrimaryButtonColor};
             min-height: 20px;
-        }
-        QScrollBar::handle:vertical:hover {
-            background-color: rgb(25, 32, 80);
-        }
-        QScrollBar::sub-line:vertical {
+        }}
+        QScrollBar::handle:vertical:hover {{
+            background-color: {Colors.PrimaryTextColor};
+        }}
+        QScrollBar::sub-line:vertical {{
             border: none;
             background: transparent;
             height: 10px;
             subcontrol-position: top;
             subcontrol-origin: margin;
-        }
-        QScrollBar::add-line:vertical {
+        }}
+        QScrollBar::add-line:vertical {{
             border: none;
             background: transparent;
             height: 10px;
             subcontrol-position: bottom;
             subcontrol-origin: margin;
-        }
+        }}
         QScrollBar::sub-line:vertical:hover,
-        QScrollBar::add-line:vertical:hover {
+        QScrollBar::add-line:vertical:hover {{
             background: transparent;
-        }
+        }}
         QScrollBar::up-arrow:vertical,
-        QScrollBar::down-arrow:vertical {
+        QScrollBar::down-arrow:vertical {{
             border: none;
             width: 0px;
             height: 0px;
             background: none;
-        }
+        }}
         QScrollBar::add-page:vertical,
-        QScrollBar::sub-page:vertical {
+        QScrollBar::sub-page:vertical {{
             background: none;
-        }
-        QScrollArea {
+        }}
+        QScrollArea {{
             border: none;
-        }
-        QPushButton {
-            color: rgb(25, 32, 80);
+        }}
+        QPushButton {{
+            color: {Colors.PrimaryTextColor};
             border: none;
             padding: 5px;
             border-radius: 20px;
-        }
-        QToolTip {
-            color: white; 
-            background-color: rgb(56, 65, 157); 
+        }}
+        QToolTip {{
+            color: {Colors.White}; 
+            background-color: {Colors.PrimaryButtonColor}; 
             border: none;
-        }
+        }}
     """)
 
 
 class DeviceScreenStyleSheet:
-    ComboBox: str = ("""
-        QComboBox {
-            background-color: rgb(165, 195, 255);
-            color: white;
+    ComboBox: str = (f"""
+        QComboBox {{
+            background-color: {Colors.SecondaryBackgroundColor};
+            color: {Colors.White};
             padding: 15px;
             border: none;
-        }
-        QComboBox::drop-down {
+        }}
+        QComboBox::drop-down {{
             width: 0px;
-        }
-        QComboBox QAbstractItemView {
+        }}
+        QComboBox QAbstractItemView {{
             padding: 15px;
-            background-color: white;
-            color: rgb(25, 32, 80);
-            selection-background-color: rgb(25, 32, 80);
-            selection-color: white;
+            background-color: {Colors.White};
+            color: {Colors.PrimaryTextColor};
+            selection-background-color: {Colors.PrimaryTextColor};
+            selection-color: {Colors.White};
             outline: none;
-        }
+        }}
     """)
-    Label: str = ("""
-        QLabel {
+    Label: str = (f"""
+        QLabel {{
             padding-top: 10px;
             border-radius: 13px;
-            color: rgb(25, 32, 80);
-        }
+            color: {Colors.PrimaryTextColor};
+        }}
     """)
-    Color: str = "color: rgb(56, 65, 157);"
+    Color: str = f"color: {Colors.PrimaryButtonColor};"
     RefreshButton: str = ("""
         QPushButton:hover {
             font: 63 12pt 'Yu Gothic UI Semibold';
@@ -355,113 +366,114 @@ class DeviceScreenStyleSheet:
             border: none;
         }
     """)
-    DevicePreviewButton: str = ("""
-        QPushButton {
-            background-color: white;
+    DevicePreviewButton: str = (f"""
+        QPushButton {{
+            background-color: {Colors.White};
             color: black;
             padding: 15px;
             border-radius: 13px;
             border: none;
-        }
-        QPushButton::disabled {
-            color: rgba(0, 0, 0, 50);
-        }
-        QPushButton:hover {
+        }}
+        QPushButton::disabled {{
+            color: {Colors.BlackHalfOpacity};
+        }}
+        QPushButton:hover {{
             font: 63 12pt 'Yu Gothic UI Semibold';
-        }
+        }}
     """)
-    ComboBoxSelected: str = ("""
-        QComboBox {
-            background-color: rgb(165, 195, 255);
-            color: rgb(25, 32, 80);
+    ComboBoxSelected: str = (f"""
+        QComboBox {{
+            background-color: {Colors.SecondaryBackgroundColor};
+            color: {Colors.PrimaryTextColor};
             padding: 15px;
             border: none;
-        }
-        QComboBox::drop-down {
+        }}
+        QComboBox::drop-down {{
             width: 0px;
-        }
-        QComboBox QAbstractItemView {
+        }}
+        QComboBox QAbstractItemView {{
             padding: 15px;
-            background-color: white;
-            color: rgb(25, 32, 80);
-            selection-background-color: rgb(25, 32, 80);
-            selection-color: white;
+            background-color: {Colors.White};
+            color: {Colors.PrimaryTextColor};
+            selection-background-color: {Colors.PrimaryTextColor};
+            selection-color: {Colors.White};
             outline: none;
-        }
+        }}
     """)
 
 
 class DialogStyleSheet:
-    ButtonOK: str = ("background-color: rgb(56, 65, 157); padding: 15px 15px; margin: 3px; color: white;"
-                     "border-radius: 13px;")
-    ButtonCancel: str = ("background-color: rgb(194, 217, 255); padding: 15px 15px; margin: 3px; color: rgb(25, 32, "
-                         "80); border-radius: 13px;")
+    ButtonOK: str = (f"background-color: {Colors.PrimaryButtonColor}; padding: 15px 15px; margin: 3px; color: "
+                     f"{Colors.White}; border-radius: 13px;")
+    ButtonCancel: str = (f"background-color: {Colors.PrimaryBackgroundColor}; padding: 15px 15px; margin: 3px; color: "
+                         f"{Colors.PrimaryTextColor}; border-radius: 13px;")
 
 
 class ModeSelectionScreenStyleSheet:
-    IconButton: str = ("QPushButton {text-align: center; background-color: white; border-radius: 105; border: 5px "
-                       "solid white;}")
-    IconButtonSelected: str = ("QPushButton {text-align: center; background-color: white; border-radius: 105; border: "
-                               "4px solid rgb(25, 32, 80);}")
-    TextLabel: str = "QLabel {color: rgb(56,65,157); border: none; outline: none;}"
-    LabelSelected: str = "QLabel {color: rgb(25, 32, 80);}"
-    Label: str = "QLabel {color: rgb(56, 65, 157);}"
+    IconButton: str = (f"QPushButton {{text-align: center; background-color: {Colors.White}; border-radius: 105; "
+                       f"border: 5px solid {Colors.White};}}")
+    IconButtonSelected: str = (f"QPushButton {{text-align: center; background-color: {Colors.White}; border-radius: "
+                               f"105; border: 4px solid {Colors.PrimaryTextColor};}}")
+    TextLabel: str = f"QLabel {{color: {Colors.PrimaryButtonColor} border: none; outline: none;}}"
+    LabelSelected: str = f"QLabel {{color: {Colors.PrimaryTextColor};}}"
+    Label: str = f"QLabel {{color: {Colors.PrimaryButtonColor};}}"
 
 
 class VisualizationWindowStyleSheet:
-    Image: str = "background-color: rgb(194, 217, 255);"
-    TransparentExitButton: str = "QPushButton {border: none; background: transparent}"
-    ColorButton1: str = ("""
-        QPushButton {
-            border: 5px solid rgb(56, 65, 157);
+    Image: str = "background-color: {Colors.GlobalBackgroundColor};"
+    TransparentExitButton: str = "QPushButton {border: none; background: transparent;}"
+    ColorButton1: str = (f"""
+        QPushButton {{
+            border: 5px solid {Colors.PrimaryButtonColor};
             background-color: black;
             border-radius: 25px;
-        }
+        }}
     """)
-    ColorButton2: str = ("""
-        QPushButton {
-            border: 5px solid rgb(56, 65, 157);
-            background-color: white;
+    ColorButton2: str = (f"""
+        QPushButton {{
+            border: 5px solid {Colors.PrimaryButtonColor};
+            background-color: {Colors.White};
             border-radius: 25px;
-        }
+        }}
     """)
-    ThresholdInput: str = ("QLineEdit {padding: 7px; border: 3px solid rgb(56, 65, 157); background-color: rgb(165, "
-                           "195, 255);}")
+    ThresholdInput: str = (f"QLineEdit {{padding: 7px; border: 3px solid {Colors.PrimaryButtonColor}; background"
+                           f"-color: {Colors.SecondaryBackgroundColor};}}")
 
     @staticmethod
     def ButtonColorPicked(color_name: str):
         return (f"""
         QPushButton {{
             background-color: {color_name}; 
-            border: 5px solid rgb(56, 65, 157); 
+            border: 5px solid {Colors.PrimaryButtonColor}; 
             border-radius: 25px;
         }}
         """)
 
 
 class PreferencesScreenStyleSheet:
-    LabelWithTooltip: str = ("""
-        QLabel {
-            background-color: rgb(56, 65, 157); 
-            color: rgba(255, 255, 255, 95);
-        }
-        QToolTip {
-            color: white; 
-            background-color: rgb(56, 65, 157); 
+    LabelWithTooltip: str = (f"""
+        QLabel {{
+            background-color: {Colors.White}; 
+            color: {Colors.PrimaryTextColor};
+            border-radius: 30px;
+        }}
+        QToolTip {{
+            color: {Colors.White}; 
+            background-color: {Colors.PrimaryButtonColor}; 
             border: none;
-        }
+        }}
     """)
 
 
 class RecordsScreenStyleSheet:
-    IdLabel: str = "margin-bottom: 30px; background-color: white; padding: 15px; border-radius: 30px;"
-    DetailLabel: str = ("""
-        QLabel {
-            background-color: rgb(165, 195, 255);
+    IdLabel: str = f"margin-bottom: 30px; background-color: {Colors.White}; padding: 15px; border-radius: 30px;"
+    DetailLabel: str = (f"""
+        QLabel {{
+            background-color: {Colors.SecondaryBackgroundColor};
             padding: 5px;
             border-radius: 20px;
-        }
+        }}
     """)
-    ItemWidget: str = "background-color: rgb(165, 195, 255); border-radius: 25px;"
-    DetailButton: str = ("QPushButton {background-color: white; color: rgb(25, 32, 80); padding: 10px;} "
-                         "QPushButton:hover {font: 63 12pt 'Yu Gothic UI Semibold';}")
+    ItemWidget: str = f"background-color: {Colors.SecondaryBackgroundColor}; border-radius: 25px;"
+    DetailButton: str = (f"QPushButton {{background-color: {Colors.White}; color: {Colors.PrimaryTextColor}; padding: "
+                         f"10px;}} QPushButton:hover {{font: 63 12pt 'Yu Gothic UI Semibold';}}")
